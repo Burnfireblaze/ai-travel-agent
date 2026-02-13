@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ai-travel-agent"
+version = "0.1.0"
+description = "LangGraph + LangChain AI travel agent with Chroma memory, metrics, and structured logging."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Proprietary" }
+authors = [{ name = "AI Travel Agent" }]
+dependencies = [
+  "typer>=0.12",
+  "rich>=13.7",
+  "pydantic>=2.7",
+  "python-dotenv>=1.0",
+  "langgraph>=0.2",
+  "langchain>=0.2",
+  "langchain-community>=0.2",
+  "langchain-ollama>=0.1",
+  "chromadb>=0.5",
+  "icalendar>=5.0",
+]
+
+[project.optional-dependencies]
+embeddings = [
+  "sentence-transformers>=3.0",
+]
+dev = [
+  "pytest>=8.0",
+]
+
+[project.scripts]
+ai-travel-agent = "ai_travel_agent.cli:app"
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]

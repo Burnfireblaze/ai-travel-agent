@@ -1,0 +1,69 @@
+Metadata-Version: 2.4
+Name: ai-travel-agent
+Version: 0.1.0
+Summary: LangGraph + LangChain AI travel agent with Chroma memory, metrics, and structured logging.
+Author: AI Travel Agent
+License: Proprietary
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: typer>=0.12
+Requires-Dist: rich>=13.7
+Requires-Dist: pydantic>=2.7
+Requires-Dist: python-dotenv>=1.0
+Requires-Dist: langgraph>=0.2
+Requires-Dist: langchain>=0.2
+Requires-Dist: langchain-community>=0.2
+Requires-Dist: chromadb>=0.5
+Requires-Dist: icalendar>=5.0
+Provides-Extra: embeddings
+Requires-Dist: sentence-transformers>=3.0; extra == "embeddings"
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0; extra == "dev"
+
+# AI Travel Agent
+
+AI travel agent built with **LangGraph** + **LangChain**, with **Chroma** memory (persistent + in-memory), plus **step-aware logging** and **run metrics**.
+
+## Requirements
+
+- Python 3.11+
+- Ollama running locally (`OLLAMA_BASE_URL` default: `http://localhost:11434`)
+- A chat model pulled in Ollama (default: `qwen2.5:7b-instruct`)
+
+## Setup
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -e ".[dev,embeddings]"
+cp .env.example .env
+```
+
+## Run
+
+```bash
+ai-travel-agent
+```
+
+Options:
+- `--log-level INFO|DEBUG`
+- `--runtime-dir ./runtime`
+- `--verbose`
+
+Artifacts:
+- Logs: `runtime/logs/app.jsonl` and `runtime/logs/app.log`
+- Metrics: `runtime/metrics/metrics.jsonl`
+- Calendar export: `runtime/artifacts/*.ics`
+
+## Notes
+
+- This MVP **does not book** flights/hotels. It produces a plan, deep links, and an `.ics` itinerary export.
+- Weather and other network tools degrade gracefully if offline.
+
+## Evaluation
+
+Each run is evaluated with:
+- Hard gates (must pass): assumptions coverage, no fabricated prices, valid links, valid ICS, safety disclaimer
+- Rubric scores (0–5): relevance, feasibility, completeness, specificity, coherence
+
+The final evaluation is included in `runtime/metrics/metrics.jsonl` for each run.

@@ -1,0 +1,2 @@
+[console_scripts]
+ai-travel-agent = ai_travel_agent.cli:app
