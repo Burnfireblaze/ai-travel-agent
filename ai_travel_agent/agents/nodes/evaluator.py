@@ -4,6 +4,7 @@ import logging
 from typing import Any
 
 from ai_travel_agent.agents.state import StepType
+from ai_travel_agent.agents.state import Issue, IssueKind, IssueSeverity
 from ai_travel_agent.evaluation import evaluate_final
 from ai_travel_agent.observability.logger import get_logger, log_event
 
@@ -52,6 +53,17 @@ def evaluate_final_node(state: dict[str, Any], *, eval_threshold: float) -> dict
         eval_threshold=eval_threshold,
     )
     state["evaluation"] = result.model_dump()
+    state.setdefault("issues", [])
+    if result.overall_status == "failed":
+        state["issues"].append(
+            Issue(
+                kind=IssueKind.EVALUATION_FAIL,
+                severity=IssueSeverity.MAJOR,
+                node="evaluate_final",
+                message="Final output failed one or more hard gates.",
+                details={"hard_gates": result.hard_gates, "rubric_scores": result.rubric_scores},
+            ).model_dump()
+        )
     log_event(
         logger,
         level=logging.INFO,

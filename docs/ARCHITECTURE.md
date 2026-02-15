@@ -47,6 +47,48 @@ Your original design translates to these components:
   - Persistent Chroma (long-term)
   - In-memory Chroma (session)
 
+### Component Diagram (High-level)
+
+```mermaid
+flowchart LR
+  U[User] --> CLI["CLI (Typer + Rich)"]
+  CLI --> G["LangGraph App (StateGraph)"]
+
+  subgraph Nodes["Graph Nodes"]
+    CC[context_controller]
+    IP[intent_parser]
+    VA["validator (pre-planner)"]
+    BP[brain_planner]
+    OR[orchestrator]
+    EX[executor]
+    IT[issue_triage]
+    EVS[evaluate_step]
+    RS[responder]
+    ICS[export_ics]
+    EVF[evaluate_final]
+    MW[memory_writer]
+  end
+
+  G --> CC --> IP --> VA --> BP --> OR --> EX --> EVS --> OR
+  EX -->|tool failure| IT --> OR
+  OR -->|finalized| RS --> ICS --> EVF --> MW
+
+  subgraph Memory["Chroma Memory"]
+    P["Persistent (disk)\nCHROMA_PERSIST_DIR"]
+    S["Session (in-memory)\nEphemeralClient"]
+  end
+
+  CC <--> Memory
+  EX <--> Memory
+  MW --> P
+
+  subgraph Obs["Observability"]
+    L["Logs\nruntime/logs/app.jsonl + app.log"]
+    M["Metrics\nruntime/metrics/metrics.jsonl"]
+  end
+  G --> Obs
+```
+
 ---
 
 ## Runtime Data Flow (LangGraph)
@@ -57,9 +99,14 @@ The agent runs as a LangGraph state machine. Each node reads/writes a shared sta
 flowchart TD
   A[context_controller] --> B[intent_parser]
   B -->|needs_user_input| Z[END (ask user)]
-  B -->|ok| C[planner]
+  B -->|ok| V[validator (pre-planner)]
+  V -->|needs_user_input| Z
+  V -->|ok| C[brain_planner]
   C --> D[orchestrator]
   D -->|step pending| E[executor]
+  E -->|tool failed| T[issue_triage]
+  T -->|ask user| Z
+  T -->|skip/retry| D
   E --> F[evaluate_step]
   F --> D
   D -->|all done| R[responder]
@@ -119,7 +166,33 @@ Source: `ai_travel_agent/agents/nodes/context_controller.py`.
 
 Source: `ai_travel_agent/agents/nodes/intent_parser.py`.
 
-### 3) `planner`
+### 3) `validator` (pre-planner validation/grounding)
+
+Runs before planning to prevent the agent from planning on bad inputs.
+
+Responsibilities:
+
+- Deterministic validation/normalization of dates (ISO `YYYY-MM-DD`)
+- Core-field checks (origin, destination(s), start/end dates)
+- Memory conflict detection (always asks you if memory conflicts with the current request)
+- Place grounding via geocoding (Open‑Meteo geocoding). If ambiguous **or no results**, asks you to disambiguate/correct.
+- Produces `grounded_places` (canonical names + lat/lon when available)
+
+Source: `ai_travel_agent/agents/nodes/validator.py`.
+
+### 4) `brain_planner` (LLM-driven plan + tool selection)
+
+Uses the LLM as the “brain” to:
+
+- Decompose the task into steps
+- Select which tools to run and their arguments
+- Optionally insert additional `RETRIEVE_CONTEXT` steps if more RAG retrieval is needed
+
+If the planner returns invalid JSON, the system falls back to the deterministic `planner`.
+
+Source: `ai_travel_agent/agents/nodes/brain_planner.py` (fallback: `ai_travel_agent/agents/nodes/planner.py`).
+
+### 5) `planner` (deterministic fallback)
 
 - Converts constraints into a concrete list of steps:
   - tool calls (links + weather)
@@ -127,7 +200,7 @@ Source: `ai_travel_agent/agents/nodes/intent_parser.py`.
 
 Source: `ai_travel_agent/agents/nodes/planner.py`.
 
-### 4) `orchestrator`
+### 6) `orchestrator`
 
 - Picks the next `pending` step from the plan
 - Sets `current_step` and `current_step_index`
@@ -136,21 +209,33 @@ Source: `ai_travel_agent/agents/nodes/planner.py`.
 
 Source: `ai_travel_agent/agents/nodes/orchestrator.py`.
 
-### 5) `executor`
+### 7) `executor`
 
 - If current step is `TOOL_CALL`: executes a Python tool from the tool registry and stores a `ToolResult`
+- If current step is `RETRIEVE_CONTEXT`: performs an additional Chroma retrieval (agentic RAG) and updates `context_hits`
 - If current step is `SYNTHESIZE`: calls the LLM to produce the final Markdown itinerary
 
 Source: `ai_travel_agent/agents/nodes/executor.py`.
 
-### 6) `evaluate_step`
+### 8) `issue_triage` (LLM-led error triage)
+
+If a tool fails after bounded retries, an Issue is created and triaged.
+
+Policy:
+- Blocking issues (core input problems) always ask you.
+- Major issues (flight/lodging link tools) usually ask you.
+- Minor issues (weather/things-to-do) are usually skipped so the agent can continue.
+
+Source: `ai_travel_agent/agents/nodes/issue_triage.py`.
+
+### 9) `evaluate_step`
 
 - Lightweight checks per step (MVP)
 - Emits evaluation logs/metrics hooks (future expansion point)
 
 Source: `ai_travel_agent/agents/nodes/evaluator.py`.
 
-### 7) `responder`
+### 10) `responder`
 
 - Post-processes and enforces output format constraints:
   - makes sure the disclaimer appears once
@@ -159,14 +244,14 @@ Source: `ai_travel_agent/agents/nodes/evaluator.py`.
 
 Source: `ai_travel_agent/agents/nodes/responder.py`.
 
-### 8) `export_ics`
+### 11) `export_ics`
 
 - Generates an `.ics` calendar file from dates (and optional day titles)
 - Writes to `runtime/artifacts/`
 
 Source: `ai_travel_agent/agents/nodes/export_ics.py`.
 
-### 9) `evaluate_final`
+### 12) `evaluate_final`
 
 Applies:
 
@@ -179,7 +264,7 @@ And sets:
 
 Source: `ai_travel_agent/evaluation.py` and `ai_travel_agent/agents/nodes/evaluator.py`.
 
-### 10) `memory_writer`
+### 13) `memory_writer`
 
 Writes:
 
@@ -233,6 +318,22 @@ Embeddings:
 Source: `ai_travel_agent/memory/embeddings.py`.
 
 Note: the first run may download and cache the embedding model, which can take time and show progress bars.
+
+---
+
+## System Prompts (Where They Live)
+
+This repo keeps prompts close to the node that uses them:
+
+- Intent extraction prompt: `ai_travel_agent/agents/nodes/intent_parser.py` (`SYSTEM`)
+- Brain planner prompt (JSON plan output): `ai_travel_agent/agents/nodes/brain_planner.py` (`SYSTEM`)
+- Synthesis prompt (final Markdown itinerary): `ai_travel_agent/agents/nodes/executor.py` (`SYNTH_SYSTEM`)
+- Issue triage prompt (JSON decision): `ai_travel_agent/agents/nodes/issue_triage.py` (`SYSTEM`)
+
+Important:
+
+- The agent does **not** log chain-of-thought. Logs include only short planner `notes` (1–2 sentences) and tool summaries.
+- The MVP is **links-only** (no booking, no live prices/availability claims).
 
 ---
 
@@ -298,6 +399,22 @@ Source: `ai_travel_agent/cli.py`.
 
 ---
 
+## Why Runs Can Be Slow (And What To Do)
+
+The main contributors are:
+
+- **LLM speed** (Ollama + model size): `qwen2.5:7b-instruct` on CPU can be slow for long outputs.
+- **Output length**: the synthesis step can generate many tokens.
+- **Embeddings** (`sentence-transformers`): first run downloads the model; indexing/writing memory requires embedding compute.
+- **Network tools**: geocoding/weather calls may wait on timeouts if offline.
+
+Practical levers:
+
+- Use a smaller Ollama model by setting `OLLAMA_MODEL` to something lighter and pulling it in Ollama.
+- Ask for a shorter itinerary (fewer days, fewer destinations) to reduce generation time.
+
+---
+
 ## Extending the System
 
 Common extension points:
@@ -319,4 +436,3 @@ Common extension points:
 - Memory: `ai_travel_agent/memory/`
 - Logging + metrics: `ai_travel_agent/observability/`
 - Evaluation: `ai_travel_agent/evaluation.py`
-

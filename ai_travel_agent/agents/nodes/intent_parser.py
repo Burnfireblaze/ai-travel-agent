@@ -36,10 +36,6 @@ def _clarifying_questions(constraints: TripConstraints) -> list[str]:
         qs.append("What is your end date? (YYYY-MM-DD)")
     if not constraints.origin:
         qs.append("What city/airport are you departing from?")
-    if constraints.travelers is None:
-        qs.append("How many travelers?")
-    if constraints.budget_usd is None:
-        qs.append("What is your approximate budget in USD (flight + lodging + activities)?")
     return qs
 
 
@@ -62,9 +58,57 @@ def intent_parser(state: dict[str, Any], *, llm: LLMClient) -> dict[str, Any]:
         except ValidationError:
             constraints = TripConstraints()
 
+    overrides = state.get("constraint_overrides")
+    if isinstance(overrides, dict) and overrides:
+        if "origin" in overrides and isinstance(overrides.get("origin"), str) and overrides["origin"].strip():
+            constraints.origin = overrides["origin"].strip()
+            constraints.notes.append("Applied manual override for origin.")
+        if "destinations" in overrides:
+            ds = overrides.get("destinations")
+            if isinstance(ds, list):
+                cleaned = [str(x).strip() for x in ds if str(x).strip()]
+                if cleaned:
+                    constraints.destinations = cleaned
+                    constraints.notes.append("Applied manual override for destinations.")
+        if "start_date" in overrides and isinstance(overrides.get("start_date"), str) and overrides["start_date"].strip():
+            constraints.start_date = overrides["start_date"].strip()
+            constraints.notes.append("Applied manual override for start_date.")
+        if "end_date" in overrides and isinstance(overrides.get("end_date"), str) and overrides["end_date"].strip():
+            constraints.end_date = overrides["end_date"].strip()
+            constraints.notes.append("Applied manual override for end_date.")
+        if "budget_usd" in overrides:
+            try:
+                b = float(overrides.get("budget_usd"))
+                constraints.budget_usd = b
+                constraints.notes.append("Applied manual override for budget_usd.")
+            except Exception:
+                pass
+        if "travelers" in overrides:
+            try:
+                t = int(overrides.get("travelers"))
+                constraints.travelers = t
+                constraints.notes.append("Applied manual override for travelers.")
+            except Exception:
+                pass
+        if "pace" in overrides and isinstance(overrides.get("pace"), str) and overrides["pace"].strip():
+            p = overrides["pace"].strip().lower()
+            if p in {"relaxed", "balanced", "packed"}:
+                constraints.pace = p  # type: ignore[assignment]
+                constraints.notes.append("Applied manual override for pace.")
+        if "interests" in overrides:
+            ints = overrides.get("interests")
+            if isinstance(ints, list):
+                cleaned = [str(x).strip() for x in ints if str(x).strip()]
+                if cleaned:
+                    constraints.interests = cleaned
+                    constraints.notes.append("Applied manual override for interests.")
+        # Clear so overrides don't accidentally persist across future turns in the same run.
+        state["constraint_overrides"] = {}
+
     state["constraints"] = constraints.model_dump()
     qs = _clarifying_questions(constraints)
-    if qs and len(qs) >= 2:
+    # Core-only clarification: ask only for missing core fields.
+    if qs:
         state["needs_user_input"] = True
         state["clarifying_questions"] = qs[:4]
         state["termination_reason"] = "asked_user"

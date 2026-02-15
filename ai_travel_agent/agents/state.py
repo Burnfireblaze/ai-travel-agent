@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field
 class StepType(StrEnum):
     ASK_USER = "ASK_USER"
     INTENT_PARSE = "INTENT_PARSE"
+    VALIDATE_INPUTS = "VALIDATE_INPUTS"
     RETRIEVE_CONTEXT = "RETRIEVE_CONTEXT"
     PLAN_DRAFT = "PLAN_DRAFT"
     PLAN_REFINE = "PLAN_REFINE"
@@ -59,6 +60,31 @@ class EvaluationResult(BaseModel):
     notes: list[str] = Field(default_factory=list)
 
 
+class IssueKind(StrEnum):
+    VALIDATION_ERROR = "validation_error"
+    CONFLICT = "conflict"
+    TOOL_ERROR = "tool_error"
+    PLANNING_ERROR = "planning_error"
+    EVALUATION_FAIL = "evaluation_fail"
+
+
+class IssueSeverity(StrEnum):
+    BLOCKING = "blocking"
+    MAJOR = "major"
+    MINOR = "minor"
+
+
+class Issue(BaseModel):
+    kind: IssueKind
+    severity: IssueSeverity
+    node: str
+    step_id: str | None = None
+    tool_name: str | None = None
+    message: str
+    suggested_actions: list[str] = Field(default_factory=list)
+    details: dict[str, Any] = Field(default_factory=dict)
+
+
 class AgentState(TypedDict, total=False):
     run_id: str
     user_id: str
@@ -67,6 +93,9 @@ class AgentState(TypedDict, total=False):
     user_query: str
     constraints: dict[str, Any]
     context_hits: list[dict[str, Any]]
+    grounded_places: dict[str, Any]
+    validation_warnings: list[str]
+    conflicts_detected: list[dict[str, Any]]
     plan: list[dict[str, Any]]
     tool_results: list[dict[str, Any]]
 
@@ -76,6 +105,15 @@ class AgentState(TypedDict, total=False):
 
     needs_user_input: bool
     clarifying_questions: list[str]
+    pending_disambiguation: dict[str, Any]
+    pending_conflict: dict[str, Any]
+    pending_fixup: dict[str, Any]
+    constraint_overrides: dict[str, Any]
+    resolved_conflicts: list[str]
+
+    issues: list[dict[str, Any]]
+    pending_issue: dict[str, Any]
+    needs_triage: bool
 
     final_answer: str
     itinerary_day_titles: list[str]

@@ -25,7 +25,10 @@ ai-travel-agent
 
 ## Documentation
 
-See `docs/ARCHITECTURE.md` for a full architecture walkthrough (graph flow, memory, tools, logging, metrics, evaluation).
+See:
+- `docs/SETUP.md` for installation + environment setup
+- `docs/PROMPTS.md` for example prompts
+- `docs/ARCHITECTURE.md` for a full architecture walkthrough (graph flow, memory, tools, logging, metrics, evaluation)
 
 Options:
 - `--log-level INFO|DEBUG`

@@ -37,4 +37,3 @@ def load_settings() -> Settings:
         max_graph_iters=int(os.getenv("MAX_GRAPH_ITERS", "20")),
         eval_threshold=float(os.getenv("EVAL_THRESHOLD", "3.5")),
     )
-
