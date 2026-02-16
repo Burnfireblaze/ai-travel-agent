@@ -21,6 +21,7 @@ class Settings:
     log_level: str
     max_graph_iters: int
     eval_threshold: float
+    max_tool_retries: int
 
 
 def load_settings() -> Settings:
@@ -43,4 +44,5 @@ def load_settings() -> Settings:
         log_level=os.getenv("LOG_LEVEL", "INFO"),
         max_graph_iters=int(os.getenv("MAX_GRAPH_ITERS", "20")),
         eval_threshold=float(os.getenv("EVAL_THRESHOLD", "3.5")),
+        max_tool_retries=int(os.getenv("MAX_TOOL_RETRIES", "3")),
     )

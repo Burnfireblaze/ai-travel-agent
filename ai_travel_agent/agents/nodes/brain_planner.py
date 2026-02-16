@@ -87,6 +87,41 @@ def _steps_from_plan_items(items: list[Any]) -> list[PlanStep]:
     return steps
 
 
+def _expand_steps_for_destinations(steps: list[PlanStep], dests: list[str], tool_name: str) -> list[PlanStep]:
+    if not dests or len(dests) <= 1:
+        return steps
+    existing = [
+        (s.tool_args or {}).get("destination")
+        for s in steps
+        if s.tool_name == tool_name and isinstance((s.tool_args or {}).get("destination"), str)
+    ]
+    if len({d for d in existing if d}) >= len({d for d in dests if d}):
+        return steps
+    new_steps: list[PlanStep] = []
+    expanded = False
+    for s in steps:
+        if s.tool_name == tool_name and not expanded:
+            base_args = s.tool_args or {}
+            for dest in dests:
+                args = dict(base_args)
+                args["destination"] = dest
+                new_steps.append(
+                    PlanStep(
+                        title=f"{s.title} ({dest})",
+                        step_type=s.step_type,
+                        tool_name=s.tool_name,
+                        tool_args=args,
+                        notes=s.notes,
+                    )
+                )
+            expanded = True
+            continue
+        if s.tool_name == tool_name and expanded:
+            continue
+        new_steps.append(s)
+    return new_steps
+
+
 def brain_planner(state: dict[str, Any], *, llm: LLMClient) -> dict[str, Any]:
     state["current_step"] = {"step_type": StepType.PLAN_DRAFT, "title": "Brain planner: decompose and select tools"}
     state.setdefault("issues", [])
@@ -121,8 +156,13 @@ def brain_planner(state: dict[str, Any], *, llm: LLMClient) -> dict[str, Any]:
 
         return fallback_planner(state)
 
+    constraints = state.get("constraints") or {}
+    dests = constraints.get("destinations") or []
+    if isinstance(dests, list) and len(dests) > 1:
+        steps = _expand_steps_for_destinations(steps, dests, "flights_search_links")
+        steps = _expand_steps_for_destinations(steps, dests, "hotels_search_links")
+
     state["plan"] = [s.model_dump() for s in steps]
     state.setdefault("tool_results", [])
     state["current_step_index"] = 0
     return state
-
