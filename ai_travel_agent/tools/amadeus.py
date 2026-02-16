@@ -202,7 +202,7 @@ def resolve_location_code(query: str) -> str | None:
     return codes[0] if codes else None
 
 
-def _fetch_hotel_ids_by_city(city_code: str, limit: int = 20) -> list[str]:
+def _fetch_hotels_by_city(city_code: str, limit: int = 20) -> list[dict[str, Any]]:
     if not city_code:
         return []
     try:
@@ -219,14 +219,65 @@ def _fetch_hotel_ids_by_city(city_code: str, limit: int = 20) -> list[str]:
     items = data.get("data") or []
     if not isinstance(items, list):
         return []
-    ids: list[str] = []
+    hotels: list[dict[str, Any]] = []
     for it in items:
-        hid = (it or {}).get("hotelId")
-        if isinstance(hid, str) and hid.strip():
-            ids.append(hid.strip())
-        if len(ids) >= limit:
+        hotel_id = (it or {}).get("hotelId")
+        if not isinstance(hotel_id, str) or not hotel_id.strip():
+            continue
+        name = (it or {}).get("name") or (it or {}).get("hotelName") or ""
+        address = (it or {}).get("address") or {}
+        country_code = address.get("countryCode") or address.get("country") or ""
+        city_name = address.get("cityName") or ""
+        geo = (it or {}).get("geoCode") or {}
+        hotels.append(
+            {
+                "hotelId": hotel_id.strip(),
+                "name": str(name).strip(),
+                "countryCode": str(country_code).strip().upper() if country_code else "",
+                "cityName": str(city_name).strip(),
+                "latitude": geo.get("latitude"),
+                "longitude": geo.get("longitude"),
+            }
+        )
+        if len(hotels) >= limit:
             break
-    return _dedupe_codes(ids)
+    return hotels
+
+
+def _resolve_city_meta(city_code: str) -> dict[str, Any]:
+    if not city_code:
+        return {}
+    try:
+        data = _amadeus_get(
+            "/v1/reference-data/locations",
+            {
+                "keyword": city_code,
+                "subType": "CITY",
+                "view": "LIGHT",
+                "page[limit]": "5",
+            },
+        )
+    except Exception:
+        return {}
+    if not data:
+        return {}
+    items = data.get("data") or []
+    if not isinstance(items, list):
+        return {}
+    for it in items:
+        if not isinstance(it, dict):
+            continue
+        if (it.get("iataCode") or "").upper() != city_code.upper():
+            continue
+        address = it.get("address") or {}
+        geo = it.get("geoCode") or {}
+        return {
+            "name": it.get("name") or "",
+            "countryCode": (address.get("countryCode") or "").upper(),
+            "latitude": geo.get("latitude"),
+            "longitude": geo.get("longitude"),
+        }
+    return {}
 
 
 def fetch_top_flights(
@@ -311,7 +362,15 @@ def fetch_top_hotels(
     if not city_codes:
         return []
     for city_code in city_codes:
-        hotel_ids = _fetch_hotel_ids_by_city(city_code, limit=max(10, limit * 2))
+        city_meta = _resolve_city_meta(city_code)
+        hotel_dir = _fetch_hotels_by_city(city_code, limit=max(10, limit * 2))
+        if city_meta.get("countryCode"):
+            cc = str(city_meta.get("countryCode") or "").upper()
+            if cc:
+                hotel_dir = [
+                    h for h in hotel_dir if not h.get("countryCode") or str(h.get("countryCode")).upper() == cc
+                ]
+        hotel_ids = [h.get("hotelId") for h in hotel_dir if h.get("hotelId")]
         if not hotel_ids:
             continue
         params: dict[str, str] = {
@@ -355,4 +414,28 @@ def fetch_top_hotels(
                 break
         if results:
             return results
+
+        # Fallback: directory list (no live rates) if offers are empty.
+        if hotel_dir:
+            results = []
+            seen: set[str] = set()
+            for h in hotel_dir:
+                name = (h.get("name") or "").strip() or f"Hotel {h.get('hotelId')}"
+                key = name.lower()
+                if not key or key in seen:
+                    continue
+                seen.add(key)
+                loc_hint = (city_meta.get("name") or destination or "").strip()
+                if city_meta.get("countryCode"):
+                    loc_hint = f"{loc_hint} {city_meta.get('countryCode')}".strip()
+                results.append(
+                    {
+                        "label": name,
+                        "url": f"https://www.google.com/maps/search/?api=1&query={urllib.parse.quote_plus(f'{name} {loc_hint}')}",  # noqa: E501
+                    }
+                )
+                if len(results) >= limit:
+                    break
+            if results:
+                return results
     return []

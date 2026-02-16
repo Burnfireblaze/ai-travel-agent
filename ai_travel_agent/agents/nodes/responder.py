@@ -179,23 +179,43 @@ def responder(state: dict[str, Any]) -> dict[str, Any]:
 
     # Build fallbacks from tool results (preferred) or deterministic links.
     tool_results = state.get("tool_results") or []
-    tool_links: dict[str, list[dict[str, str]]] = {}
-    tool_summaries: dict[str, str] = {}
-    tool_top_results: dict[str, list[dict[str, str]]] = {}
-    if isinstance(tool_results, list):
+
+    def _collect_tool_entries(name: str) -> list[dict[str, Any]]:
+        entries: list[dict[str, Any]] = []
+        if not isinstance(tool_results, list):
+            return entries
         for tr in tool_results:
             if not isinstance(tr, dict):
                 continue
-            name = tr.get("tool_name")
-            if not isinstance(name, str):
+            if tr.get("tool_name") != name:
                 continue
-            links = tr.get("links") if isinstance(tr.get("links"), list) else []
-            tool_links[name] = [l for l in links if isinstance(l, dict)]
-            tool_summaries[name] = str(tr.get("summary") or "").strip()
             data = tr.get("data") if isinstance(tr.get("data"), dict) else {}
+            links = tr.get("links") if isinstance(tr.get("links"), list) else []
+            summary = str(tr.get("summary") or "").strip()
             top = data.get("top_results") if isinstance(data, dict) else None
-            if isinstance(top, list):
-                tool_top_results[name] = [t for t in top if isinstance(t, dict)]
+            entries.append(
+                {
+                    "data": data,
+                    "links": [l for l in links if isinstance(l, dict)],
+                    "summary": summary,
+                    "top_results": [t for t in top if isinstance(t, dict)] if isinstance(top, list) else [],
+                }
+            )
+        return entries
+
+    def _dedupe_entries(entries: list[dict[str, Any]], *, kind: str) -> list[dict[str, Any]]:
+        seen: set[str] = set()
+        out: list[dict[str, Any]] = []
+        for e in entries:
+            data = e.get("data") or {}
+            dest_val = str((data.get("destination") or destination or "")).strip()
+            origin_val = str((data.get("origin") or origin or "")).strip()
+            key = f"{kind}|{origin_val.lower()}|{dest_val.lower()}"
+            if key in seen:
+                continue
+            seen.add(key)
+            out.append(e)
+        return out
 
     defaults = _build_default_links(origin=origin, destination=destination, start_date=start_date, end_date=end_date)
 
@@ -205,62 +225,105 @@ def responder(state: dict[str, Any]) -> dict[str, Any]:
         if sec.lower() not in answer.lower():
             answer += f"\n## {sec}\n"
 
-    # Flights
+    # Flights (support multiple destinations)
     flights_body = _get_section_body(answer, "Flights") or ""
-    links = tool_links.get("flights_search_links") or defaults["flights"]
-    top = tool_top_results.get("flights_search_links") or []
-    note = _extract_unavailable_note(tool_summaries.get("flights_search_links", ""))
-    if top or links or ("not available" in flights_body.lower()) or (not _has_url(flights_body)):
-        pieces: list[str] = []
-        if note and not top:
-            pieces.append(f"- {note}")
-        if top:
-            pieces.append("Top 5 results:\n" + _links_md(top))
-        if links:
-            pieces.append("Search links:\n" + _links_md(links))
-        if pieces:
-            answer = _set_section(answer, "Flights", "\n\n".join(pieces))
-        else:
-            answer = _set_section(
-                answer,
-                "Flights",
-                "- Provide `origin` and `start_date` to generate flight search links.",
-            )
+    flight_entries = _dedupe_entries(_collect_tool_entries("flights_search_links"), kind="flights")
+    if flight_entries:
+        blocks: list[str] = []
+        for entry in flight_entries:
+            data = entry.get("data") or {}
+            dest_val = str((data.get("destination") or destination or "")).strip()
+            origin_val = str((data.get("origin") or origin or "")).strip()
+            heading = ""
+            if origin_val and dest_val:
+                heading = f"### {origin_val} → {dest_val}"
+            elif dest_val:
+                heading = f"### {dest_val}"
+            if heading:
+                blocks.append(heading)
+            note = _extract_unavailable_note(entry.get("summary", ""))
+            if note and not entry.get("top_results"):
+                blocks.append(f"- {note}")
+            if entry.get("top_results"):
+                blocks.append("Top 5 results:\n" + _links_md(entry["top_results"]))
+            if entry.get("links"):
+                blocks.append("Search links:\n" + _links_md(entry["links"]))
+            blocks.append("")
+        body = "\n".join(blocks).strip()
+        answer = _set_section(answer, "Flights", body)
+    else:
+        links = defaults["flights"]
+        if links or ("not available" in flights_body.lower()) or (not _has_url(flights_body)):
+            pieces: list[str] = []
+            if links:
+                pieces.append("Search links:\n" + _links_md(links))
+            if pieces:
+                answer = _set_section(answer, "Flights", "\n\n".join(pieces))
+            else:
+                answer = _set_section(
+                    answer,
+                    "Flights",
+                    "- Provide `origin` and `start_date` to generate flight search links.",
+                )
 
-    # Lodging
+    # Lodging (support multiple destinations)
     lodging_body = _get_section_body(answer, "Lodging") or ""
-    links = tool_links.get("hotels_search_links") or defaults["lodging"]
-    top = tool_top_results.get("hotels_search_links") or []
-    note = _extract_unavailable_note(tool_summaries.get("hotels_search_links", ""))
-    if top or links or ("not available" in lodging_body.lower()) or (not _has_url(lodging_body)):
-        pieces = []
-        if note and not top:
-            pieces.append(f"- {note}")
-        if top:
-            pieces.append("Top 5 results:\n" + _links_md(top))
-        if links:
-            pieces.append("Search links:\n" + _links_md(links))
-        if pieces:
-            answer = _set_section(answer, "Lodging", "\n\n".join(pieces))
-        else:
-            answer = _set_section(
-                answer,
-                "Lodging",
-                "- Provide `start_date` and `end_date` to generate lodging search links.",
-            )
+    lodging_entries = _dedupe_entries(_collect_tool_entries("hotels_search_links"), kind="lodging")
+    if lodging_entries:
+        blocks = []
+        for entry in lodging_entries:
+            data = entry.get("data") or {}
+            dest_val = str((data.get("destination") or destination or "")).strip()
+            heading = f"### {dest_val}" if dest_val else ""
+            if heading:
+                blocks.append(heading)
+            note = _extract_unavailable_note(entry.get("summary", ""))
+            if note and not entry.get("top_results"):
+                blocks.append(f"- {note}")
+            if entry.get("top_results"):
+                blocks.append("Top 5 results:\n" + _links_md(entry["top_results"]))
+            if entry.get("links"):
+                blocks.append("Search links:\n" + _links_md(entry["links"]))
+            blocks.append("")
+        body = "\n".join(blocks).strip()
+        answer = _set_section(answer, "Lodging", body)
+    else:
+        links = defaults["lodging"]
+        if links or ("not available" in lodging_body.lower()) or (not _has_url(lodging_body)):
+            pieces = []
+            if links:
+                pieces.append("Search links:\n" + _links_md(links))
+            if pieces:
+                answer = _set_section(answer, "Lodging", "\n\n".join(pieces))
+            else:
+                answer = _set_section(
+                    answer,
+                    "Lodging",
+                    "- Provide `start_date` and `end_date` to generate lodging search links.",
+                )
 
     # Things to do (optional but helpful)
     things_body = _get_section_body(answer, "Things to do") or ""
     if (not things_body) or ("not available" in things_body.lower()):
-        links = tool_links.get("things_to_do_links") or defaults["things"]
+        links = []
+        things_entries = _collect_tool_entries("things_to_do_links")
+        if things_entries:
+            links = things_entries[-1].get("links") or []
+        if not links:
+            links = defaults["things"]
         if links:
             answer = _set_section(answer, "Things to do", _links_md(links))
 
     # Weather
     weather_body = _get_section_body(answer, "Weather") or ""
     if "not available" in weather_body.lower() or not weather_body:
-        summary = tool_summaries.get("weather_summary") or ""
-        links = tool_links.get("weather_summary") or defaults["weather"]
+        summary = ""
+        weather_entries = _collect_tool_entries("weather_summary")
+        if weather_entries:
+            summary = weather_entries[-1].get("summary") or ""
+            links = weather_entries[-1].get("links") or []
+        else:
+            links = defaults["weather"]
         pieces: list[str] = []
         if summary:
             pieces.append(f"- {summary}")

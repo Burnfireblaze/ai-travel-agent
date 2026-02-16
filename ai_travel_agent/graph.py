@@ -102,7 +102,14 @@ def build_app(
         instrument_node(
             node_name="executor",
             metrics=metrics,
-            fn=lambda s: executor(s, tools=tools, llm=llm_synth, metrics=metrics, memory=memory),
+            fn=lambda s: executor(
+                s,
+                tools=tools,
+                llm=llm_synth,
+                metrics=metrics,
+                memory=memory,
+                max_tool_retries=settings.max_tool_retries,
+            ),
         ),
     )
     graph.add_node(

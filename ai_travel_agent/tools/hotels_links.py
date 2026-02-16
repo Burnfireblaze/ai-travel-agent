@@ -46,7 +46,11 @@ def hotels_search_links(
         {"label": "Google Maps (hotels)", "url": google_maps_search_link(q)},
     ]
     return {
-        "summary": f"Top 5 hotel results (via Amadeus when configured) + search links.{note}",
+        "summary": f"Top 5 hotel results (Amadeus offers with directory fallback) + search links.{note}",
         "links": links,
         "top_results": top_results,
+        "destination": destination,
+        "start_date": start_date,
+        "end_date": end_date,
+        "neighborhood": neighborhood,
     }

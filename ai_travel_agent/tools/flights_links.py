@@ -46,4 +46,7 @@ def flights_search_links(
         "summary": f"Top 5 flight results (via Amadeus when configured) + search links.{note}",
         "links": links,
         "top_results": top_results,
+        "origin": origin,
+        "destination": destination,
+        "start_date": start_date,
     }
