@@ -9,8 +9,11 @@ from dotenv import load_dotenv
 
 @dataclass(frozen=True)
 class Settings:
+    llm_provider: str
     ollama_base_url: str
     ollama_model: str
+    groq_api_key: str
+    groq_model: str
     embedding_model: str
     chroma_persist_dir: Path
     user_id: str
@@ -25,10 +28,14 @@ def load_settings() -> Settings:
 
     runtime_dir = Path(os.getenv("RUNTIME_DIR", "./runtime"))
     chroma_persist_dir = Path(os.getenv("CHROMA_PERSIST_DIR", "./data/chroma_persistent"))
+    llm_provider = os.getenv("LLM_PROVIDER", "ollama").strip().lower()
 
     return Settings(
+        llm_provider=llm_provider,
         ollama_base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
         ollama_model=os.getenv("OLLAMA_MODEL", "qwen2.5:7b-instruct"),
+        groq_api_key=os.getenv("GROQ_API_KEY", ""),
+        groq_model=os.getenv("GROQ_MODEL", "llama-3.1-8b-instant"),
         embedding_model=os.getenv("EMBEDDING_MODEL", "all-MiniLM-L6-v2"),
         chroma_persist_dir=chroma_persist_dir,
         user_id=os.getenv("USER_ID", "local_user"),

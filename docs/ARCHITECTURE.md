@@ -25,6 +25,22 @@ The MVP produces:
 4. Configure: `cp .env.example .env`
 5. Run: `ai-travel-agent`
 
+### LLM Provider Toggle
+
+By default the agent uses **local Ollama**. You can switch to the free **Groq API**:
+
+```bash
+LLM_PROVIDER=groq
+GROQ_API_KEY=your_key_here
+GROQ_MODEL=llama-3.1-8b-instant
+```
+
+To switch back:
+
+```bash
+LLM_PROVIDER=ollama
+```
+
 Outputs:
 
 - Logs: `runtime/logs/app.jsonl`, `runtime/logs/app.log`

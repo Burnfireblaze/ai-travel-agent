@@ -7,6 +7,7 @@ from typing import Any, Mapping
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langchain_core.runnables import Runnable
 
+from ai_travel_agent.config import Settings
 from ai_travel_agent.observability.logger import LogContext, get_logger, log_event
 from ai_travel_agent.observability.metrics import MetricsCollector
 
@@ -61,3 +62,39 @@ class LLMClient:
                 data={"latency_ms": round(elapsed_ms, 2), "error": str(e), "tags": dict(tags or {})},
             )
             raise
+
+
+def build_chat_model(
+    *,
+    settings: Settings,
+    json_mode: bool,
+    temperature: float,
+) -> Runnable:
+    provider = settings.llm_provider.strip().lower()
+    if provider == "ollama":
+        try:
+            from langchain_ollama import ChatOllama
+        except Exception:  # pragma: no cover
+            from langchain_community.chat_models import ChatOllama
+
+        return ChatOllama(
+            base_url=settings.ollama_base_url,
+            model=settings.ollama_model,
+            temperature=temperature,
+            format="json" if json_mode else None,
+        )
+
+    if provider == "groq":
+        try:
+            from langchain_groq import ChatGroq
+        except Exception as exc:  # pragma: no cover
+            raise RuntimeError("Missing dependency: langchain-groq") from exc
+        if not settings.groq_api_key:
+            raise ValueError("GROQ_API_KEY is required when LLM_PROVIDER=groq.")
+        return ChatGroq(
+            api_key=settings.groq_api_key,
+            model=settings.groq_model,
+            temperature=temperature,
+        )
+
+    raise ValueError(f"Unsupported LLM_PROVIDER: {settings.llm_provider!r}")

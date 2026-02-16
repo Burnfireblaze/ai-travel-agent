@@ -4,10 +4,6 @@ from collections.abc import Callable
 from typing import Any, Literal
 
 from langgraph.graph import END, StateGraph
-try:
-    from langchain_ollama import ChatOllama
-except Exception:  # pragma: no cover
-    from langchain_community.chat_models import ChatOllama
 
 from ai_travel_agent.agents.nodes import (
     brain_planner,
@@ -27,7 +23,7 @@ from ai_travel_agent.agents.nodes import (
 from ai_travel_agent.agents.nodes.utils import instrument_node
 from ai_travel_agent.agents.state import AgentState
 from ai_travel_agent.config import Settings
-from ai_travel_agent.llm import LLMClient
+from ai_travel_agent.llm import LLMClient, build_chat_model
 from ai_travel_agent.memory import MemoryStore
 from ai_travel_agent.observability.metrics import MetricsCollector
 from ai_travel_agent.tools import ToolRegistry
@@ -56,30 +52,11 @@ def build_app(
     metrics: MetricsCollector,
 ) -> Any:
     tools = build_tools()
-    # Use a single model (OLLAMA_MODEL) for all stages for predictability.
-    chat_intent = ChatOllama(
-        base_url=settings.ollama_base_url,
-        model=settings.ollama_model,
-        temperature=0.0,
-        format="json",
-    )
-    chat_planner = ChatOllama(
-        base_url=settings.ollama_base_url,
-        model=settings.ollama_model,
-        temperature=0.0,
-        format="json",
-    )
-    chat_triage = ChatOllama(
-        base_url=settings.ollama_base_url,
-        model=settings.ollama_model,
-        temperature=0.0,
-        format="json",
-    )
-    chat_synth = ChatOllama(
-        base_url=settings.ollama_base_url,
-        model=settings.ollama_model,
-        temperature=0.2,
-    )
+    # Use a single model (provider-configured) for all stages for predictability.
+    chat_intent = build_chat_model(settings=settings, json_mode=True, temperature=0.0)
+    chat_planner = build_chat_model(settings=settings, json_mode=True, temperature=0.0)
+    chat_triage = build_chat_model(settings=settings, json_mode=True, temperature=0.0)
+    chat_synth = build_chat_model(settings=settings, json_mode=False, temperature=0.2)
 
     llm_intent = LLMClient(runnable=chat_intent, metrics=metrics, run_id=metrics.run_id, user_id=metrics.user_id)
     llm_planner = LLMClient(runnable=chat_planner, metrics=metrics, run_id=metrics.run_id, user_id=metrics.user_id)
