@@ -189,6 +189,16 @@ def _infer_override_from_question(question: str, answer_raw: str) -> dict[str, A
     return {}
 
 
+def _append_details(base_query: str, new_lines: list[str]) -> str:
+    base = base_query or ""
+    if not new_lines:
+        return base
+    marker = "\n\nAdditional details:\n"
+    if marker in base:
+        return base.rstrip() + "\n" + "\n".join(new_lines)
+    return base.rstrip() + marker + "\n".join(new_lines)
+
+
 def _render_status(state: dict[str, Any]) -> Panel:
     node = state.get("current_node") or "-"
     plan = state.get("plan") or []
@@ -409,7 +419,7 @@ def chat(
                 if not answers:
                     console.print("No answers provided; stopping.")
                     break
-                state["user_query"] = user_query + "\n\nAdditional details:\n" + "\n".join(answers)
+                state["user_query"] = _append_details(state.get("user_query", user_query), answers)
                 state["needs_user_input"] = False
                 state["clarifying_questions"] = []
                 state.pop("pending_disambiguation", None)
