@@ -1,15 +1,29 @@
 """
 Chaos engineering utilities for AI Travel Agent.
 Provides decorators and context managers to inject failures for resilience testing.
+Integrated with failure tracking for comprehensive observability during chaos tests.
 """
 
 import random
 import time
+import traceback
 from contextlib import contextmanager
 from dataclasses import dataclass
 from enum import Enum
 from functools import wraps
 from typing import Any, Callable, Optional, Type
+
+# Import failure tracker for automatic tracking of chaos-injected failures
+try:
+    from ai_travel_agent.observability.failure_tracker import (
+        FailureTracker,
+        FailureCategory,
+        FailureSeverity,
+        get_failure_tracker,
+    )
+    FAILURE_TRACKING_AVAILABLE = True
+except ImportError:
+    FAILURE_TRACKING_AVAILABLE = False
 
 
 class FailureMode(Enum):
@@ -31,12 +45,17 @@ class ChaosConfig:
     exception_type: Type[Exception] = RuntimeError
     exception_message: str = "Injected failure"
     latency_multiplier: float = 1.0  # For SLOW_RESPONSE
+    track_failures: bool = True  # Auto-track injected failures
     
     def should_fail(self) -> bool:
         """Determine if failure should be injected."""
         if not self.enabled:
             return False
         return random.random() < self.failure_probability
+    
+    def should_track(self) -> bool:
+        """Determine if failure should be tracked."""
+        return self.track_failures and FAILURE_TRACKING_AVAILABLE
 
 
 # Global chaos config (can be set per test)
@@ -89,15 +108,20 @@ def inject_failure(
     exception_type: Type[Exception] = RuntimeError,
     exception_message: str = "Injected failure",
     latency_multiplier: float = 1.0,
+    track_failure: bool = True,
+    node_name: str = "chaos_injection",
+    tool_name: Optional[str] = None,
 ):
     """
     Decorator to inject failures into a function.
+    Automatically tracks injected failures for observability.
     
     Example:
         @inject_failure(
             failure_probability=0.1,
             failure_mode=FailureMode.TIMEOUT,
-            exception_type=TimeoutError
+            exception_type=TimeoutError,
+            track_failure=True
         )
         def fetch_flights(origin, destination):
             return {"flights": [...]}
@@ -112,6 +136,9 @@ def inject_failure(
                     exception_type=config.exception_type,
                     exception_message=config.exception_message,
                     latency_multiplier=config.latency_multiplier,
+                    node_name=node_name,
+                    tool_name=tool_name,
+                    track=config.should_track() and track_failure,
                 )
             
             # Also check local config
@@ -121,6 +148,9 @@ def inject_failure(
                     exception_type=exception_type,
                     exception_message=exception_message,
                     latency_multiplier=latency_multiplier,
+                    node_name=node_name,
+                    tool_name=tool_name,
+                    track=track_failure and FAILURE_TRACKING_AVAILABLE,
                 )
             
             return func(*args, **kwargs)
@@ -133,8 +163,52 @@ def _execute_failure(
     exception_type: Type[Exception],
     exception_message: str,
     latency_multiplier: float,
+    node_name: str = "chaos_injection",
+    tool_name: Optional[str] = None,
+    track: bool = True,
 ) -> None:
-    """Execute the actual failure injection."""
+    """Execute the actual failure injection and optionally track it."""
+    
+    # Determine the error type and message
+    error_type = exception_type.__name__
+    error_msg = exception_message or f"{failure_mode.value} failure"
+    
+    # Track failure if available and requested
+    if track and FAILURE_TRACKING_AVAILABLE:
+        tracker = get_failure_tracker()
+        if tracker:
+            try:
+                # Determine category based on failure mode
+                if failure_mode == FailureMode.TIMEOUT:
+                    category = FailureCategory.NETWORK
+                    severity = FailureSeverity.HIGH
+                elif failure_mode in [FailureMode.INVALID_DATA, FailureMode.PARTIAL_DATA, FailureMode.MALFORMED_RESPONSE]:
+                    category = FailureCategory.VALIDATION
+                    severity = FailureSeverity.MEDIUM
+                else:
+                    category = FailureCategory.UNKNOWN
+                    severity = FailureSeverity.HIGH
+                
+                # Record the injected failure
+                tracker.record_failure(
+                    category=category,
+                    severity=severity,
+                    graph_node=node_name,
+                    error_type=error_type,
+                    error_message=error_msg,
+                    step_title=f"Chaos-injected {failure_mode.value}",
+                    tool_name=tool_name,
+                    error_traceback=traceback.format_exc(),
+                    context_data={
+                        "failure_mode": failure_mode.value,
+                        "injection_type": "chaos_engineering",
+                    },
+                    tags=["chaos-injected", failure_mode.value, "testing"],
+                )
+            except Exception:
+                pass  # Silently ignore tracking errors
+    
+    # Execute the actual failure
     if failure_mode == FailureMode.TIMEOUT:
         raise TimeoutError(exception_message or "Request timeout")
     
@@ -158,6 +232,7 @@ class ChaosToolRegistry:
     """
     Wrapper around ToolRegistry that can inject failures.
     Useful for testing tool failure scenarios.
+    Automatically tracks injected failures for observability.
     """
     
     def __init__(self, base_registry, chaos_config: Optional[ChaosConfig] = None):
@@ -170,7 +245,7 @@ class ChaosToolRegistry:
         self.failure_map[tool_name] = config
     
     def call(self, name: str, **kwargs) -> Any:
-        """Call tool with potential chaos injection."""
+        """Call tool with potential chaos injection and tracking."""
         # Check if specific tool has chaos config
         if name in self.failure_map:
             config = self.failure_map[name]
@@ -180,6 +255,9 @@ class ChaosToolRegistry:
                     exception_type=config.exception_type,
                     exception_message=config.exception_message,
                     latency_multiplier=config.latency_multiplier,
+                    node_name="tool_execution",
+                    tool_name=name,
+                    track=config.should_track(),
                 )
         
         # Check global config
@@ -189,6 +267,9 @@ class ChaosToolRegistry:
                 exception_type=self.chaos_config.exception_type,
                 exception_message=self.chaos_config.exception_message,
                 latency_multiplier=self.chaos_config.latency_multiplier,
+                node_name="tool_execution",
+                tool_name=name,
+                track=self.chaos_config.should_track(),
             )
         
         # Call actual tool

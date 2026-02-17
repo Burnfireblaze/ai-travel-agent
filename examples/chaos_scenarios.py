@@ -13,6 +13,10 @@ from unittest.mock import MagicMock, patch
 import json
 
 from ai_travel_agent.chaos import (
+    from ai_travel_agent.observability.failure_tracker import FailureTracker, set_failure_tracker
+    from pathlib import Path
+    tracker = FailureTracker(run_id="chaos-scenarios", user_id="demo-user", runtime_dir=Path("runtime"))
+    set_failure_tracker(tracker)
     chaos_mode,
     inject_failure,
     ChaosConfig,

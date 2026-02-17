@@ -10,7 +10,19 @@ from ai_travel_agent.llm import LLMClient
 from ai_travel_agent.observability.logger import get_logger, log_event
 from ai_travel_agent.observability.metrics import MetricsCollector
 from ai_travel_agent.memory import MemoryStore
+
+# Fault injection and config
 from ai_travel_agent.tools import ToolRegistry
+from ai_travel_agent.config import load_settings
+import random
+# Failure tracking imports
+try:
+    from ai_travel_agent.observability.failure_tracker import (
+        FailureCategory, FailureSeverity, get_failure_tracker
+    )
+    FAILURE_TRACKING_AVAILABLE = True
+except ImportError:
+    FAILURE_TRACKING_AVAILABLE = False
 
 from .utils import log_context_from_state
 
@@ -49,6 +61,13 @@ def executor(
     if not step:
         return state
 
+    # Load config for fault injection
+    config = load_settings()
+    random.seed(config.failure_seed)
+    # Ensure signals dict exists
+    if "signals" not in state:
+        state["signals"] = {}
+
     if step.get("step_type") == StepType.RETRIEVE_CONTEXT:
         if memory is None:
             state.setdefault("issues", []).append(
@@ -64,15 +83,44 @@ def executor(
             state["plan"] = plan
             state["needs_triage"] = True
             state["pending_issue"] = state["issues"][-1]
+            # Signal memory unavailable
+            state["signals"]["memory_unavailable"] = True
+            # Fallback: set default context_hits and log
+            state["context_hits"] = []
+            log_event(
+                logger,
+                level=logging.WARNING,
+                message="Fallback: memory unavailable, using empty context_hits",
+                event="fallback_memory_unavailable",
+                context=log_context_from_state(state, graph_node="executor"),
+                data={"step_id": step.get("id")},
+            )
             return state
 
         tool_args = step.get("tool_args") or {}
         query = ""
         if isinstance(tool_args, dict):
             query = str(tool_args.get("query") or state.get("user_query") or "")
+        log_event(
+            logger,
+            level=logging.INFO,
+            message="RAG retrieval started",
+            event="rag_retrieve_start",
+            context=log_context_from_state(state, graph_node="executor"),
+            data={
+                "query_chars": len(query),
+                "k": 5,
+                "include_session": True,
+                "include_user": True,
+            },
+        )
 
         started = time.perf_counter()
-        hits = memory.search(query=query, k=5, include_session=True, include_user=True)
+        # Fault injection: simulate bad retrieval
+        if config.simulate_bad_retrieval:
+            hits = []
+        else:
+            hits = memory.search(query=query, k=5, include_session=True, include_user=True)
         elapsed_ms = (time.perf_counter() - started) * 1000.0
         if metrics is not None:
             metrics.inc("rag_retrievals", 1)
@@ -89,8 +137,28 @@ def executor(
         state["context_hits"] = [
             {"id": h.id, "text": h.text, "metadata": dict(h.metadata), "distance": h.distance} for h in hits
         ]
+        log_event(
+            logger,
+            level=logging.INFO,
+            message="RAG context hits stored",
+            event="rag_context_stored",
+            context=log_context_from_state(state, graph_node="executor"),
+            data={"stored_hits": len(state["context_hits"])},
+        )
         plan[idx]["status"] = "done"
         state["plan"] = plan
+        # Signal if no results
+        if not hits:
+            state["signals"]["no_results"] = True
+            # Fallback: use default context or ask user for clarification
+            log_event(
+                logger,
+                level=logging.WARNING,
+                message="Fallback: no retrieval results, proceeding with empty context",
+                event="fallback_no_results",
+                context=log_context_from_state(state, graph_node="executor"),
+                data={"step_id": step.get("id")},
+            )
         return state
 
     if step.get("step_type") == StepType.TOOL_CALL and step.get("tool_name"):
@@ -107,6 +175,10 @@ def executor(
             try:
                 if metrics is not None:
                     metrics.inc("tool_calls", 1)
+                # Fault injection: simulate tool timeout
+                if config.simulate_tool_timeout and random.random() < 0.8:
+                    time.sleep(0.1)
+                    raise TimeoutError(f"Simulated tool timeout for {tool_name}")
                 out = tools.call(tool_name, **tool_args)
                 elapsed_ms = (time.perf_counter() - started) * 1000.0
                 if metrics is not None:
@@ -122,6 +194,30 @@ def executor(
                 last_err = None
                 break
             except Exception as e:
+                # Fallback: if last attempt, skip or default
+                if attempts > max_tool_retries:
+                    log_event(
+                        logger,
+                        level=logging.WARNING,
+                        message=f"Fallback: tool '{tool_name}' failed, skipping step.",
+                        event="fallback_tool_failure",
+                        context=log_context_from_state(state, graph_node="executor"),
+                        data={"tool_name": tool_name, "attempts": attempts, "error": str(e)},
+                    )
+                    plan[idx]["status"] = "blocked"
+                    state["plan"] = plan
+                    state.setdefault("issues", []).append({
+                        "kind": "TOOL_ERROR",
+                        "severity": "MAJOR",
+                        "node": "executor",
+                        "step_id": step.get("id"),
+                        "tool_name": tool_name,
+                        "message": f"Fallback: tool '{tool_name}' failed after {attempts} attempts.",
+                        "suggested_actions": ["skip"],
+                        "details": {"tool_args": dict(tool_args), "attempts": attempts},
+                    })
+                    state["signals"]["tool_error"] = True
+                    return state
                 last_err = e
                 elapsed_ms = (time.perf_counter() - started) * 1000.0
                 if metrics is not None:
@@ -143,6 +239,29 @@ def executor(
                         "will_retry": attempts <= max_tool_retries,
                     },
                 )
+                # Record all tool failures, not just chaos-injected
+                if FAILURE_TRACKING_AVAILABLE:
+                    tracker = get_failure_tracker()
+                    if tracker:
+                        try:
+                            tracker.record_failure(
+                                category=FailureCategory.TOOL,
+                                severity=FailureSeverity.HIGH,
+                                graph_node="executor",
+                                error_type=type(e).__name__,
+                                error_message=str(e),
+                                step_id=step.get("id"),
+                                step_type=step.get("step_type"),
+                                step_title=step.get("title"),
+                                tool_name=tool_name,
+                                latency_ms=elapsed_ms,
+                                context_data={"tool_args": dict(tool_args), "attempt": attempts},
+                                tags=["auto-tracked", "tool-failure"],
+                            )
+                        except Exception:
+                            pass
+                # Signal tool error
+                state["signals"]["tool_error"] = True
                 continue
 
         if last_err is None and out is not None:
@@ -179,6 +298,8 @@ def executor(
         state["needs_triage"] = True
         plan[idx]["status"] = "blocked"
         state["plan"] = plan
+        # Signal tool error
+        state["signals"]["tool_error"] = True
         return state
 
     # synthesize
@@ -218,6 +339,18 @@ def executor(
         f"Tool results (compact): {compact_tool_results(tool_results)}\n\n"
         "Write the final response in Markdown with the required sections."
     )
+    log_event(
+        logger,
+        level=logging.INFO,
+        message="RAG synthesis started",
+        event="rag_synthesize_start",
+        context=log_context_from_state(state, graph_node="executor"),
+        data={
+            "context_hits": len(context_hits),
+            "tool_results": len(tool_results),
+            "prompt_chars": len(prompt),
+        },
+    )
     answer = llm.invoke_text(system=SYNTH_SYSTEM, user=prompt, tags={"node": "executor", "kind": "synthesize"})
     state["final_answer"] = answer
     # Best-effort extract day titles for ICS.
@@ -226,6 +359,17 @@ def executor(
         title = (m.group(2) or "").strip()
         day_titles.append(title or f"Day {m.group(1)}")
     state["itinerary_day_titles"] = day_titles[:21]
+    log_event(
+        logger,
+        level=logging.INFO,
+        message="RAG synthesis completed",
+        event="rag_synthesize_done",
+        context=log_context_from_state(state, graph_node="executor"),
+        data={
+            "answer_chars": len(answer),
+            "itinerary_day_titles": len(state["itinerary_day_titles"]),
+        },
+    )
     plan[idx]["status"] = "done"
     state["plan"] = plan
     return state
