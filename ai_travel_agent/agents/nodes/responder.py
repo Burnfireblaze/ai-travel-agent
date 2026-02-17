@@ -5,6 +5,9 @@ from datetime import date
 from typing import Any
 from urllib.parse import quote_plus
 
+from ai_travel_agent.observability.telemetry import TelemetryController
+from .utils import log_context_from_state
+
 
 def _section_block(answer: str, title: str) -> tuple[int, int] | None:
     """
@@ -134,7 +137,7 @@ def _extract_unavailable_note(summary: str) -> str | None:
     return None
 
 
-def responder(state: dict[str, Any]) -> dict[str, Any]:
+def responder(state: dict[str, Any], *, telemetry: TelemetryController | None = None) -> dict[str, Any]:
     constraints = state.get("constraints") or {}
     answer = (state.get("final_answer") or "").strip()
     dests = constraints.get("destinations") or []
@@ -407,4 +410,10 @@ def responder(state: dict[str, Any]) -> dict[str, Any]:
     answer = re.sub(r"(\$\s?\d+|USD\s?\d+|\d+\s?USD)", "[price omitted]", answer, flags=re.IGNORECASE)
 
     state["final_answer"] = answer.strip() + "\n"
+    if telemetry is not None:
+        telemetry.trace(
+            event="final_answer",
+            context=log_context_from_state(state, graph_node="responder"),
+            data={"final_answer": state["final_answer"]},
+        )
     return state

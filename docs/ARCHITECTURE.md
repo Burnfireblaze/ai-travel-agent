@@ -101,6 +101,7 @@ flowchart LR
   subgraph Obs["Observability"]
     L["Logs\nruntime/logs/app.jsonl + app.log"]
     M["Metrics\nruntime/metrics/metrics.jsonl"]
+    T["Traces (optional)\nruntime/logs/trace.jsonl"]
   end
   G --> Obs
 ```
@@ -158,8 +159,34 @@ Key fields:
 - `ics_path`, `ics_event_count`: path/count for calendar export
 - `evaluation`: hard-gate + rubric results for the run
 - `current_node`, `current_step`, `current_step_index`: used for CLI progress display and logs
+- `signals`: runtime failure signals (e.g., `tool_error`, `no_results`, `timeout_risk`) used for telemetry escalation
 
 Source: `ai_travel_agent/agents/state.py`.
+
+---
+
+## Telemetry & Fault Injection
+
+The agent can **inject deterministic failures** for testing and emit **failure signals** for downstream telemetry systems (Aura).
+
+### Fault Injection (Deterministic)
+
+Controlled via env vars:
+
+- `SIMULATE_TOOL_TIMEOUT`, `SIMULATE_TOOL_ERROR`
+- `SIMULATE_BAD_RETRIEVAL`
+- `SIMULATE_LLM_ERROR`
+- `FAILURE_SEED`, `FAULT_PROBABILITY`, `FAULT_SLEEP_SECONDS`
+
+### Telemetry Modes
+
+Telemetry is controlled by `TELEMETRY_MODE`:
+
+- `minimal`: only core logs + errors
+- `detailed`: full trace
+- `selective`: start minimal, switch to detailed if a failure signal fires
+
+Trace output (if enabled): `runtime/logs/trace.jsonl`.
 
 ---
 

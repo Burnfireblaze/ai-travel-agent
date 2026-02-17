@@ -22,6 +22,16 @@ class Settings:
     max_graph_iters: int
     eval_threshold: float
     max_tool_retries: int
+    telemetry_mode: str
+    trace_max_chars: int
+    simulate_tool_timeout: bool
+    simulate_tool_error: bool
+    simulate_bad_retrieval: bool
+    simulate_llm_error: bool
+    failure_seed: int
+    fault_probability: float
+    fault_sleep_seconds: float
+    bad_retrieval_mode: str
 
 
 def load_settings() -> Settings:
@@ -30,6 +40,9 @@ def load_settings() -> Settings:
     runtime_dir = Path(os.getenv("RUNTIME_DIR", "./runtime"))
     chroma_persist_dir = Path(os.getenv("CHROMA_PERSIST_DIR", "./data/chroma_persistent"))
     llm_provider = os.getenv("LLM_PROVIDER", "ollama").strip().lower()
+    def _env_bool(name: str, default: bool = False) -> bool:
+        val = os.getenv(name, str(default)).strip().lower()
+        return val in {"1", "true", "yes", "on"}
 
     return Settings(
         llm_provider=llm_provider,
@@ -45,4 +58,14 @@ def load_settings() -> Settings:
         max_graph_iters=int(os.getenv("MAX_GRAPH_ITERS", "20")),
         eval_threshold=float(os.getenv("EVAL_THRESHOLD", "3.5")),
         max_tool_retries=int(os.getenv("MAX_TOOL_RETRIES", "3")),
+        telemetry_mode=os.getenv("TELEMETRY_MODE", "minimal").strip().lower(),
+        trace_max_chars=int(os.getenv("TRACE_MAX_CHARS", "2000")),
+        simulate_tool_timeout=_env_bool("SIMULATE_TOOL_TIMEOUT", False),
+        simulate_tool_error=_env_bool("SIMULATE_TOOL_ERROR", False),
+        simulate_bad_retrieval=_env_bool("SIMULATE_BAD_RETRIEVAL", False),
+        simulate_llm_error=_env_bool("SIMULATE_LLM_ERROR", False),
+        failure_seed=int(os.getenv("FAILURE_SEED", "42")),
+        fault_probability=float(os.getenv("FAULT_PROBABILITY", "1.0")),
+        fault_sleep_seconds=float(os.getenv("FAULT_SLEEP_SECONDS", "5.0")),
+        bad_retrieval_mode=os.getenv("BAD_RETRIEVAL_MODE", "empty").strip().lower(),
     )

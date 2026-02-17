@@ -26,6 +26,8 @@ from ai_travel_agent.config import Settings
 from ai_travel_agent.llm import LLMClient, build_chat_model
 from ai_travel_agent.memory import MemoryStore
 from ai_travel_agent.observability.metrics import MetricsCollector
+from ai_travel_agent.observability.telemetry import TelemetryController
+from ai_travel_agent.observability.fault_injection import FaultInjector
 from ai_travel_agent.tools import ToolRegistry
 from ai_travel_agent.tools.distance_time import distance_and_time
 from ai_travel_agent.tools.flights_links import flights_search_links
@@ -50,6 +52,8 @@ def build_app(
     settings: Settings,
     memory: MemoryStore,
     metrics: MetricsCollector,
+    telemetry: TelemetryController | None = None,
+    fault_injector: FaultInjector | None = None,
 ) -> Any:
     tools = build_tools()
     # Use a single model (provider-configured) for all stages for predictability.
@@ -58,10 +62,42 @@ def build_app(
     chat_triage = build_chat_model(settings=settings, json_mode=True, temperature=0.0)
     chat_synth = build_chat_model(settings=settings, json_mode=False, temperature=0.2)
 
-    llm_intent = LLMClient(runnable=chat_intent, metrics=metrics, run_id=metrics.run_id, user_id=metrics.user_id)
-    llm_planner = LLMClient(runnable=chat_planner, metrics=metrics, run_id=metrics.run_id, user_id=metrics.user_id)
-    llm_triage = LLMClient(runnable=chat_triage, metrics=metrics, run_id=metrics.run_id, user_id=metrics.user_id)
-    llm_synth = LLMClient(runnable=chat_synth, metrics=metrics, run_id=metrics.run_id, user_id=metrics.user_id)
+    llm_intent = LLMClient(
+        runnable=chat_intent,
+        metrics=metrics,
+        run_id=metrics.run_id,
+        user_id=metrics.user_id,
+        telemetry=telemetry,
+        fault_injector=fault_injector,
+        name="intent",
+    )
+    llm_planner = LLMClient(
+        runnable=chat_planner,
+        metrics=metrics,
+        run_id=metrics.run_id,
+        user_id=metrics.user_id,
+        telemetry=telemetry,
+        fault_injector=fault_injector,
+        name="planner",
+    )
+    llm_triage = LLMClient(
+        runnable=chat_triage,
+        metrics=metrics,
+        run_id=metrics.run_id,
+        user_id=metrics.user_id,
+        telemetry=telemetry,
+        fault_injector=fault_injector,
+        name="triage",
+    )
+    llm_synth = LLMClient(
+        runnable=chat_synth,
+        metrics=metrics,
+        run_id=metrics.run_id,
+        user_id=metrics.user_id,
+        telemetry=telemetry,
+        fault_injector=fault_injector,
+        name="synth",
+    )
 
     graph: StateGraph = StateGraph(AgentState)
 
@@ -70,31 +106,31 @@ def build_app(
         instrument_node(
             node_name="context_controller",
             metrics=metrics,
-            fn=lambda s: context_controller(s, memory=memory, metrics=metrics),
+            fn=lambda s: context_controller(s, memory=memory, metrics=metrics, telemetry=telemetry, fault_injector=fault_injector),
         ),
     )
     graph.add_node(
         "intent_parser",
-        instrument_node(node_name="intent_parser", metrics=metrics, fn=lambda s: intent_parser(s, llm=llm_intent)),
+        instrument_node(node_name="intent_parser", metrics=metrics, fn=lambda s: intent_parser(s, llm=llm_intent, telemetry=telemetry)),
     )
     graph.add_node(
         "validator",
         instrument_node(
             node_name="validator",
             metrics=metrics,
-            fn=lambda s: validator(s, geocode_fn=geocode_place),
+            fn=lambda s: validator(s, geocode_fn=geocode_place, telemetry=telemetry),
         ),
     )
     graph.add_node(
         "brain_planner",
-        instrument_node(node_name="brain_planner", metrics=metrics, fn=lambda s: brain_planner(s, llm=llm_planner)),
+        instrument_node(node_name="brain_planner", metrics=metrics, fn=lambda s: brain_planner(s, llm=llm_planner, telemetry=telemetry)),
     )
     graph.add_node(
         "orchestrator",
         instrument_node(
             node_name="orchestrator",
             metrics=metrics,
-            fn=lambda s: orchestrator(s, max_iters=settings.max_graph_iters),
+            fn=lambda s: orchestrator(s, max_iters=settings.max_graph_iters, telemetry=telemetry),
         ),
     )
     graph.add_node(
@@ -109,31 +145,37 @@ def build_app(
                 metrics=metrics,
                 memory=memory,
                 max_tool_retries=settings.max_tool_retries,
+                telemetry=telemetry,
+                fault_injector=fault_injector,
             ),
         ),
     )
     graph.add_node(
         "issue_triage",
-        instrument_node(node_name="issue_triage", metrics=metrics, fn=lambda s: issue_triage(s, llm=llm_triage)),
+        instrument_node(node_name="issue_triage", metrics=metrics, fn=lambda s: issue_triage(s, llm=llm_triage, telemetry=telemetry)),
     )
     graph.add_node(
         "evaluate_step",
-        instrument_node(node_name="evaluate_step", metrics=metrics, fn=evaluate_step),
+        instrument_node(node_name="evaluate_step", metrics=metrics, fn=lambda s: evaluate_step(s, telemetry=telemetry)),
     )
     graph.add_node(
         "responder",
-        instrument_node(node_name="responder", metrics=metrics, fn=responder),
+        instrument_node(node_name="responder", metrics=metrics, fn=lambda s: responder(s, telemetry=telemetry)),
     )
     graph.add_node(
         "export_ics",
-        instrument_node(node_name="export_ics", metrics=metrics, fn=lambda s: export_ics(s, runtime_dir=settings.runtime_dir)),
+        instrument_node(
+            node_name="export_ics",
+            metrics=metrics,
+            fn=lambda s: export_ics(s, runtime_dir=settings.runtime_dir, telemetry=telemetry),
+        ),
     )
     graph.add_node(
         "evaluate_final",
         instrument_node(
             node_name="evaluate_final",
             metrics=metrics,
-            fn=lambda s: evaluate_final_node(s, eval_threshold=settings.eval_threshold),
+            fn=lambda s: evaluate_final_node(s, eval_threshold=settings.eval_threshold, telemetry=telemetry),
         ),
     )
     graph.add_node(

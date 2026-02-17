@@ -98,6 +98,7 @@ class AgentState(TypedDict, total=False):
     conflicts_detected: list[dict[str, Any]]
     plan: list[dict[str, Any]]
     tool_results: list[dict[str, Any]]
+    signals: dict[str, bool]
 
     current_node: str
     current_step: dict[str, Any]

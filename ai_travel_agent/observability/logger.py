@@ -55,6 +55,14 @@ class JsonlHandler(Handler):
                 "level": record.levelname,
                 "module": record.name,
                 "message": record.getMessage(),
+                "run_id": None,
+                "user_id": None,
+                "graph_node": None,
+                "step_type": None,
+                "step_id": None,
+                "step_title": None,
+                "event": None,
+                "data": None,
             }
 
             for key in ("run_id", "user_id", "graph_node", "step_type", "step_id", "step_title", "event", "data"):

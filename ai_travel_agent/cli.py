@@ -19,6 +19,9 @@ from ai_travel_agent.graph import build_app
 from ai_travel_agent.agents.state import StepType
 from ai_travel_agent.memory import MemoryStore
 from ai_travel_agent.observability.logger import LogContext, get_logger, log_event, setup_logging
+from ai_travel_agent.observability.telemetry import TelemetryController, set_signal
+from ai_travel_agent.observability.fault_injection import FaultInjector
+from ai_travel_agent.observability.aura_sink import send_to_aura
 from ai_travel_agent.observability.metrics import MetricsCollector
 
 
@@ -317,7 +320,41 @@ def chat(
 
         run_id = str(uuid.uuid4())
         metrics = MetricsCollector(runtime_dir=settings.runtime_dir, run_id=run_id, user_id=settings.user_id)
-        graph_app = build_app(settings=settings, memory=memory, metrics=metrics)
+        if any(
+            [
+                settings.simulate_tool_timeout,
+                settings.simulate_tool_error,
+                settings.simulate_bad_retrieval,
+                settings.simulate_llm_error,
+            ]
+        ):
+            import random
+
+            random.seed(settings.failure_seed)
+        telemetry = TelemetryController(
+            runtime_dir=settings.runtime_dir,
+            run_id=run_id,
+            user_id=settings.user_id,
+            mode=settings.telemetry_mode,
+            max_chars=settings.trace_max_chars,
+        )
+        fault_injector = FaultInjector(
+            simulate_tool_timeout=settings.simulate_tool_timeout,
+            simulate_tool_error=settings.simulate_tool_error,
+            simulate_bad_retrieval=settings.simulate_bad_retrieval,
+            simulate_llm_error=settings.simulate_llm_error,
+            failure_seed=settings.failure_seed,
+            probability=settings.fault_probability,
+            sleep_seconds=settings.fault_sleep_seconds,
+            bad_retrieval_mode=settings.bad_retrieval_mode,
+        )
+        graph_app = build_app(
+            settings=settings,
+            memory=memory,
+            metrics=metrics,
+            telemetry=telemetry,
+            fault_injector=fault_injector,
+        )
 
         log_event(
             logger,
@@ -325,7 +362,18 @@ def chat(
             message="Run started",
             event="run_start",
             context=LogContext(run_id=run_id, user_id=settings.user_id),
-            data={"ollama_model": settings.ollama_model},
+            data={
+                "ollama_model": settings.ollama_model,
+                "telemetry_mode": settings.telemetry_mode,
+                "fault_injection": {
+                    "simulate_tool_timeout": settings.simulate_tool_timeout,
+                    "simulate_tool_error": settings.simulate_tool_error,
+                    "simulate_bad_retrieval": settings.simulate_bad_retrieval,
+                    "simulate_llm_error": settings.simulate_llm_error,
+                    "failure_seed": settings.failure_seed,
+                    "fault_probability": settings.fault_probability,
+                },
+            },
         )
 
         state: dict[str, Any] = {
@@ -333,6 +381,7 @@ def chat(
             "user_id": settings.user_id,
             "messages": messages,
             "user_query": user_query,
+            "signals": {},
         }
 
         # LangGraph recursion_limit counts node transitions, not “plan steps”.
@@ -342,9 +391,28 @@ def chat(
         while True:
             # Run the graph with a live status panel. If the graph requests user input, stop live rendering
             # and ask questions outside the Live context (avoids “missing prompt” UX issues).
-            with Live(_render_status(state), refresh_per_second=8, console=console) as live:
-                latest = _stream_or_invoke(graph_app, state, recursion_limit=recursion_limit, live=live)
-            state = latest
+            try:
+                with Live(_render_status(state), refresh_per_second=8, console=console) as live:
+                    latest = _stream_or_invoke(graph_app, state, recursion_limit=recursion_limit, live=live)
+                state = latest
+            except Exception as e:
+                set_signal(state, "node_error", True, telemetry)
+                log_event(
+                    logger,
+                    level=logging.ERROR,
+                    message="Run failed with uncaught error",
+                    event="run_error",
+                    context=LogContext(run_id=run_id, user_id=settings.user_id),
+                    data={"error": str(e)},
+                )
+                if telemetry is not None:
+                    telemetry.trace(event="run_error", data={"error": str(e)})
+                state["final_answer"] = (
+                    "Sorry — I hit an internal error while planning. "
+                    "Please try again with explicit dates and origin/destination."
+                )
+                state["termination_reason"] = "error"
+                break
 
             if state.get("needs_user_input"):
                 qs = state.get("clarifying_questions") or []
@@ -460,6 +528,7 @@ def chat(
         metrics.set("eval_overall_status", evaluation.get("overall_status"))
         metrics.set("eval_hard_gates", evaluation.get("hard_gates"))
         metrics.set("eval_rubric_scores", evaluation.get("rubric_scores"))
+        metrics.set("signals", state.get("signals", {}))
 
         term = state.get("termination_reason")
         if term == "asked_user":
@@ -488,6 +557,20 @@ def chat(
             level=logging.INFO,
             message="Run ended",
             event="run_end",
+            context=LogContext(run_id=run_id, user_id=settings.user_id),
+        )
+
+        send_to_aura(
+            payload={
+                "run_id": run_id,
+                "user_id": settings.user_id,
+                "status": run_status,
+                "termination_reason": term,
+                "signals": state.get("signals", {}),
+                "metrics_path": str(metrics_path),
+                "logs_path": str((settings.runtime_dir / "logs" / "app.jsonl").resolve()),
+                "trace_path": str((settings.runtime_dir / "logs" / "trace.jsonl").resolve()),
+            },
             context=LogContext(run_id=run_id, user_id=settings.user_id),
         )
 

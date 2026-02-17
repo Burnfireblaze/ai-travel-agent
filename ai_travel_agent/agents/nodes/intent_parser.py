@@ -8,6 +8,8 @@ from pydantic import ValidationError
 
 from ai_travel_agent.agents.state import StepType, TripConstraints
 from ai_travel_agent.llm import LLMClient
+from ai_travel_agent.observability.telemetry import TelemetryController, set_signal
+from .utils import log_context_from_state
 
 
 SYSTEM = """You are a travel assistant. Extract trip constraints from the user's request.
@@ -183,10 +185,20 @@ def _clarifying_questions(constraints: TripConstraints) -> list[str]:
     return qs
 
 
-def intent_parser(state: dict[str, Any], *, llm: LLMClient) -> dict[str, Any]:
+def intent_parser(state: dict[str, Any], *, llm: LLMClient, telemetry: TelemetryController | None = None) -> dict[str, Any]:
     state["current_step"] = {"step_type": StepType.INTENT_PARSE, "title": "Parse intent and constraints"}
+    state.setdefault("signals", {})
     user = state.get("user_query", "")
-    raw = llm.invoke_text(system=SYSTEM, user=user, tags={"node": "intent_parser"})
+    try:
+        raw = llm.invoke_text(
+            system=SYSTEM,
+            user=user,
+            tags={"node": "intent_parser"},
+            context=log_context_from_state(state, graph_node="intent_parser"),
+        )
+    except Exception:
+        set_signal(state, "llm_error", True, telemetry)
+        raise
 
     parsed = _extract_json_object(raw)
 
@@ -279,7 +291,20 @@ def intent_parser(state: dict[str, Any], *, llm: LLMClient) -> dict[str, Any]:
         state["needs_user_input"] = True
         state["clarifying_questions"] = qs[:4]
         state["termination_reason"] = "asked_user"
+        set_signal(state, "missing_core", True, telemetry)
     else:
         state["needs_user_input"] = False
         state["clarifying_questions"] = []
+    if telemetry is not None:
+        telemetry.trace(
+            event="intent_parse",
+            context=log_context_from_state(state, graph_node="intent_parser"),
+            data={
+                "user_query": user,
+                "raw_output": raw,
+                "constraints": constraints.model_dump(),
+                "needs_user_input": state.get("needs_user_input"),
+                "questions": state.get("clarifying_questions") or [],
+            },
+        )
     return state

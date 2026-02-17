@@ -4,6 +4,8 @@ from typing import Any
 
 from ai_travel_agent.agents.state import Issue, IssueKind, IssueSeverity, StepType
 from ai_travel_agent.llm import LLMClient
+from ai_travel_agent.observability.telemetry import TelemetryController
+from .utils import log_context_from_state
 
 
 def _find_step_index(plan: list[dict[str, Any]], step_id: str | None) -> int | None:
@@ -15,10 +17,11 @@ def _find_step_index(plan: list[dict[str, Any]], step_id: str | None) -> int | N
     return None
 
 
-def issue_triage(state: dict[str, Any], *, llm: LLMClient) -> dict[str, Any]:
+def issue_triage(state: dict[str, Any], *, llm: LLMClient, telemetry: TelemetryController | None = None) -> dict[str, Any]:
     state["current_step"] = {"step_type": StepType.EVALUATE_STEP, "title": "Issue triage: decide skip/ask/retry"}
     state.setdefault("issues", [])
     state.setdefault("validation_warnings", [])
+    state.setdefault("signals", {})
 
     pending = state.get("pending_issue")
     if not isinstance(pending, dict):
@@ -48,4 +51,10 @@ def issue_triage(state: dict[str, Any], *, llm: LLMClient) -> dict[str, Any]:
     state["needs_triage"] = False
     state["pending_issue"] = {}
     state["validation_warnings"].append(f"Skipped step due to issue ({issue.kind.value}): {issue.message}")
+    if telemetry is not None:
+        telemetry.trace(
+            event="issue_triage",
+            context=log_context_from_state(state, graph_node="issue_triage"),
+            data={"issue": issue.model_dump(), "decision": "skip"},
+        )
     return state

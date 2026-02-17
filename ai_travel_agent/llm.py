@@ -8,6 +8,8 @@ from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langchain_core.runnables import Runnable
 
 from ai_travel_agent.config import Settings
+from ai_travel_agent.observability.telemetry import TelemetryController
+from ai_travel_agent.observability.fault_injection import FaultInjector
 from ai_travel_agent.observability.logger import LogContext, get_logger, log_event
 from ai_travel_agent.observability.metrics import MetricsCollector
 
@@ -21,6 +23,9 @@ class LLMClient:
     metrics: MetricsCollector
     run_id: str
     user_id: str
+    telemetry: TelemetryController | None = None
+    fault_injector: FaultInjector | None = None
+    name: str = "llm"
 
     def invoke_text(
         self,
@@ -33,6 +38,19 @@ class LLMClient:
         started = time.perf_counter()
         self.metrics.inc("llm_calls", 1)
         try:
+            if self.fault_injector is not None:
+                self.fault_injector.maybe_inject_llm_error(self.name)
+            if self.telemetry is not None:
+                self.telemetry.trace(
+                    event="llm_request",
+                    context=context or LogContext(run_id=self.run_id, user_id=self.user_id),
+                    data={
+                        "name": self.name,
+                        "system": system,
+                        "user": user,
+                        "tags": dict(tags or {}),
+                    },
+                )
             msg = self.runnable.invoke([SystemMessage(content=system), HumanMessage(content=user)])
             if isinstance(msg, AIMessage):
                 out = msg.content or ""
@@ -48,6 +66,17 @@ class LLMClient:
                 context=context or LogContext(run_id=self.run_id, user_id=self.user_id),
                 data={"latency_ms": round(elapsed_ms, 2), "tags": dict(tags or {})},
             )
+            if self.telemetry is not None:
+                self.telemetry.trace(
+                    event="llm_response",
+                    context=context or LogContext(run_id=self.run_id, user_id=self.user_id),
+                    data={
+                        "name": self.name,
+                        "output": out,
+                        "tags": dict(tags or {}),
+                        "latency_ms": round(elapsed_ms, 2),
+                    },
+                )
             return out
         except Exception as e:
             elapsed_ms = (time.perf_counter() - started) * 1000.0
@@ -61,6 +90,17 @@ class LLMClient:
                 context=context or LogContext(run_id=self.run_id, user_id=self.user_id),
                 data={"latency_ms": round(elapsed_ms, 2), "error": str(e), "tags": dict(tags or {})},
             )
+            if self.telemetry is not None:
+                self.telemetry.trace(
+                    event="llm_error",
+                    context=context or LogContext(run_id=self.run_id, user_id=self.user_id),
+                    data={
+                        "name": self.name,
+                        "error": str(e),
+                        "tags": dict(tags or {}),
+                        "latency_ms": round(elapsed_ms, 2),
+                    },
+                )
             raise
 
 

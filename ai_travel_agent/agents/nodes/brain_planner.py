@@ -5,6 +5,8 @@ from typing import Any
 
 from ai_travel_agent.agents.state import Issue, IssueKind, IssueSeverity, PlanStep, StepType
 from ai_travel_agent.llm import LLMClient
+from ai_travel_agent.observability.telemetry import TelemetryController, set_signal
+from .utils import log_context_from_state
 
 
 ALLOWED_STEP_TYPES = {StepType.RETRIEVE_CONTEXT, StepType.TOOL_CALL, StepType.SYNTHESIZE}
@@ -122,9 +124,10 @@ def _expand_steps_for_destinations(steps: list[PlanStep], dests: list[str], tool
     return new_steps
 
 
-def brain_planner(state: dict[str, Any], *, llm: LLMClient) -> dict[str, Any]:
+def brain_planner(state: dict[str, Any], *, llm: LLMClient, telemetry: TelemetryController | None = None) -> dict[str, Any]:
     state["current_step"] = {"step_type": StepType.PLAN_DRAFT, "title": "Brain planner: decompose and select tools"}
     state.setdefault("issues", [])
+    state.setdefault("signals", {})
 
     prompt = {
         "user_query": state.get("user_query", ""),
@@ -136,7 +139,12 @@ def brain_planner(state: dict[str, Any], *, llm: LLMClient) -> dict[str, Any]:
             "no_live_prices": True,
         },
     }
-    raw = llm.invoke_text(system=SYSTEM, user=json.dumps(prompt, ensure_ascii=False), tags={"node": "brain_planner"})
+    raw = llm.invoke_text(
+        system=SYSTEM,
+        user=json.dumps(prompt, ensure_ascii=False),
+        tags={"node": "brain_planner"},
+        context=log_context_from_state(state, graph_node="brain_planner"),
+    )
     data = _safe_json(raw) or {}
     items = data.get("plan") if isinstance(data.get("plan"), list) else None
 
@@ -152,9 +160,10 @@ def brain_planner(state: dict[str, Any], *, llm: LLMClient) -> dict[str, Any]:
                 suggested_actions=["fallback_planner"],
             ).model_dump()
         )
+        set_signal(state, "planning_error", True, telemetry)
         from ai_travel_agent.agents.nodes.planner import planner as fallback_planner
 
-        return fallback_planner(state)
+        return fallback_planner(state, telemetry=telemetry)
 
     constraints = state.get("constraints") or {}
     dests = constraints.get("destinations") or []
@@ -165,4 +174,10 @@ def brain_planner(state: dict[str, Any], *, llm: LLMClient) -> dict[str, Any]:
     state["plan"] = [s.model_dump() for s in steps]
     state.setdefault("tool_results", [])
     state["current_step_index"] = 0
+    if telemetry is not None:
+        telemetry.trace(
+            event="plan",
+            context=log_context_from_state(state, graph_node="brain_planner"),
+            data={"user_query": state.get("user_query", ""), "steps": [s.model_dump() for s in steps]},
+        )
     return state

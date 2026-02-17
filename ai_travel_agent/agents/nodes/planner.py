@@ -3,9 +3,11 @@ from __future__ import annotations
 from typing import Any
 
 from ai_travel_agent.agents.state import PlanStep, StepType
+from ai_travel_agent.observability.telemetry import TelemetryController
+from .utils import log_context_from_state
 
 
-def planner(state: dict[str, Any]) -> dict[str, Any]:
+def planner(state: dict[str, Any], *, telemetry: TelemetryController | None = None) -> dict[str, Any]:
     state["current_step"] = {"step_type": StepType.PLAN_DRAFT, "title": "Draft plan steps"}
     constraints = state.get("constraints") or {}
     dests = constraints.get("destinations") or []
@@ -66,4 +68,10 @@ def planner(state: dict[str, Any]) -> dict[str, Any]:
     state["plan"] = [s.model_dump() for s in steps]
     state["tool_results"] = []
     state["current_step_index"] = 0
+    if telemetry is not None:
+        telemetry.trace(
+            event="plan_fallback",
+            context=log_context_from_state(state, graph_node="planner"),
+            data={"user_query": state.get("user_query", ""), "steps": [s.model_dump() for s in steps]},
+        )
     return state

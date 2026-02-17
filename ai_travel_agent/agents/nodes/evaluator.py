@@ -7,6 +7,7 @@ from ai_travel_agent.agents.state import StepType
 from ai_travel_agent.agents.state import Issue, IssueKind, IssueSeverity
 from ai_travel_agent.evaluation import evaluate_final
 from ai_travel_agent.observability.logger import get_logger, log_event
+from ai_travel_agent.observability.telemetry import TelemetryController
 
 from .utils import log_context_from_state
 
@@ -14,7 +15,7 @@ from .utils import log_context_from_state
 logger = get_logger(__name__)
 
 
-def evaluate_step(state: dict[str, Any]) -> dict[str, Any]:
+def evaluate_step(state: dict[str, Any], *, telemetry: TelemetryController | None = None) -> dict[str, Any]:
     step = state.get("current_step") or {}
     if not step:
         return state
@@ -32,10 +33,18 @@ def evaluate_step(state: dict[str, Any]) -> dict[str, Any]:
         context=log_context_from_state(state, graph_node="evaluate_step"),
         data={"ok": state.get("termination_reason") != "error"},
     )
+    if telemetry is not None:
+        telemetry.trace(
+            event="eval_step",
+            context=log_context_from_state(state, graph_node="evaluate_step"),
+            data={"ok": state.get("termination_reason") != "error"},
+        )
     return state
 
 
-def evaluate_final_node(state: dict[str, Any], *, eval_threshold: float) -> dict[str, Any]:
+def evaluate_final_node(
+    state: dict[str, Any], *, eval_threshold: float, telemetry: TelemetryController | None = None
+) -> dict[str, Any]:
     state["current_step"] = {"step_type": StepType.EVALUATE_FINAL, "title": "Evaluate final response"}
     ics_path = state.get("ics_path")
     ics_bytes = None
@@ -72,4 +81,10 @@ def evaluate_final_node(state: dict[str, Any], *, eval_threshold: float) -> dict
         context=log_context_from_state(state, graph_node="evaluate_final"),
         data={"overall_status": result.overall_status, "hard_gates": result.hard_gates, "rubric": result.rubric_scores},
     )
+    if telemetry is not None:
+        telemetry.trace(
+            event="eval_final",
+            context=log_context_from_state(state, graph_node="evaluate_final"),
+            data={"overall_status": result.overall_status, "hard_gates": result.hard_gates, "rubric": result.rubric_scores},
+        )
     return state

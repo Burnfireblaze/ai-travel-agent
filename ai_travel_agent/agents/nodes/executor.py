@@ -8,6 +8,8 @@ from typing import Any
 from ai_travel_agent.agents.state import Issue, IssueKind, IssueSeverity, StepType, ToolResult
 from ai_travel_agent.llm import LLMClient
 from ai_travel_agent.observability.logger import get_logger, log_event
+from ai_travel_agent.observability.telemetry import TelemetryController, set_signal
+from ai_travel_agent.observability.fault_injection import FaultInjector
 from ai_travel_agent.observability.metrics import MetricsCollector
 from ai_travel_agent.memory import MemoryStore
 from ai_travel_agent.tools import ToolRegistry
@@ -42,12 +44,15 @@ def executor(
     metrics: MetricsCollector | None = None,
     memory: MemoryStore | None = None,
     max_tool_retries: int = 1,
+    telemetry: TelemetryController | None = None,
+    fault_injector: FaultInjector | None = None,
 ) -> dict[str, Any]:
     step = state.get("current_step") or {}
     plan = state.get("plan") or []
     idx = state.get("current_step_index", 0)
     if not step:
         return state
+    state.setdefault("signals", {})
 
     if step.get("step_type") == StepType.RETRIEVE_CONTEXT:
         if memory is None:
@@ -64,6 +69,7 @@ def executor(
             state["plan"] = plan
             state["needs_triage"] = True
             state["pending_issue"] = state["issues"][-1]
+            set_signal(state, "tool_error", True, telemetry)
             return state
 
         tool_args = step.get("tool_args") or {}
@@ -71,13 +77,22 @@ def executor(
         if isinstance(tool_args, dict):
             query = str(tool_args.get("query") or state.get("user_query") or "")
 
+        injected = False
+        injected_hits = fault_injector.maybe_inject_bad_retrieval(query) if fault_injector else None
         started = time.perf_counter()
-        hits = memory.search(query=query, k=5, include_session=True, include_user=True)
+        if injected_hits is not None:
+            injected = True
+            hits = injected_hits
+            set_signal(state, "bad_retrieval", True, telemetry)
+        else:
+            hits = memory.search(query=query, k=5, include_session=True, include_user=True)
         elapsed_ms = (time.perf_counter() - started) * 1000.0
         if metrics is not None:
             metrics.inc("rag_retrievals", 1)
             metrics.observe_ms("rag_retrieval_latency_ms", elapsed_ms)
             metrics.set("memory_retrieval_hits", len(hits))
+        if not hits:
+            set_signal(state, "no_results", True, telemetry)
         log_event(
             logger,
             level=logging.INFO,
@@ -86,9 +101,18 @@ def executor(
             context=log_context_from_state(state, graph_node="executor"),
             data={"latency_ms": round(elapsed_ms, 2), "hits": len(hits)},
         )
-        state["context_hits"] = [
-            {"id": h.id, "text": h.text, "metadata": dict(h.metadata), "distance": h.distance} for h in hits
-        ]
+        if injected:
+            state["context_hits"] = hits
+        else:
+            state["context_hits"] = [
+                {"id": h.id, "text": h.text, "metadata": dict(h.metadata), "distance": h.distance} for h in hits
+            ]
+        if telemetry is not None:
+            telemetry.trace(
+                event="rag_retrieve",
+                context=log_context_from_state(state, graph_node="executor"),
+                data={"query": query, "hits": len(hits), "injected": injected},
+            )
         plan[idx]["status"] = "done"
         state["plan"] = plan
         return state
@@ -105,9 +129,20 @@ def executor(
             attempts += 1
             started = time.perf_counter()
             try:
+                if fault_injector is not None:
+                    fault_injector.maybe_inject_tool_timeout(tool_name)
+                    fault_injector.maybe_inject_tool_error(tool_name)
                 if metrics is not None:
                     metrics.inc("tool_calls", 1)
+                if telemetry is not None:
+                    telemetry.trace(
+                        event="tool_call",
+                        context=log_context_from_state(state, graph_node="executor"),
+                        data={"tool_name": tool_name, "tool_args": dict(tool_args), "attempt": attempts},
+                    )
                 out = tools.call(tool_name, **tool_args)
+                if not isinstance(out, dict):
+                    raise ValueError(f"Tool '{tool_name}' returned non-mapping output.")
                 elapsed_ms = (time.perf_counter() - started) * 1000.0
                 if metrics is not None:
                     metrics.observe_ms(f"tool_latency_ms.{tool_name}", elapsed_ms)
@@ -120,6 +155,18 @@ def executor(
                     data={"tool_name": tool_name, "latency_ms": round(elapsed_ms, 2), "attempt": attempts},
                 )
                 last_err = None
+                if telemetry is not None:
+                    telemetry.trace(
+                        event="tool_result",
+                        context=log_context_from_state(state, graph_node="executor"),
+                        data={
+                            "tool_name": tool_name,
+                            "summary": str(out.get("summary", "")),
+                            "top_results": out.get("top_results", []),
+                            "links": out.get("links", []),
+                            "latency_ms": round(elapsed_ms, 2),
+                        },
+                    )
                 break
             except Exception as e:
                 last_err = e
@@ -129,6 +176,20 @@ def executor(
                     metrics.observe_ms(f"tool_latency_ms.{tool_name}", elapsed_ms)
                     if attempts <= max_tool_retries:
                         metrics.inc("tool_retries", 1)
+                set_signal(state, "tool_error", True, telemetry)
+                if isinstance(e, TimeoutError):
+                    set_signal(state, "tool_timeout", True, telemetry)
+                if telemetry is not None:
+                    telemetry.trace(
+                        event="tool_error",
+                        context=log_context_from_state(state, graph_node="executor"),
+                        data={
+                            "tool_name": tool_name,
+                            "error": str(e),
+                            "attempt": attempts,
+                            "will_retry": attempts <= max_tool_retries,
+                        },
+                    )
                 log_event(
                     logger,
                     level=logging.WARNING if attempts <= max_tool_retries else logging.ERROR,
@@ -179,6 +240,7 @@ def executor(
         state["needs_triage"] = True
         plan[idx]["status"] = "blocked"
         state["plan"] = plan
+        set_signal(state, "tool_error", True, telemetry)
         return state
 
     # synthesize
@@ -218,8 +280,34 @@ def executor(
         f"Tool results (compact): {compact_tool_results(tool_results)}\n\n"
         "Write the final response in Markdown with the required sections."
     )
-    answer = llm.invoke_text(system=SYNTH_SYSTEM, user=prompt, tags={"node": "executor", "kind": "synthesize"})
+    if telemetry is not None:
+        telemetry.trace(
+            event="synth_prompt",
+            context=log_context_from_state(state, graph_node="executor"),
+            data={
+                "constraints": constraints,
+                "tool_results_count": len(tool_results),
+                "tool_names": [r.get("tool_name") for r in tool_results if isinstance(r, dict)],
+                "context_hits": len(context_hits),
+            },
+        )
+    try:
+        answer = llm.invoke_text(
+            system=SYNTH_SYSTEM,
+            user=prompt,
+            tags={"node": "executor", "kind": "synthesize"},
+            context=log_context_from_state(state, graph_node="executor"),
+        )
+    except Exception:
+        set_signal(state, "llm_error", True, telemetry)
+        raise
     state["final_answer"] = answer
+    if telemetry is not None:
+        telemetry.trace(
+            event="synth_result",
+            context=log_context_from_state(state, graph_node="executor"),
+            data={"final_answer": answer},
+        )
     # Best-effort extract day titles for ICS.
     day_titles: list[str] = []
     for m in re.finditer(r"^#+\s*Day\s*(\d+)\s*[:\-]?\s*(.*)$", answer, flags=re.IGNORECASE | re.MULTILINE):

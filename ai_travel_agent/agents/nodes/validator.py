@@ -5,6 +5,8 @@ from datetime import date
 from typing import Any, Callable
 
 from ai_travel_agent.agents.state import Issue, IssueKind, IssueSeverity, StepType, TripConstraints
+from ai_travel_agent.observability.telemetry import TelemetryController, set_signal
+from .utils import log_context_from_state
 
 
 ISO_DATE_RE = re.compile(r"\b(\d{4}-\d{2}-\d{2})\b")
@@ -91,6 +93,7 @@ def validator(
     state: dict[str, Any],
     *,
     geocode_fn: Callable[[str], dict[str, Any]] | None = None,
+    telemetry: TelemetryController | None = None,
 ) -> dict[str, Any]:
     """
     Pre-planner validator / grounder.
@@ -100,6 +103,7 @@ def validator(
     """
     state["current_step"] = {"step_type": StepType.VALIDATE_INPUTS, "title": "Validate inputs and resolve conflicts"}
     state.setdefault("validation_warnings", [])
+    state.setdefault("signals", {})
     state.setdefault("conflicts_detected", [])
     state.setdefault("issues", [])
     state.setdefault("resolved_conflicts", [])
@@ -140,6 +144,7 @@ def validator(
         state["pending_fixup"] = {"field": "start_date"}
         state["clarifying_questions"] = ["Your start date looks invalid. Please provide start date as YYYY-MM-DD."]
         state["termination_reason"] = "asked_user"
+        set_signal(state, "validation_error", True, telemetry)
         return state
     if constraints.end_date and not de:
         issue = Issue(
@@ -154,6 +159,7 @@ def validator(
         state["pending_fixup"] = {"field": "end_date"}
         state["clarifying_questions"] = ["Your end date looks invalid. Please provide end date as YYYY-MM-DD."]
         state["termination_reason"] = "asked_user"
+        set_signal(state, "validation_error", True, telemetry)
         return state
 
     # Normalize swapped dates.
@@ -224,6 +230,7 @@ def validator(
         state["pending_fixup"] = {"kind": "missing_core", "missing": missing_core}
         state["clarifying_questions"] = [f"Please provide {m}." for m in missing_core[:4]]
         state["termination_reason"] = "asked_user"
+        set_signal(state, "validation_error", True, telemetry)
         return state
 
     # Geocode grounding.
@@ -263,6 +270,7 @@ def validator(
                         f"Your origin '{constraints.origin}' is ambiguous. Reply with 1-{len(options_list)}. Options: {options}",
                     ]
                     state["termination_reason"] = "asked_user"
+                    set_signal(state, "validation_error", True, telemetry)
                     return state
                 candidates = g.get("candidates") or []
                 if not g.get("best") and not candidates:
@@ -281,6 +289,7 @@ def validator(
                         f"I couldn't find your origin '{constraints.origin}'. Please provide a real departure city/airport (ideally an IATA code like SFO/JFK or 'City, Country').",
                     ]
                     state["termination_reason"] = "asked_user"
+                    set_signal(state, "validation_error", True, telemetry)
                     return state
                 grounded["origin"] = g.get("best")
             except Exception as e:
@@ -300,6 +309,7 @@ def validator(
                         f"I couldn't validate your origin '{constraints.origin}'. Please provide a real departure city/airport (e.g. 'San Francisco, US' or IATA like SFO).",
                     ]
                     state["termination_reason"] = "asked_user"
+                    set_signal(state, "validation_error", True, telemetry)
                     return state
 
     if geocode_fn is not None:
@@ -340,6 +350,7 @@ def validator(
                         f"Your destination '{dest}' is ambiguous. Reply with 1-{len(options_list)}. Options: {options}",
                     ]
                     state["termination_reason"] = "asked_user"
+                    set_signal(state, "validation_error", True, telemetry)
                     return state
                 candidates = g.get("candidates") or []
                 if not g.get("best") and not candidates:
@@ -384,4 +395,14 @@ def validator(
     state["grounded_places"] = grounded
     state["needs_user_input"] = False
     state["clarifying_questions"] = []
+    if telemetry is not None:
+        telemetry.trace(
+            event="validated_constraints",
+            context=log_context_from_state(state, graph_node="validator"),
+            data={
+                "constraints": constraints.model_dump(),
+                "grounded_places": grounded,
+                "warnings": state.get("validation_warnings") or [],
+            },
+        )
     return state
