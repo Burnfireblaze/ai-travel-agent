@@ -1,0 +1,50 @@
+{
+  "total_records": 10073,
+  "unique_runs": 200,
+  "records_per_run": {
+    "min": 6,
+    "median": 56.0,
+    "max": 98
+  },
+  "event_group_counts": {
+    "workflow": 6626,
+    "rag": 904,
+    "planning": 687,
+    "eval": 687,
+    "llm": 520,
+    "tool": 464,
+    "failure": 185
+  },
+  "span_type_counts": {
+    "tool_span": 3082,
+    "task_span": 2568,
+    "agent_span": 1128,
+    "workflow_span": 984,
+    "reasoning_span": 904,
+    "evaluation_span": 687,
+    "llm_span": 552,
+    "planning_span": 168
+  },
+  "level_counts": {
+    "INFO": 9732,
+    "ERROR": 201,
+    "WARNING": 140
+  },
+  "failure_rows": 201,
+  "failure_category_counts": {
+    "tool": 105,
+    "NaN": 40,
+    "llm": 32,
+    "unknown": 24
+  },
+  "overall_status_last_event": {
+    "good": 152,
+    "NaN": 32,
+    "failed": 16
+  },
+  "eval_overall_status": {
+    "NaN": 519,
+    "good": 152,
+    "failed": 16
+  }
+}

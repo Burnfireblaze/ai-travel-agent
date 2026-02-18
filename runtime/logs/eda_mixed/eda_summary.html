@@ -1,0 +1,33 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Mixed Runs EDA</title>
+<style>body{font-family:Arial,sans-serif;padding:24px;background:#f8fafc;color:#0f172a}img{max-width:100%;height:auto;border:1px solid #cbd5e1;margin:10px 0}</style></head>
+<body>
+<h1>Mixed 60 Runs EDA</h1>
+<pre>{
+  &quot;input_file&quot;: &quot;/Users/sauravmohanty/ai-travel-agent/runtime/logs/mixed_60_runs.jsonl&quot;,
+  &quot;total_records&quot;: 2875,
+  &quot;run_end_records&quot;: 60,
+  &quot;failure_records&quot;: 31,
+  &quot;overall_status&quot;: {
+    &quot;good&quot;: 46,
+    &quot;null&quot;: 10,
+    &quot;failed&quot;: 4
+  },
+  &quot;run_modes&quot;: {
+    &quot;success&quot;: 30,
+    &quot;failure&quot;: 30
+  }
+}</pre>
+<h2>Plots</h2>
+<ul>
+<li><a href="run_mode_distribution.svg">run_mode_distribution.svg</a></li>
+<li><a href="overall_status_distribution.svg">overall_status_distribution.svg</a></li>
+<li><a href="scenario_distribution.svg">scenario_distribution.svg</a></li>
+<li><a href="kind_distribution.svg">kind_distribution.svg</a></li>
+<li><a href="top_events.svg">top_events.svg</a></li>
+<li><a href="failure_categories.svg">failure_categories.svg</a></li>
+<li><a href="failure_error_types.svg">failure_error_types.svg</a></li>
+<li><a href="records_timeline.svg">records_timeline.svg</a></li>
+<li><a href="failures_timeline.svg">failures_timeline.svg</a></li>
+</ul>
+</body></html>

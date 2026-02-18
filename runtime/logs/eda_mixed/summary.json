@@ -1,0 +1,15 @@
+{
+  "input_file": "/Users/sauravmohanty/ai-travel-agent/runtime/logs/mixed_60_runs.jsonl",
+  "total_records": 2875,
+  "run_end_records": 60,
+  "failure_records": 31,
+  "overall_status": {
+    "good": 46,
+    "null": 10,
+    "failed": 4
+  },
+  "run_modes": {
+    "success": 30,
+    "failure": 30
+  }
+}

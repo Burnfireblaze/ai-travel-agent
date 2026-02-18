@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="700" viewBox="0 0 1400 700">
+  <rect x="0" y="0" width="1400" height="700" fill="#f8fafc"/>
+  <text x="700.0" y="45" text-anchor="middle" font-size="30" font-family="Arial" fill="#0f172a">Failures Per Minute</text>
+  <line x1="90" y1="570" x2="1360" y2="570" stroke="#334155" stroke-width="2"/>
+  <line x1="90" y1="90" x2="90" y2="570" stroke="#334155" stroke-width="2"/>
+  <polyline points="90.0,120.0 1360.0,90.0" fill="none" stroke="#0ea5e9" stroke-width="3"/>
+  <circle cx="90.0" cy="120.0" r="3" fill="#0284c7"/>
+  <text x="90.0" y="588" text-anchor="middle" font-size="10" font-family="Arial" fill="#334155" transform="rotate(30 90.0 588)">06:40</text>
+  <circle cx="1360.0" cy="90.0" r="3" fill="#0284c7"/>
+  <text x="1360.0" y="588" text-anchor="middle" font-size="10" font-family="Arial" fill="#334155" transform="rotate(30 1360.0 588)">06:41</text>
+  <line x1="85" y1="570" x2="90" y2="570" stroke="#334155"/>
+  <text x="80" y="575" text-anchor="end" font-size="12" font-family="Arial" fill="#334155">0</text>
+  <line x1="85" y1="474" x2="90" y2="474" stroke="#334155"/>
+  <text x="80" y="479" text-anchor="end" font-size="12" font-family="Arial" fill="#334155">3</text>
+  <line x1="85" y1="378" x2="90" y2="378" stroke="#334155"/>
+  <text x="80" y="383" text-anchor="end" font-size="12" font-family="Arial" fill="#334155">6</text>
+  <line x1="85" y1="282" x2="90" y2="282" stroke="#334155"/>
+  <text x="80" y="287" text-anchor="end" font-size="12" font-family="Arial" fill="#334155">9</text>
+  <line x1="85" y1="186" x2="90" y2="186" stroke="#334155"/>
+  <text x="80" y="191" text-anchor="end" font-size="12" font-family="Arial" fill="#334155">12</text>
+  <line x1="85" y1="90" x2="90" y2="90" stroke="#334155"/>
+  <text x="80" y="95" text-anchor="end" font-size="12" font-family="Arial" fill="#334155">16</text>
+</svg>
