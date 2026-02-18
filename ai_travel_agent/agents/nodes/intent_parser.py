@@ -1,4 +1,10 @@
+
 from __future__ import annotations
+try:
+    from tests.test_failures import get_prompt
+except ImportError:
+    def get_prompt(default):
+        return default
 
 import json
 import re
@@ -8,6 +14,16 @@ from pydantic import ValidationError
 
 from ai_travel_agent.agents.state import StepType, TripConstraints
 from ai_travel_agent.llm import LLMClient
+from ai_travel_agent.observability.logger import TELEMETRY
+from ai_travel_agent.observability.logger import TELEMETRY
+# Failure tracking imports
+try:
+    from ai_travel_agent.observability.failure_tracker import (
+        FailureCategory, FailureSeverity, get_failure_tracker
+    )
+    FAILURE_TRACKING_AVAILABLE = True
+except ImportError:
+    FAILURE_TRACKING_AVAILABLE = False
 
 
 SYSTEM = """You are a travel assistant. Extract trip constraints from the user's request.
@@ -185,18 +201,43 @@ def _clarifying_questions(constraints: TripConstraints) -> list[str]:
 
 def intent_parser(state: dict[str, Any], *, llm: LLMClient) -> dict[str, Any]:
     state["current_step"] = {"step_type": StepType.INTENT_PARSE, "title": "Parse intent and constraints"}
-    user = state.get("user_query", "")
-    raw = llm.invoke_text(system=SYSTEM, user=user, tags={"node": "intent_parser"})
+    user = get_prompt(state.get("user_query", ""))
 
-    parsed = _extract_json_object(raw)
-
-    if parsed is None:
-        constraints = TripConstraints()
-    else:
-        try:
-            constraints = TripConstraints.model_validate(parsed)
-        except ValidationError:
+    try:
+        # Use telemetry controller to determine logging mode
+        if TELEMETRY.should_log_detailed(state):
+            TELEMETRY.set_mode("DETAILED")
+        raw = llm.invoke_text(system=SYSTEM, user=user, tags={"node": "intent_parser"}, state=state)
+        parsed = _extract_json_object(raw)
+        if parsed is None:
             constraints = TripConstraints()
+        else:
+            try:
+                constraints = TripConstraints.model_validate(parsed)
+            except ValidationError:
+                constraints = TripConstraints()
+    except Exception as e:
+        # Track LLM failures in intent parsing
+        if FAILURE_TRACKING_AVAILABLE:
+            tracker = get_failure_tracker()
+            if tracker:
+                try:
+                    tracker.record_failure(
+                        category=FailureCategory.LLM,
+                        severity=FailureSeverity.HIGH,
+                        graph_node="intent_parser",
+                        error_type=type(e).__name__,
+                        error_message=str(e),
+                        step_id=None,
+                        step_type="LLM_CALL",
+                        step_title="LLM invocation",
+                        llm_model=getattr(llm, 'runnable', None) and getattr(llm.runnable, 'model', None),
+                        context_data={"user_query": user},
+                        tags=["auto-tracked", "llm-failure"],
+                    )
+                except Exception:
+                    pass
+        raise
 
     # Heuristic fill if model returned partial/missing fields.
     heur = _heuristic_extract(user)
