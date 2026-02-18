@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 from collections import defaultdict
 
+from ai_travel_agent.observability.canonical_schema import build_canonical_record
 
 class FailureSeverity(Enum):
     """Severity levels for failures."""
@@ -260,21 +261,21 @@ class FailureTracker:
     ) -> None:
         """Write a failure event into the run-level combined log."""
         try:
-            payload = {
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-                "level": "ERROR",
-                "module": "ai_travel_agent.observability.failure_tracker",
-                "message": "Failure tracker event",
-                "run_id": self.run_id,
-                "user_id": self.user_id,
-                "graph_node": graph_node,
-                "step_id": step_id,
-                "step_type": step_type,
-                "step_title": step_title,
-                "event": event,
-                "kind": "failure",
-                "data": data,
-            }
+            payload = build_canonical_record(
+                ts=datetime.now(timezone.utc).isoformat(),
+                level="ERROR",
+                module="ai_travel_agent.observability.failure_tracker",
+                message="Failure tracker event",
+                event=event,
+                run_id=self.run_id,
+                user_id=self.user_id,
+                node=graph_node,
+                step_type=step_type,
+                step_id=step_id,
+                step_title=step_title,
+                kind="failure",
+                data=data,
+            )
             with self.combined_log_path.open("a", encoding="utf-8") as f:
                 f.write(json.dumps(payload, ensure_ascii=False, default=str) + "\n")
         except Exception:

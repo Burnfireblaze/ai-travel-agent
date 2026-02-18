@@ -83,6 +83,7 @@ Test suite for failure injection in AI Travel Agent.
 Demonstrates how to simulate various failure scenarios.
 """
 
+import os
 import pytest
 from ai_travel_agent.observability.failure_tracker import FailureTracker, set_failure_tracker
 from pathlib import Path
@@ -731,7 +732,7 @@ def test_tool_retry_failure_records():
 
 
 # ===================== Custom Prompt Support =====================
-CUSTOM_PROMPT = "Plan a 5 day trip to Paris from New Delhi"  # Set this to a string to override all prompts in tests
+CUSTOM_PROMPT = os.environ.get("TEST_FAILURES_PROMPT", "Plan a 5 day trip to Paris from New Delhi")
 
 def get_prompt(default):
     return CUSTOM_PROMPT if CUSTOM_PROMPT is not None else default

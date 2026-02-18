@@ -34,6 +34,7 @@ from logging import Handler, LogRecord
 from pathlib import Path
 from typing import Any, Mapping
 
+from ai_travel_agent.observability.canonical_schema import build_canonical_record
 
 SENSITIVE_KEY_PATTERN = re.compile(r"(api[_-]?key|authorization|token|secret|password)", re.IGNORECASE)
 
@@ -74,19 +75,23 @@ class JsonlHandler(Handler):
 
     def emit(self, record: LogRecord) -> None:
         try:
-            payload: dict[str, Any] = {
-                "timestamp": _utc_now_iso(),
-                "level": record.levelname,
-                "module": record.name,
-                "message": record.getMessage(),
-            }
-
-            for key in ("run_id", "user_id", "graph_node", "step_type", "step_id", "step_title", "event", "data"):
-                if hasattr(record, key):
-                    payload[key] = getattr(record, key)
-
-            if "data" in payload:
-                payload["data"] = _sanitize(payload["data"])
+            event = getattr(record, "event", "log")
+            data = getattr(record, "data", None)
+            payload = build_canonical_record(
+                ts=_utc_now_iso(),
+                level=record.levelname,
+                module=record.name,
+                message=record.getMessage(),
+                event=event,
+                run_id=getattr(record, "run_id", None),
+                user_id=getattr(record, "user_id", None),
+                node=getattr(record, "graph_node", None),
+                step_type=getattr(record, "step_type", None),
+                step_id=getattr(record, "step_id", None),
+                step_title=getattr(record, "step_title", None),
+                kind=getattr(record, "kind", "normal"),
+                data=_sanitize(data) if data is not None else None,
+            )
 
             with self._path.open("a", encoding="utf-8") as f:
                 f.write(json.dumps(payload, ensure_ascii=False) + "\n")
@@ -227,27 +232,21 @@ def _write_combined_log_event(
         if context_run_id and context_run_id != tracker.run_id:
             return
 
-        payload: dict[str, Any] = {
-            "timestamp": _utc_now_iso(),
-            "level": logging.getLevelName(level),
-            "module": module,
-            "message": message,
-            "run_id": tracker.run_id,
-            "user_id": tracker.user_id,
-            "event": event,
-            "kind": "normal",
-        }
-        if context:
-            payload.update(
-                {
-                    "graph_node": context.graph_node,
-                    "step_type": context.step_type,
-                    "step_id": context.step_id,
-                    "step_title": context.step_title,
-                }
-            )
-        if data is not None:
-            payload["data"] = _sanitize(dict(data))
+        payload = build_canonical_record(
+            ts=_utc_now_iso(),
+            level=logging.getLevelName(level),
+            module=module,
+            message=message,
+            event=event,
+            run_id=tracker.run_id,
+            user_id=tracker.user_id,
+            node=context.graph_node if context else None,
+            step_type=context.step_type if context else None,
+            step_id=context.step_id if context else None,
+            step_title=context.step_title if context else None,
+            kind="normal",
+            data=_sanitize(dict(data)) if data is not None else None,
+        )
 
         with tracker.combined_log_path.open("a", encoding="utf-8") as f:
             f.write(json.dumps(payload, ensure_ascii=False) + "\n")
