@@ -4,27 +4,26 @@ from collections.abc import Callable
 from typing import Any, Literal
 
 from langgraph.graph import END, StateGraph
-try:
-    from langchain_ollama import ChatOllama
-except Exception:  # pragma: no cover
-    from langchain_community.chat_models import ChatOllama
 
 from ai_travel_agent.agents.nodes import (
+    brain_planner,
     context_controller,
     evaluate_final_node,
     evaluate_step,
     executor,
     export_ics,
     intent_parser,
+    issue_triage,
     memory_writer,
     orchestrator,
     planner,
     responder,
+    validator,
 )
 from ai_travel_agent.agents.nodes.utils import instrument_node
 from ai_travel_agent.agents.state import AgentState
 from ai_travel_agent.config import Settings
-from ai_travel_agent.llm import LLMClient
+from ai_travel_agent.llm import LLMClient, build_chat_model
 from ai_travel_agent.memory import MemoryStore
 from ai_travel_agent.observability.metrics import MetricsCollector
 from ai_travel_agent.tools import ToolRegistry
@@ -33,6 +32,7 @@ from ai_travel_agent.tools.flights_links import flights_search_links
 from ai_travel_agent.tools.hotels_links import hotels_search_links
 from ai_travel_agent.tools.things_to_do_links import things_to_do_links
 from ai_travel_agent.tools.weather import weather_summary
+from ai_travel_agent.tools.geocoding import geocode_place
 
 
 def build_tools() -> ToolRegistry:
@@ -52,8 +52,16 @@ def build_app(
     metrics: MetricsCollector,
 ) -> Any:
     tools = build_tools()
-    chat = ChatOllama(base_url=settings.ollama_base_url, model=settings.ollama_model, temperature=0.2)
-    llm = LLMClient(runnable=chat, metrics=metrics, run_id=metrics.run_id, user_id=metrics.user_id)
+    # Use a single model (provider-configured) for all stages for predictability.
+    chat_intent = build_chat_model(settings=settings, json_mode=True, temperature=0.0)
+    chat_planner = build_chat_model(settings=settings, json_mode=True, temperature=0.0)
+    chat_triage = build_chat_model(settings=settings, json_mode=True, temperature=0.0)
+    chat_synth = build_chat_model(settings=settings, json_mode=False, temperature=0.2)
+
+    llm_intent = LLMClient(runnable=chat_intent, metrics=metrics, run_id=metrics.run_id, user_id=metrics.user_id)
+    llm_planner = LLMClient(runnable=chat_planner, metrics=metrics, run_id=metrics.run_id, user_id=metrics.user_id)
+    llm_triage = LLMClient(runnable=chat_triage, metrics=metrics, run_id=metrics.run_id, user_id=metrics.user_id)
+    llm_synth = LLMClient(runnable=chat_synth, metrics=metrics, run_id=metrics.run_id, user_id=metrics.user_id)
 
     graph: StateGraph = StateGraph(AgentState)
 
@@ -67,11 +75,19 @@ def build_app(
     )
     graph.add_node(
         "intent_parser",
-        instrument_node(node_name="intent_parser", metrics=metrics, fn=lambda s: intent_parser(s, llm=llm)),
+        instrument_node(node_name="intent_parser", metrics=metrics, fn=lambda s: intent_parser(s, llm=llm_intent)),
     )
     graph.add_node(
-        "planner",
-        instrument_node(node_name="planner", metrics=metrics, fn=planner),
+        "validator",
+        instrument_node(
+            node_name="validator",
+            metrics=metrics,
+            fn=lambda s: validator(s, geocode_fn=geocode_place),
+        ),
+    )
+    graph.add_node(
+        "brain_planner",
+        instrument_node(node_name="brain_planner", metrics=metrics, fn=lambda s: brain_planner(s, llm=llm_planner)),
     )
     graph.add_node(
         "orchestrator",
@@ -84,8 +100,21 @@ def build_app(
     graph.add_node(
         "executor",
         instrument_node(
-            node_name="executor", metrics=metrics, fn=lambda s: executor(s, tools=tools, llm=llm, metrics=metrics)
+            node_name="executor",
+            metrics=metrics,
+            fn=lambda s: executor(
+                s,
+                tools=tools,
+                llm=llm_synth,
+                metrics=metrics,
+                memory=memory,
+                max_tool_retries=settings.max_tool_retries,
+            ),
         ),
+    )
+    graph.add_node(
+        "issue_triage",
+        instrument_node(node_name="issue_triage", metrics=metrics, fn=lambda s: issue_triage(s, llm=llm_triage)),
     )
     graph.add_node(
         "evaluate_step",
@@ -115,11 +144,16 @@ def build_app(
     graph.set_entry_point("context_controller")
     graph.add_edge("context_controller", "intent_parser")
 
-    def _intent_route(state: dict[str, Any]) -> Literal["planner", "__end__"]:
-        return "__end__" if state.get("needs_user_input") else "planner"
+    def _intent_route(state: dict[str, Any]) -> Literal["validator", "__end__"]:
+        return "__end__" if state.get("needs_user_input") else "validator"
 
-    graph.add_conditional_edges("intent_parser", _intent_route, {"planner": "planner", "__end__": END})
-    graph.add_edge("planner", "orchestrator")
+    graph.add_conditional_edges("intent_parser", _intent_route, {"validator": "validator", "__end__": END})
+
+    def _validator_route(state: dict[str, Any]) -> Literal["brain_planner", "__end__"]:
+        return "__end__" if state.get("needs_user_input") else "brain_planner"
+
+    graph.add_conditional_edges("validator", _validator_route, {"brain_planner": "brain_planner", "__end__": END})
+    graph.add_edge("brain_planner", "orchestrator")
 
     def _orch_route(state: dict[str, Any]) -> Literal["executor", "responder"]:
         if state.get("termination_reason") in {"finalized", "max_iters"}:
@@ -127,8 +161,17 @@ def build_app(
         return "executor"
 
     graph.add_conditional_edges("orchestrator", _orch_route, {"executor": "executor", "responder": "responder"})
-    graph.add_edge("executor", "evaluate_step")
+
+    def _exec_route(state: dict[str, Any]) -> Literal["issue_triage", "evaluate_step"]:
+        return "issue_triage" if state.get("needs_triage") else "evaluate_step"
+
+    graph.add_conditional_edges("executor", _exec_route, {"issue_triage": "issue_triage", "evaluate_step": "evaluate_step"})
     graph.add_edge("evaluate_step", "orchestrator")
+
+    def _triage_route(state: dict[str, Any]) -> Literal["orchestrator", "__end__"]:
+        return "__end__" if state.get("needs_user_input") else "orchestrator"
+
+    graph.add_conditional_edges("issue_triage", _triage_route, {"orchestrator": "orchestrator", "__end__": END})
 
     graph.add_edge("responder", "export_ics")
     graph.add_edge("export_ics", "evaluate_final")

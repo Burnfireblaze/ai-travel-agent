@@ -26,6 +26,178 @@ app = typer.Typer(add_completion=False)
 console = Console()
 logger = get_logger(__name__)
 
+_ORDINAL_MAP: list[tuple[str, int]] = [
+    ("1st", 1),
+    ("first", 1),
+    ("option 1", 1),
+    ("#1", 1),
+    ("2nd", 2),
+    ("second", 2),
+    ("option 2", 2),
+    ("#2", 2),
+    ("3rd", 3),
+    ("third", 3),
+    ("option 3", 3),
+    ("#3", 3),
+]
+
+
+def _resolve_option_answer(question: str, answer: str) -> str:
+    """
+    If a question contains "Options:" and the user replies with a number/ordinal,
+    expand it into the selected option text so the next run can be unambiguous.
+    """
+    q = question or ""
+    a = (answer or "").strip()
+    if not a:
+        return a
+    if "options:" not in q.lower():
+        return a
+
+    # Extract options list from the question.
+    try:
+        options_part = q.split("Options:", 1)[1]
+    except Exception:
+        return a
+    raw_options = [o.strip() for o in options_part.split(";") if o.strip()]
+    options: list[str] = []
+    for ro in raw_options:
+        # Accept "1) Foo" or "Foo"
+        ro = re.sub(r"^\s*\d+\)\s*", "", ro).strip()
+        if ro:
+            options.append(ro)
+    if not options:
+        return a
+
+    lower = a.lower()
+    # Direct numeric selection.
+    m = re.fullmatch(r"\s*(\d+)\s*", a)
+    if m:
+        n = int(m.group(1))
+        if 1 <= n <= len(options):
+            return options[n - 1]
+
+    # Ordinal phrases.
+    for phrase, n in _ORDINAL_MAP:
+        if phrase in lower and 1 <= n <= len(options):
+            return options[n - 1]
+
+    # Try to match by substring.
+    for opt in options:
+        if opt.lower() in lower:
+            return opt
+
+    return a
+
+
+def _dedupe_preserve_order(items: list[str]) -> list[str]:
+    seen: set[str] = set()
+    out: list[str] = []
+    for it in items:
+        key = it.strip().lower()
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        out.append(it.strip())
+    return out
+
+
+def _resolve_interests_conflict(pending_conflict: dict[str, Any], answer_raw: str) -> list[str] | None:
+    raw = (answer_raw or "").strip()
+    if not raw:
+        return None
+    current = pending_conflict.get("current") or []
+    memory = pending_conflict.get("memory") or []
+    merged = pending_conflict.get("merged") or []
+    lower = raw.lower()
+
+    if re.fullmatch(r"\d+", raw):
+        n = int(raw)
+        if n == 1:
+            return list(current)
+        if n == 2:
+            return list(memory)
+        if n == 3:
+            return list(merged)
+
+    if "this trip" in lower or "current" in lower:
+        return list(current)
+    if "saved" in lower or "memory" in lower:
+        return list(memory)
+    if "merge" in lower or "both" in lower:
+        return list(merged)
+
+    parts = re.split(r"[,\n;]+", raw)
+    cleaned = [p.strip() for p in parts if p.strip()]
+    if cleaned:
+        return _dedupe_preserve_order(cleaned)
+    return None
+
+
+def _resolve_origin_conflict(pending_conflict: dict[str, Any], answer_raw: str) -> str | None:
+    raw = (answer_raw or "").strip()
+    if not raw:
+        return None
+    current = str(pending_conflict.get("current") or "").strip()
+    memory = str(pending_conflict.get("memory") or "").strip()
+    lower = raw.lower()
+
+    m = re.fullmatch(r"\s*(\d+)\s*", raw)
+    if m:
+        n = int(m.group(1))
+        if n == 1 and current:
+            return current
+        if n == 2 and memory:
+            return memory
+
+    if current and current.lower() in lower:
+        return current
+    if memory and memory.lower() in lower:
+        return memory
+    return raw
+
+
+def _infer_override_from_question(question: str, answer_raw: str) -> dict[str, Any]:
+    q = (question or "").lower()
+    a = (answer_raw or "").strip()
+    if not a:
+        return {}
+
+    if "destination" in q or "where do you want to travel" in q:
+        return {"destinations": [a]}
+    if "departing" in q or "departure" in q or "origin" in q:
+        return {"origin": a}
+    if "start date" in q:
+        return {"start_date": a}
+    if "end date" in q:
+        return {"end_date": a}
+    if "how many travelers" in q:
+        try:
+            return {"travelers": int(re.findall(r"\d+", a)[0])}
+        except Exception:
+            return {}
+    if "budget" in q:
+        try:
+            num = re.sub(r"[^0-9.]+", "", a)
+            return {"budget_usd": float(num)}
+        except Exception:
+            return {}
+    if "pace" in q:
+        p = a.lower()
+        if p in {"relaxed", "balanced", "packed"}:
+            return {"pace": p}
+    return {}
+
+
+def _append_details(base_query: str, new_lines: list[str]) -> str:
+    base = base_query or ""
+    if not new_lines:
+        return base
+    marker = "\n\nAdditional details:\n"
+    if marker in base:
+        return base.rstrip() + "\n" + "\n".join(new_lines)
+    return base.rstrip() + marker + "\n".join(new_lines)
+
 
 def _render_status(state: dict[str, Any]) -> Panel:
     node = state.get("current_node") or "-"
@@ -43,7 +215,7 @@ def _render_status(state: dict[str, Any]) -> Panel:
 
 def _metrics_table(record: dict[str, Any]) -> Table:
     t = Table(title="Run summary", show_header=False)
-    t.add_row("status", str(record.get("status")))
+    t.add_row("run_status", str(record.get("status")))
     t.add_row("termination_reason", str(record.get("termination_reason")))
     t.add_row("total_latency_ms", str(record.get("total_latency_ms")))
     counters = record.get("counters", {})
@@ -61,8 +233,11 @@ def _stream_or_invoke(app_graph, state: dict[str, Any], *, recursion_limit: int,
     node_step_defaults: dict[str, dict[str, Any]] = {
         "context_controller": {"step_type": StepType.RETRIEVE_CONTEXT, "title": "Retrieve memory context"},
         "intent_parser": {"step_type": StepType.INTENT_PARSE, "title": "Parse intent and constraints"},
+        "validator": {"step_type": StepType.VALIDATE_INPUTS, "title": "Validate inputs and resolve conflicts"},
+        "brain_planner": {"step_type": StepType.PLAN_DRAFT, "title": "Brain planner: decompose and select tools"},
         "planner": {"step_type": StepType.PLAN_DRAFT, "title": "Draft plan steps"},
         "evaluate_step": {"step_type": StepType.EVALUATE_STEP, "title": "Evaluate step"},
+        "issue_triage": {"step_type": StepType.EVALUATE_STEP, "title": "Issue triage: decide skip/ask/retry"},
         "responder": {"step_type": StepType.RESPOND, "title": "Format final response"},
         "export_ics": {"step_type": StepType.EXPORT_ICS, "title": "Export itinerary calendar (.ics)"},
         "evaluate_final": {"step_type": StepType.EVALUATE_FINAL, "title": "Evaluate final response"},
@@ -164,30 +339,103 @@ def chat(
         # Keep this comfortably above the maximum expected transitions.
         recursion_limit = max(200, settings.max_graph_iters * 10)
 
-        with Live(_render_status(state), refresh_per_second=8, console=console) as live:
-            while True:
+        while True:
+            # Run the graph with a live status panel. If the graph requests user input, stop live rendering
+            # and ask questions outside the Live context (avoids “missing prompt” UX issues).
+            with Live(_render_status(state), refresh_per_second=8, console=console) as live:
                 latest = _stream_or_invoke(graph_app, state, recursion_limit=recursion_limit, live=live)
-                state = latest
+            state = latest
 
-                if state.get("needs_user_input"):
-                    qs = state.get("clarifying_questions") or []
-                    console.print("\nI need a few details:")
-                    answers: list[str] = []
-                    for q in qs:
-                        a = console.input(f"- {q} ").strip()
-                        if a:
-                            answers.append(f"{q} {a}")
-                    if not answers:
-                        console.print("No answers provided; stopping.")
-                        break
-                    state["user_query"] = user_query + "\n\nAdditional details:\n" + "\n".join(answers)
-                    state["needs_user_input"] = False
-                    state["clarifying_questions"] = []
-                    continue
+            if state.get("needs_user_input"):
+                qs = state.get("clarifying_questions") or []
+                if not qs:
+                    qs = ["Please clarify your origin, destination(s), and dates (YYYY-MM-DD)."]
+                console.print("\nI need a few details:")
+                answers: list[str] = []
+                pending_disamb = state.get("pending_disambiguation")
+                pending_conflict = state.get("pending_conflict")
+                pending_fixup = state.get("pending_fixup")
+                for q in qs:
+                    a_raw = console.input(f"- {q} ").strip()
+                    if not a_raw:
+                        continue
 
-                break
+                    display_answer = a_raw
+
+                    # 1) Conflict handling (origin/interests) takes precedence.
+                    if isinstance(pending_conflict, dict):
+                        field = pending_conflict.get("field")
+                        if field == "origin":
+                            chosen = _resolve_origin_conflict(pending_conflict, a_raw)
+                            if chosen:
+                                state.setdefault("constraint_overrides", {})["origin"] = chosen
+                                state.setdefault("resolved_conflicts", [])
+                                if "origin" not in set(state["resolved_conflicts"]):
+                                    state["resolved_conflicts"].append("origin")
+                                display_answer = chosen
+                        elif field == "interests":
+                            resolved = _resolve_interests_conflict(pending_conflict, a_raw)
+                            if resolved:
+                                state.setdefault("constraint_overrides", {})["interests"] = resolved
+                                state.setdefault("resolved_conflicts", [])
+                                if "interests" not in set(state["resolved_conflicts"]):
+                                    state["resolved_conflicts"].append("interests")
+                                display_answer = ", ".join(resolved)
+                    else:
+                        # 2) Option-style disambiguation (places)
+                        a_opt = _resolve_option_answer(q, a_raw)
+                        if isinstance(pending_disamb, dict):
+                            field = pending_disamb.get("field")
+                            if field == "origin":
+                                state.setdefault("constraint_overrides", {})["origin"] = a_opt
+                                display_answer = a_opt
+                            elif field == "destinations":
+                                state.setdefault("constraint_overrides", {})["destinations"] = [a_opt]
+                                display_answer = a_opt
+                        # 3) Fixups (validator blocking fields)
+                        elif isinstance(pending_fixup, dict):
+                            kind = pending_fixup.get("kind")
+                            if kind == "missing_core":
+                                inferred = _infer_override_from_question(q, a_raw)
+                                if inferred:
+                                    state.setdefault("constraint_overrides", {}).update(inferred)
+                            else:
+                                field = pending_fixup.get("field")
+                                if field == "origin":
+                                    state.setdefault("constraint_overrides", {})["origin"] = a_raw
+                                elif field == "destinations":
+                                    state.setdefault("constraint_overrides", {})["destinations"] = [a_raw]
+                                elif field == "start_date":
+                                    state.setdefault("constraint_overrides", {})["start_date"] = a_raw
+                                elif field == "end_date":
+                                    state.setdefault("constraint_overrides", {})["end_date"] = a_raw
+                        # 4) Generic intent_parser questions (best-effort overrides)
+                        else:
+                            inferred = _infer_override_from_question(q, a_raw)
+                            if inferred:
+                                state.setdefault("constraint_overrides", {}).update(inferred)
+
+                    answers.append(f"{q} {display_answer}")
+                if not answers:
+                    console.print("No answers provided; stopping.")
+                    break
+                state["user_query"] = _append_details(state.get("user_query", user_query), answers)
+                state["needs_user_input"] = False
+                state["clarifying_questions"] = []
+                state.pop("pending_disambiguation", None)
+                state.pop("pending_conflict", None)
+                state.pop("pending_fixup", None)
+                continue
+
+            break
 
         final_answer = state.get("final_answer", "").strip()
+        warnings = state.get("validation_warnings") or []
+        skip_notes = [w for w in warnings if isinstance(w, str) and w.lower().startswith("skipped")]
+        if skip_notes:
+            console.print("\nNotes:")
+            for w in skip_notes[-5:]:
+                console.print(f"- {w}")
         if final_answer:
             console.print("\n" + final_answer)
 
@@ -213,10 +461,17 @@ def chat(
         metrics.set("eval_hard_gates", evaluation.get("hard_gates"))
         metrics.set("eval_rubric_scores", evaluation.get("rubric_scores"))
 
-        record = metrics.finalize_record(
-            status=evaluation.get("overall_status") or "unknown",
-            termination_reason=state.get("termination_reason"),
-        )
+        term = state.get("termination_reason")
+        if term == "asked_user":
+            run_status = "asked_user"
+        elif term == "error":
+            run_status = "error"
+        elif final_answer and term in {"finalized", "max_iters"}:
+            run_status = "ok"
+        else:
+            run_status = "unknown"
+
+        record = metrics.finalize_record(status=run_status, termination_reason=term)
         metrics_path = metrics.write(record)
 
         console.print()

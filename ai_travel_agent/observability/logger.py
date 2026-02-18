@@ -1,4 +1,28 @@
+
 from __future__ import annotations
+
+# Telemetry controller for selective logging
+class TelemetryController:
+    def __init__(self):
+        self.mode = "MINIMAL"  # or "DETAILED"
+
+    def set_mode(self, mode: str):
+        self.mode = mode.upper()
+
+    def get_mode(self) -> str:
+        return self.mode
+
+    def should_log_detailed(self, state: dict) -> bool:
+        # Switch to detailed if any failure signal is set
+        signals = state.get("signals", {})
+        if self.mode == "DETAILED":
+            return True
+        if any(signals.get(sig) for sig in ["tool_error", "no_results", "memory_unavailable", "timeout_risk"]):
+            self.set_mode("DETAILED")
+            return True
+        return False
+
+TELEMETRY = TelemetryController()
 
 import json
 import logging
@@ -10,6 +34,7 @@ from logging import Handler, LogRecord
 from pathlib import Path
 from typing import Any, Mapping
 
+from ai_travel_agent.observability.canonical_schema import build_canonical_record
 
 SENSITIVE_KEY_PATTERN = re.compile(r"(api[_-]?key|authorization|token|secret|password)", re.IGNORECASE)
 
@@ -50,19 +75,23 @@ class JsonlHandler(Handler):
 
     def emit(self, record: LogRecord) -> None:
         try:
-            payload: dict[str, Any] = {
-                "timestamp": _utc_now_iso(),
-                "level": record.levelname,
-                "module": record.name,
-                "message": record.getMessage(),
-            }
-
-            for key in ("run_id", "user_id", "graph_node", "step_type", "step_id", "step_title", "event", "data"):
-                if hasattr(record, key):
-                    payload[key] = getattr(record, key)
-
-            if "data" in payload:
-                payload["data"] = _sanitize(payload["data"])
+            event = getattr(record, "event", "log")
+            data = getattr(record, "data", None)
+            payload = build_canonical_record(
+                ts=_utc_now_iso(),
+                level=record.levelname,
+                module=record.name,
+                message=record.getMessage(),
+                event=event,
+                run_id=getattr(record, "run_id", None),
+                user_id=getattr(record, "user_id", None),
+                node=getattr(record, "graph_node", None),
+                step_type=getattr(record, "step_type", None),
+                step_id=getattr(record, "step_id", None),
+                step_title=getattr(record, "step_title", None),
+                kind=getattr(record, "kind", "normal"),
+                data=_sanitize(data) if data is not None else None,
+            )
 
             with self._path.open("a", encoding="utf-8") as f:
                 f.write(json.dumps(payload, ensure_ascii=False) + "\n")
@@ -85,9 +114,26 @@ class TextFormatter(logging.Formatter):
 
 
 def setup_logging(*, runtime_dir: Path, level: str = "INFO") -> None:
+
     runtime_dir = runtime_dir.resolve()
     logs_dir = runtime_dir / "logs"
     logs_dir.mkdir(parents=True, exist_ok=True)
+
+    jsonl_path = logs_dir / "app.jsonl"
+    text_path = logs_dir / "app.log"
+
+    root = logging.getLogger()
+    root.handlers.clear()
+
+    log_level = getattr(logging, level.upper(), logging.INFO)
+    root.setLevel(log_level)
+
+    # Add a handler for all normal logs (INFO and above) to a separate file
+    normal_log_path = logs_dir / "normal.log"
+    normal_handler = logging.FileHandler(normal_log_path, encoding="utf-8")
+    normal_handler.setLevel(logging.INFO)
+    normal_handler.setFormatter(TextFormatter("%(asctime)s %(levelname)s %(name)s - %(message)s"))
+    root.addHandler(normal_handler)
 
     jsonl_path = logs_dir / "app.jsonl"
     text_path = logs_dir / "app.log"
@@ -154,3 +200,56 @@ def log_event(
     if data is not None:
         extra["data"] = dict(data)
     logger.log(level, message, extra=extra)
+    _write_combined_log_event(
+        level=level,
+        module=logger.name,
+        message=message,
+        event=event,
+        context=context,
+        data=data,
+    )
+
+
+def _write_combined_log_event(
+    *,
+    level: int,
+    module: str,
+    message: str,
+    event: str,
+    context: LogContext | None,
+    data: Mapping[str, Any] | None,
+) -> None:
+    """Best-effort mirror of normal events into run-level combined log."""
+    try:
+        # Local import to avoid cross-module import cycles.
+        from ai_travel_agent.observability.failure_tracker import get_failure_tracker
+
+        tracker = get_failure_tracker()
+        if tracker is None:
+            return
+
+        context_run_id = context.run_id if context else None
+        if context_run_id and context_run_id != tracker.run_id:
+            return
+
+        payload = build_canonical_record(
+            ts=_utc_now_iso(),
+            level=logging.getLevelName(level),
+            module=module,
+            message=message,
+            event=event,
+            run_id=tracker.run_id,
+            user_id=tracker.user_id,
+            node=context.graph_node if context else None,
+            step_type=context.step_type if context else None,
+            step_id=context.step_id if context else None,
+            step_title=context.step_title if context else None,
+            kind="normal",
+            data=_sanitize(dict(data)) if data is not None else None,
+        )
+
+        with tracker.combined_log_path.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(payload, ensure_ascii=False) + "\n")
+    except Exception:
+        # Telemetry logging must never break application flow.
+        return

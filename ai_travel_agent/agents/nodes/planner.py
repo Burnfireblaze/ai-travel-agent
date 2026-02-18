@@ -14,25 +14,37 @@ def planner(state: dict[str, Any]) -> dict[str, Any]:
     start_date = constraints.get("start_date")
     end_date = constraints.get("end_date")
     interests = constraints.get("interests") or []
+    travelers = constraints.get("travelers")
 
     steps: list[PlanStep] = []
     if destination:
-        steps.append(
-            PlanStep(
-                title="Get flight search links",
-                step_type=StepType.TOOL_CALL,
-                tool_name="flights_search_links",
-                tool_args={"origin": origin, "destination": destination, "start_date": start_date},
+        for dest in dests:
+            steps.append(
+                PlanStep(
+                    title=f"Get flight search links ({dest})",
+                    step_type=StepType.TOOL_CALL,
+                    tool_name="flights_search_links",
+                    tool_args={
+                        "origin": origin,
+                        "destination": dest,
+                        "start_date": start_date,
+                        "travelers": travelers,
+                    },
+                )
             )
-        )
-        steps.append(
-            PlanStep(
-                title="Get hotel search links",
-                step_type=StepType.TOOL_CALL,
-                tool_name="hotels_search_links",
-                tool_args={"destination": destination, "start_date": start_date, "end_date": end_date},
+            steps.append(
+                PlanStep(
+                    title=f"Get hotel search links ({dest})",
+                    step_type=StepType.TOOL_CALL,
+                    tool_name="hotels_search_links",
+                    tool_args={
+                        "destination": dest,
+                        "start_date": start_date,
+                        "end_date": end_date,
+                        "travelers": travelers,
+                    },
+                )
             )
-        )
         steps.append(
             PlanStep(
                 title="Get things-to-do discovery links",

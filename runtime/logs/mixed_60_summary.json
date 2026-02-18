@@ -1,0 +1,792 @@
+{
+  "seed": 20260217,
+  "total_runs": 60,
+  "success_runs": 30,
+  "failure_runs": 30,
+  "single_log": "/Users/sauravmohanty/ai-travel-agent/runtime/logs/mixed_60_runs.jsonl",
+  "runs": [
+    {
+      "run_id": "mix-001",
+      "run_mode": "success",
+      "failure_count": 0,
+      "blocked_steps": 0,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "flights_search_links",
+        "things_to_do_links",
+        "weather_summary"
+      ],
+      "fail_tools": []
+    },
+    {
+      "run_id": "mix-002",
+      "run_mode": "success",
+      "failure_count": 0,
+      "blocked_steps": 0,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "hotels_search_links"
+      ],
+      "fail_tools": []
+    },
+    {
+      "run_id": "mix-003",
+      "run_mode": "failure",
+      "failure_count": 3,
+      "blocked_steps": 3,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "weather_summary",
+        "things_to_do_links",
+        "hotels_search_links"
+      ],
+      "fail_tools": [
+        "hotels_search_links",
+        "things_to_do_links",
+        "weather_summary"
+      ]
+    },
+    {
+      "run_id": "mix-004",
+      "run_mode": "success",
+      "failure_count": 0,
+      "blocked_steps": 0,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "flights_search_links"
+      ],
+      "fail_tools": []
+    },
+    {
+      "run_id": "mix-005",
+      "run_mode": "failure",
+      "failure_count": 2,
+      "blocked_steps": 2,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "hotels_search_links",
+        "things_to_do_links"
+      ],
+      "fail_tools": [
+        "hotels_search_links",
+        "things_to_do_links"
+      ]
+    },
+    {
+      "run_id": "mix-006",
+      "run_mode": "success",
+      "failure_count": 0,
+      "blocked_steps": 0,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "flights_search_links",
+        "weather_summary"
+      ],
+      "fail_tools": []
+    },
+    {
+      "run_id": "mix-007",
+      "run_mode": "success",
+      "failure_count": 0,
+      "blocked_steps": 0,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "flights_search_links",
+        "hotels_search_links"
+      ],
+      "fail_tools": []
+    },
+    {
+      "run_id": "mix-008",
+      "run_mode": "success",
+      "failure_count": 0,
+      "blocked_steps": 0,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "hotels_search_links",
+        "weather_summary"
+      ],
+      "fail_tools": []
+    },
+    {
+      "run_id": "mix-009",
+      "run_mode": "failure",
+      "failure_count": 2,
+      "blocked_steps": 2,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "things_to_do_links",
+        "hotels_search_links"
+      ],
+      "fail_tools": [
+        "hotels_search_links",
+        "things_to_do_links"
+      ]
+    },
+    {
+      "run_id": "mix-010",
+      "run_mode": "failure",
+      "failure_count": 1,
+      "blocked_steps": 1,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "flights_search_links"
+      ],
+      "fail_tools": [
+        "flights_search_links"
+      ]
+    },
+    {
+      "run_id": "mix-011",
+      "run_mode": "failure",
+      "failure_count": 1,
+      "blocked_steps": 1,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "things_to_do_links",
+        "flights_search_links"
+      ],
+      "fail_tools": [
+        "flights_search_links"
+      ]
+    },
+    {
+      "run_id": "mix-012",
+      "run_mode": "failure",
+      "failure_count": 1,
+      "blocked_steps": 1,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "flights_search_links"
+      ],
+      "fail_tools": [
+        "flights_search_links"
+      ]
+    },
+    {
+      "run_id": "mix-013",
+      "run_mode": "failure",
+      "failure_count": 2,
+      "blocked_steps": 2,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "flights_search_links",
+        "hotels_search_links"
+      ],
+      "fail_tools": [
+        "flights_search_links",
+        "hotels_search_links"
+      ]
+    },
+    {
+      "run_id": "mix-014",
+      "run_mode": "success",
+      "failure_count": 0,
+      "blocked_steps": 0,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "weather_summary"
+      ],
+      "fail_tools": []
+    },
+    {
+      "run_id": "mix-015",
+      "run_mode": "success",
+      "failure_count": 0,
+      "blocked_steps": 0,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "things_to_do_links",
+        "flights_search_links",
+        "hotels_search_links",
+        "weather_summary"
+      ],
+      "fail_tools": []
+    },
+    {
+      "run_id": "mix-016",
+      "run_mode": "failure",
+      "failure_count": 1,
+      "blocked_steps": 1,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "flights_search_links",
+        "things_to_do_links"
+      ],
+      "fail_tools": [
+        "flights_search_links"
+      ]
+    },
+    {
+      "run_id": "mix-017",
+      "run_mode": "failure",
+      "failure_count": 1,
+      "blocked_steps": 1,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "weather_summary",
+        "flights_search_links"
+      ],
+      "fail_tools": [
+        "flights_search_links"
+      ]
+    },
+    {
+      "run_id": "mix-018",
+      "run_mode": "success",
+      "failure_count": 0,
+      "blocked_steps": 0,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "things_to_do_links"
+      ],
+      "fail_tools": []
+    },
+    {
+      "run_id": "mix-019",
+      "run_mode": "failure",
+      "failure_count": 1,
+      "blocked_steps": 1,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "weather_summary"
+      ],
+      "fail_tools": [
+        "weather_summary"
+      ]
+    },
+    {
+      "run_id": "mix-020",
+      "run_mode": "failure",
+      "failure_count": 1,
+      "blocked_steps": 1,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "things_to_do_links",
+        "hotels_search_links",
+        "weather_summary",
+        "flights_search_links"
+      ],
+      "fail_tools": [
+        "weather_summary"
+      ]
+    },
+    {
+      "run_id": "mix-021",
+      "run_mode": "success",
+      "failure_count": 0,
+      "blocked_steps": 0,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "hotels_search_links",
+        "weather_summary"
+      ],
+      "fail_tools": []
+    },
+    {
+      "run_id": "mix-022",
+      "run_mode": "failure",
+      "failure_count": 1,
+      "blocked_steps": 1,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "things_to_do_links"
+      ],
+      "fail_tools": [
+        "things_to_do_links"
+      ]
+    },
+    {
+      "run_id": "mix-023",
+      "run_mode": "failure",
+      "failure_count": 1,
+      "blocked_steps": 1,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "things_to_do_links"
+      ],
+      "fail_tools": [
+        "things_to_do_links"
+      ]
+    },
+    {
+      "run_id": "mix-024",
+      "run_mode": "success",
+      "failure_count": 0,
+      "blocked_steps": 0,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "things_to_do_links",
+        "weather_summary",
+        "hotels_search_links"
+      ],
+      "fail_tools": []
+    },
+    {
+      "run_id": "mix-025",
+      "run_mode": "failure",
+      "failure_count": 1,
+      "blocked_steps": 1,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "weather_summary"
+      ],
+      "fail_tools": [
+        "weather_summary"
+      ]
+    },
+    {
+      "run_id": "mix-026",
+      "run_mode": "success",
+      "failure_count": 0,
+      "blocked_steps": 0,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "things_to_do_links",
+        "hotels_search_links"
+      ],
+      "fail_tools": []
+    },
+    {
+      "run_id": "mix-027",
+      "run_mode": "success",
+      "failure_count": 0,
+      "blocked_steps": 0,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "flights_search_links"
+      ],
+      "fail_tools": []
+    },
+    {
+      "run_id": "mix-028",
+      "run_mode": "failure",
+      "failure_count": 1,
+      "blocked_steps": 1,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "weather_summary",
+        "flights_search_links"
+      ],
+      "fail_tools": [
+        "weather_summary"
+      ]
+    },
+    {
+      "run_id": "mix-029",
+      "run_mode": "failure",
+      "failure_count": 1,
+      "blocked_steps": 1,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "things_to_do_links"
+      ],
+      "fail_tools": [
+        "things_to_do_links"
+      ]
+    },
+    {
+      "run_id": "mix-030",
+      "run_mode": "failure",
+      "failure_count": 1,
+      "blocked_steps": 1,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "things_to_do_links",
+        "weather_summary"
+      ],
+      "fail_tools": [
+        "weather_summary"
+      ]
+    },
+    {
+      "run_id": "mix-031",
+      "run_mode": "failure",
+      "failure_count": 1,
+      "blocked_steps": 1,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "weather_summary",
+        "hotels_search_links",
+        "things_to_do_links"
+      ],
+      "fail_tools": [
+        "hotels_search_links"
+      ]
+    },
+    {
+      "run_id": "mix-032",
+      "run_mode": "failure",
+      "failure_count": 1,
+      "blocked_steps": 1,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "hotels_search_links",
+        "weather_summary"
+      ],
+      "fail_tools": [
+        "weather_summary"
+      ]
+    },
+    {
+      "run_id": "mix-033",
+      "run_mode": "failure",
+      "failure_count": 1,
+      "blocked_steps": 1,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "hotels_search_links"
+      ],
+      "fail_tools": [
+        "hotels_search_links"
+      ]
+    },
+    {
+      "run_id": "mix-034",
+      "run_mode": "failure",
+      "failure_count": 1,
+      "blocked_steps": 1,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "flights_search_links",
+        "hotels_search_links"
+      ],
+      "fail_tools": [
+        "flights_search_links"
+      ]
+    },
+    {
+      "run_id": "mix-035",
+      "run_mode": "success",
+      "failure_count": 0,
+      "blocked_steps": 0,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "hotels_search_links",
+        "weather_summary"
+      ],
+      "fail_tools": []
+    },
+    {
+      "run_id": "mix-036",
+      "run_mode": "failure",
+      "failure_count": 1,
+      "blocked_steps": 1,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "things_to_do_links"
+      ],
+      "fail_tools": [
+        "things_to_do_links"
+      ]
+    },
+    {
+      "run_id": "mix-037",
+      "run_mode": "success",
+      "failure_count": 0,
+      "blocked_steps": 0,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "weather_summary",
+        "hotels_search_links"
+      ],
+      "fail_tools": []
+    },
+    {
+      "run_id": "mix-038",
+      "run_mode": "success",
+      "failure_count": 0,
+      "blocked_steps": 0,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "things_to_do_links",
+        "weather_summary",
+        "hotels_search_links"
+      ],
+      "fail_tools": []
+    },
+    {
+      "run_id": "mix-039",
+      "run_mode": "success",
+      "failure_count": 0,
+      "blocked_steps": 0,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "flights_search_links",
+        "weather_summary"
+      ],
+      "fail_tools": []
+    },
+    {
+      "run_id": "mix-040",
+      "run_mode": "success",
+      "failure_count": 0,
+      "blocked_steps": 0,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "weather_summary",
+        "things_to_do_links"
+      ],
+      "fail_tools": []
+    },
+    {
+      "run_id": "mix-041",
+      "run_mode": "success",
+      "failure_count": 0,
+      "blocked_steps": 0,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "flights_search_links"
+      ],
+      "fail_tools": []
+    },
+    {
+      "run_id": "mix-042",
+      "run_mode": "failure",
+      "failure_count": 1,
+      "blocked_steps": 1,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "flights_search_links",
+        "weather_summary"
+      ],
+      "fail_tools": [
+        "flights_search_links"
+      ]
+    },
+    {
+      "run_id": "mix-043",
+      "run_mode": "success",
+      "failure_count": 0,
+      "blocked_steps": 0,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "hotels_search_links",
+        "weather_summary"
+      ],
+      "fail_tools": []
+    },
+    {
+      "run_id": "mix-044",
+      "run_mode": "success",
+      "failure_count": 0,
+      "blocked_steps": 0,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "things_to_do_links",
+        "weather_summary",
+        "hotels_search_links"
+      ],
+      "fail_tools": []
+    },
+    {
+      "run_id": "mix-045",
+      "run_mode": "success",
+      "failure_count": 0,
+      "blocked_steps": 0,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "weather_summary",
+        "hotels_search_links"
+      ],
+      "fail_tools": []
+    },
+    {
+      "run_id": "mix-046",
+      "run_mode": "success",
+      "failure_count": 0,
+      "blocked_steps": 0,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "flights_search_links"
+      ],
+      "fail_tools": []
+    },
+    {
+      "run_id": "mix-047",
+      "run_mode": "failure",
+      "failure_count": 1,
+      "blocked_steps": 1,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "things_to_do_links",
+        "hotels_search_links",
+        "weather_summary",
+        "flights_search_links"
+      ],
+      "fail_tools": [
+        "hotels_search_links"
+      ]
+    },
+    {
+      "run_id": "mix-048",
+      "run_mode": "success",
+      "failure_count": 0,
+      "blocked_steps": 0,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "hotels_search_links",
+        "weather_summary",
+        "things_to_do_links"
+      ],
+      "fail_tools": []
+    },
+    {
+      "run_id": "mix-049",
+      "run_mode": "failure",
+      "failure_count": 1,
+      "blocked_steps": 1,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "things_to_do_links",
+        "flights_search_links",
+        "weather_summary",
+        "hotels_search_links"
+      ],
+      "fail_tools": [
+        "hotels_search_links"
+      ]
+    },
+    {
+      "run_id": "mix-050",
+      "run_mode": "success",
+      "failure_count": 0,
+      "blocked_steps": 0,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "things_to_do_links",
+        "hotels_search_links"
+      ],
+      "fail_tools": []
+    },
+    {
+      "run_id": "mix-051",
+      "run_mode": "success",
+      "failure_count": 0,
+      "blocked_steps": 0,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "weather_summary",
+        "flights_search_links",
+        "things_to_do_links"
+      ],
+      "fail_tools": []
+    },
+    {
+      "run_id": "mix-052",
+      "run_mode": "failure",
+      "failure_count": 1,
+      "blocked_steps": 1,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "hotels_search_links",
+        "things_to_do_links"
+      ],
+      "fail_tools": [
+        "hotels_search_links"
+      ]
+    },
+    {
+      "run_id": "mix-053",
+      "run_mode": "success",
+      "failure_count": 0,
+      "blocked_steps": 0,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "weather_summary"
+      ],
+      "fail_tools": []
+    },
+    {
+      "run_id": "mix-054",
+      "run_mode": "success",
+      "failure_count": 0,
+      "blocked_steps": 0,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "flights_search_links",
+        "hotels_search_links"
+      ],
+      "fail_tools": []
+    },
+    {
+      "run_id": "mix-055",
+      "run_mode": "failure",
+      "failure_count": 1,
+      "blocked_steps": 1,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "hotels_search_links",
+        "weather_summary",
+        "flights_search_links"
+      ],
+      "fail_tools": [
+        "weather_summary"
+      ]
+    },
+    {
+      "run_id": "mix-056",
+      "run_mode": "failure",
+      "failure_count": 1,
+      "blocked_steps": 1,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "flights_search_links",
+        "hotels_search_links"
+      ],
+      "fail_tools": [
+        "flights_search_links"
+      ]
+    },
+    {
+      "run_id": "mix-057",
+      "run_mode": "failure",
+      "failure_count": 2,
+      "blocked_steps": 2,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "hotels_search_links",
+        "flights_search_links"
+      ],
+      "fail_tools": [
+        "flights_search_links",
+        "hotels_search_links"
+      ]
+    },
+    {
+      "run_id": "mix-058",
+      "run_mode": "failure",
+      "failure_count": 1,
+      "blocked_steps": 1,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "weather_summary"
+      ],
+      "fail_tools": [
+        "weather_summary"
+      ]
+    },
+    {
+      "run_id": "mix-059",
+      "run_mode": "success",
+      "failure_count": 0,
+      "blocked_steps": 0,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "things_to_do_links"
+      ],
+      "fail_tools": []
+    },
+    {
+      "run_id": "mix-060",
+      "run_mode": "success",
+      "failure_count": 0,
+      "blocked_steps": 0,
+      "termination_reason": "finalized",
+      "selected_tools": [
+        "hotels_search_links"
+      ],
+      "fail_tools": []
+    }
+  ]
+}

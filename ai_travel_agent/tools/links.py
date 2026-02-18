@@ -29,12 +29,20 @@ def skyscanner_link(origin: str | None, destination: str, start_date: str | None
     return f"https://www.skyscanner.com/transport/flights/?q={_q(q)}"
 
 
+def site_search_link(domain: str, query: str) -> str:
+    return f"https://www.google.com/search?q={_q(f'site:{domain} {query}')}"
+
+
 def booking_hotels_link(destination: str, start_date: str | None = None, end_date: str | None = None) -> str:
     parts = [f"Hotels in {destination}"]
     if start_date and end_date:
         parts.append(f"{start_date} to {end_date}")
     q = " ".join(parts)
     return f"https://www.booking.com/searchresults.html?ss={_q(q)}"
+
+
+def airbnb_search_link(destination: str) -> str:
+    return f"https://www.airbnb.com/s/{_q(destination)}/homes"
 
 
 def google_maps_search_link(query: str) -> str:
@@ -46,4 +54,3 @@ def google_maps_directions_link(origin: str, destination: str, mode: str | None 
     if mode:
         params["travelmode"] = mode
     return "https://www.google.com/maps/dir/?" + urllib.parse.urlencode(params)
-

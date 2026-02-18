@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700">
+  <rect x="0" y="0" width="1200" height="700" fill="#f8fafc"/>
+  <text x="600.0" y="45" text-anchor="middle" font-size="30" font-family="Arial" fill="#0f172a">Failure Categories</text>
+  <line x1="90" y1="570" x2="1160" y2="570" stroke="#334155" stroke-width="2"/>
+  <line x1="90" y1="90" x2="90" y2="570" stroke="#334155" stroke-width="2"/>
+  <rect x="90" y="110" width="350" height="460" fill="#be123c" rx="4"/>
+  <text x="265.0" y="102" text-anchor="middle" font-size="14" font-family="Arial" fill="#0f172a">12</text>
+  <text x="265.0" y="592" text-anchor="middle" font-size="12" font-family="Arial" fill="#1e293b" transform="rotate(25 265.0 592)">llm</text>
+  <rect x="450" y="149" width="350" height="421" fill="#be123c" rx="4"/>
+  <text x="625.0" y="141" text-anchor="middle" font-size="14" font-family="Arial" fill="#0f172a">11</text>
+  <text x="625.0" y="592" text-anchor="middle" font-size="12" font-family="Arial" fill="#1e293b" transform="rotate(25 625.0 592)">tool</text>
+  <rect x="810" y="264" width="350" height="306" fill="#be123c" rx="4"/>
+  <text x="985.0" y="256" text-anchor="middle" font-size="14" font-family="Arial" fill="#0f172a">8</text>
+  <text x="985.0" y="592" text-anchor="middle" font-size="12" font-family="Arial" fill="#1e293b" transform="rotate(25 985.0 592)">unknown</text>
+  <line x1="85" y1="570" x2="90" y2="570" stroke="#334155"/>
+  <text x="80" y="575" text-anchor="end" font-size="12" font-family="Arial" fill="#334155">0</text>
+  <line x1="85" y1="474" x2="90" y2="474" stroke="#334155"/>
+  <text x="80" y="479" text-anchor="end" font-size="12" font-family="Arial" fill="#334155">2</text>
+  <line x1="85" y1="378" x2="90" y2="378" stroke="#334155"/>
+  <text x="80" y="383" text-anchor="end" font-size="12" font-family="Arial" fill="#334155">4</text>
+  <line x1="85" y1="282" x2="90" y2="282" stroke="#334155"/>
+  <text x="80" y="287" text-anchor="end" font-size="12" font-family="Arial" fill="#334155">7</text>
+  <line x1="85" y1="186" x2="90" y2="186" stroke="#334155"/>
+  <text x="80" y="191" text-anchor="end" font-size="12" font-family="Arial" fill="#334155">9</text>
+  <line x1="85" y1="90" x2="90" y2="90" stroke="#334155"/>
+  <text x="80" y="95" text-anchor="end" font-size="12" font-family="Arial" fill="#334155">12</text>
+</svg>
