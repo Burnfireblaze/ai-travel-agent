@@ -21,6 +21,7 @@ class Settings:
     log_level: str
     max_graph_iters: int
     eval_threshold: float
+    max_tool_retries: int
 
     # Fault injection flags
     simulate_tool_timeout: bool = False
