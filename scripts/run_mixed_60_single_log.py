@@ -31,15 +31,15 @@ from ai_travel_agent.observability.logger import LogContext, get_logger, log_eve
 from ai_travel_agent.observability.metrics import MetricsCollector
 
 
-PROMPTS_FILE = ROOT / "data/prompts/test_failures_prompts_100.txt"
+PROMPTS_FILE = ROOT / "data/prompts/test_failures_prompts_200.txt"
 RUNTIME_DIR = ROOT / "runtime"
 LOG_DIR = RUNTIME_DIR / "logs"
-SINGLE_LOG = LOG_DIR / "mixed_60_runs.jsonl"
+SINGLE_LOG = LOG_DIR / "mixed_200_runs.jsonl"
 
 SEED = 20260217
-TOTAL_RUNS = 60
-SUCCESS_RUNS = 30
-FAILURE_RUNS = 30
+TOTAL_RUNS = 200
+SUCCESS_RUNS = 100
+FAILURE_RUNS = 100
 USER_ID = "mixed-user"
 TOOLS_ALL = ["flights_search_links", "hotels_search_links", "things_to_do_links", "weather_summary"]
 
@@ -261,13 +261,15 @@ def choose_tools(rng: random.Random) -> list[str]:
     return rng.sample(TOOLS_ALL, n)
 
 
-def set_env_for_scenario(scenario: str) -> dict[str, str]:
+def set_env_for_scenario(scenario: str, run_mode: str) -> dict[str, str]:
     prev = {
         "SIMULATE_TOOL_TIMEOUT": os.environ.get("SIMULATE_TOOL_TIMEOUT", ""),
         "SIMULATE_BAD_RETRIEVAL": os.environ.get("SIMULATE_BAD_RETRIEVAL", ""),
+        "FAILURE_SEVERITY_OVERRIDE": os.environ.get("FAILURE_SEVERITY_OVERRIDE", ""),
     }
     os.environ["SIMULATE_TOOL_TIMEOUT"] = "true" if scenario in {"tool_timeout", "both_env"} else "false"
     os.environ["SIMULATE_BAD_RETRIEVAL"] = "true" if scenario in {"bad_retrieval", "both_env"} else "false"
+    os.environ["FAILURE_SEVERITY_OVERRIDE"] = "critical" if run_mode == "failure" else ""
     return prev
 
 
@@ -300,12 +302,14 @@ def restore_graph_components() -> None:
 
 
 def run_one(prompt: str, run_id: str, run_mode: str, scenario: str, tools: list[str], base_settings) -> dict[str, Any]:
-    prev_env = set_env_for_scenario(scenario)
+    prev_env = set_env_for_scenario(scenario, run_mode)
     tracker = FailureTracker(run_id=run_id, user_id=USER_ID, runtime_dir=RUNTIME_DIR)
     tracker.combined_log_path = SINGLE_LOG
     set_failure_tracker(tracker)
 
     settings = base_settings
+    if run_mode == "failure":
+        settings = replace(settings, max_tool_retries=3)
     if scenario == "orchestrator_max_iters":
         settings = replace(settings, max_graph_iters=1)
     metrics = MetricsCollector(runtime_dir=RUNTIME_DIR, run_id=run_id, user_id=USER_ID)

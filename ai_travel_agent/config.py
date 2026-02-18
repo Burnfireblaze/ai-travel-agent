@@ -49,6 +49,7 @@ def load_settings() -> Settings:
         log_level=os.getenv("LOG_LEVEL", "INFO"),
         max_graph_iters=int(os.getenv("MAX_GRAPH_ITERS", "20")),
         eval_threshold=float(os.getenv("EVAL_THRESHOLD", "3.5")),
+        max_tool_retries=int(os.getenv("MAX_TOOL_RETRIES", "1")),
         simulate_tool_timeout=os.getenv("SIMULATE_TOOL_TIMEOUT", "false").lower() == "true",
         simulate_bad_retrieval=os.getenv("SIMULATE_BAD_RETRIEVAL", "false").lower() == "true",
         failure_seed=int(os.getenv("FAILURE_SEED", "42")),
