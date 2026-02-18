@@ -4,6 +4,7 @@ Captures, tags, and displays failures with full context and trace information.
 """
 
 import json
+import os
 import time
 from dataclasses import dataclass, field, asdict
 from datetime import datetime, timezone
@@ -179,6 +180,12 @@ class FailureTracker:
         
         Returns the FailureRecord for further updates.
         """
+        override = os.getenv("FAILURE_SEVERITY_OVERRIDE", "").strip().lower()
+        if override:
+            for sev in FailureSeverity:
+                if sev.value == override:
+                    severity = sev
+                    break
         failure_id = f"failure_{self.run_id}_{self.failure_count:03d}"
         self.failure_count += 1
         

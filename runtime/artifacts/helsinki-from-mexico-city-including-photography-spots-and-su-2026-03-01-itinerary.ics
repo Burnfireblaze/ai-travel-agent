@@ -1,0 +1,39 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//AI Travel Agent//
+BEGIN:VEVENT
+SUMMARY:Helsinki from Mexico City including photography spots and sunrise 
+ plans and weather-aware planning trip: Arrival and orientation
+DTSTART;VALUE=DATE:20260301
+DTEND;VALUE=DATE:20260302
+DTSTAMP:20260218T025955Z
+END:VEVENT
+BEGIN:VEVENT
+SUMMARY:Helsinki from Mexico City including photography spots and sunrise 
+ plans and weather-aware planning trip: Main attractions
+DTSTART;VALUE=DATE:20260302
+DTEND;VALUE=DATE:20260303
+DTSTAMP:20260218T025955Z
+END:VEVENT
+BEGIN:VEVENT
+SUMMARY:Helsinki from Mexico City including photography spots and sunrise 
+ plans and weather-aware planning trip: Flexible exploration
+DTSTART;VALUE=DATE:20260303
+DTEND;VALUE=DATE:20260304
+DTSTAMP:20260218T025955Z
+END:VEVENT
+BEGIN:VEVENT
+SUMMARY:Helsinki from Mexico City including photography spots and sunrise 
+ plans and weather-aware planning trip: Flexible exploration
+DTSTART;VALUE=DATE:20260304
+DTEND;VALUE=DATE:20260305
+DTSTAMP:20260218T025955Z
+END:VEVENT
+BEGIN:VEVENT
+SUMMARY:Helsinki from Mexico City including photography spots and sunrise 
+ plans and weather-aware planning trip: Flexible exploration
+DTSTART;VALUE=DATE:20260305
+DTEND;VALUE=DATE:20260306
+DTSTAMP:20260218T025955Z
+END:VEVENT
+END:VCALENDAR

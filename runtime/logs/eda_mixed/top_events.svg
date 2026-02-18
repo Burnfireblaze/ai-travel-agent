@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700">
+  <rect x="0" y="0" width="1200" height="700" fill="#f8fafc"/>
+  <text x="600.0" y="45" text-anchor="middle" font-size="30" font-family="Arial" fill="#0f172a">Top Events (Top 15)</text>
+  <line x1="90" y1="570" x2="1160" y2="570" stroke="#334155" stroke-width="2"/>
+  <line x1="90" y1="90" x2="90" y2="570" stroke="#334155" stroke-width="2"/>
+  <rect x="90" y="110" width="62" height="460" fill="#b45309" rx="4"/>
+  <text x="121.0" y="102" text-anchor="middle" font-size="14" font-family="Arial" fill="#0f172a">900</text>
+  <text x="121.0" y="592" text-anchor="middle" font-size="12" font-family="Arial" fill="#1e293b" transform="rotate(25 121.0 592)">node_enter</text>
+  <rect x="162" y="115" width="62" height="455" fill="#b45309" rx="4"/>
+  <text x="193.0" y="107" text-anchor="middle" font-size="14" font-family="Arial" fill="#0f172a">892</text>
+  <text x="193.0" y="592" text-anchor="middle" font-size="12" font-family="Arial" fill="#1e293b" transform="rotate(25 193.0 592)">node_exit</text>
+  <rect x="234" y="494" width="62" height="76" fill="#b45309" rx="4"/>
+  <text x="265.0" y="486" text-anchor="middle" font-size="14" font-family="Arial" fill="#0f172a">150</text>
+  <text x="265.0" y="592" text-anchor="middle" font-size="12" font-family="Arial" fill="#1e293b" transform="rotate(25 265.0 592)">llm_call</text>
+  <rect x="306" y="497" width="62" height="73" fill="#b45309" rx="4"/>
+  <text x="337.0" y="489" text-anchor="middle" font-size="14" font-family="Arial" fill="#0f172a">144</text>
+  <text x="337.0" y="592" text-anchor="middle" font-size="12" font-family="Arial" fill="#1e293b" transform="rotate(25 337.0 592)">step_selected</text>
+  <rect x="378" y="497" width="62" height="73" fill="#b45309" rx="4"/>
+  <text x="409.0" y="489" text-anchor="middle" font-size="14" font-family="Arial" fill="#0f172a">144</text>
+  <text x="409.0" y="592" text-anchor="middle" font-size="12" font-family="Arial" fill="#1e293b" transform="rotate(25 409.0 592)">eval_step</text>
+  <rect x="450" y="527" width="62" height="43" fill="#b45309" rx="4"/>
+  <text x="481.0" y="519" text-anchor="middle" font-size="14" font-family="Arial" fill="#0f172a">85</text>
+  <text x="481.0" y="592" text-anchor="middle" font-size="12" font-family="Arial" fill="#1e293b" transform="rotate(25 481.0 592)">tool_result</text>
+  <rect x="522" y="540" width="62" height="30" fill="#b45309" rx="4"/>
+  <text x="553.0" y="532" text-anchor="middle" font-size="14" font-family="Arial" fill="#0f172a">60</text>
+  <text x="553.0" y="592" text-anchor="middle" font-size="12" font-family="Arial" fill="#1e293b" transform="rotate(25 553.0 592)">mixed_run_start</text>
+  <rect x="594" y="540" width="62" height="30" fill="#b45309" rx="4"/>
+  <text x="625.0" y="532" text-anchor="middle" font-size="14" font-family="Arial" fill="#0f172a">60</text>
+  <text x="625.0" y="592" text-anchor="middle" font-size="12" font-family="Arial" fill="#1e293b" transform="rotate(25 625.0 592)">rag_retrieve_start</text>
+  <rect x="666" y="540" width="62" height="30" fill="#b45309" rx="4"/>
+  <text x="697.0" y="532" text-anchor="middle" font-size="14" font-family="Arial" fill="#0f172a">60</text>
+  <text x="697.0" y="592" text-anchor="middle" font-size="12" font-family="Arial" fill="#1e293b" transform="rotate(25 697.0 592)">mixed_run_end</text>
+  <rect x="738" y="541" width="62" height="29" fill="#b45309" rx="4"/>
+  <text x="769.0" y="533" text-anchor="middle" font-size="14" font-family="Arial" fill="#0f172a">58</text>
+  <text x="769.0" y="592" text-anchor="middle" font-size="12" font-family="Arial" fill="#1e293b" transform="rotate(25 769.0 592)">rag_retrieve</text>
+  <rect x="810" y="541" width="62" height="29" fill="#b45309" rx="4"/>
+  <text x="841.0" y="533" text-anchor="middle" font-size="14" font-family="Arial" fill="#0f172a">58</text>
+  <text x="841.0" y="592" text-anchor="middle" font-size="12" font-family="Arial" fill="#1e293b" transform="rotate(25 841.0 592)">rag_context_stored</text>
+  <rect x="882" y="545" width="62" height="25" fill="#b45309" rx="4"/>
+  <text x="913.0" y="537" text-anchor="middle" font-size="14" font-family="Arial" fill="#0f172a">50</text>
+  <text x="913.0" y="592" text-anchor="middle" font-size="12" font-family="Arial" fill="#1e293b" transform="rotate(25 913.0 592)">eval_final</text>
+  <rect x="954" y="546" width="62" height="24" fill="#b45309" rx="4"/>
+  <text x="985.0" y="538" text-anchor="middle" font-size="14" font-family="Arial" fill="#0f172a">48</text>
+  <text x="985.0" y="592" text-anchor="middle" font-size="12" font-family="Arial" fill="#1e293b" transform="rotate(25 985.0 592)">rag_synthesize_s...</text>
+  <rect x="1026" y="546" width="62" height="24" fill="#b45309" rx="4"/>
+  <text x="1057.0" y="538" text-anchor="middle" font-size="14" font-family="Arial" fill="#0f172a">48</text>
+  <text x="1057.0" y="592" text-anchor="middle" font-size="12" font-family="Arial" fill="#1e293b" transform="rotate(25 1057.0 592)">rag_synthesize_done</text>
+  <rect x="1098" y="546" width="62" height="24" fill="#b45309" rx="4"/>
+  <text x="1129.0" y="538" text-anchor="middle" font-size="14" font-family="Arial" fill="#0f172a">48</text>
+  <text x="1129.0" y="592" text-anchor="middle" font-size="12" font-family="Arial" fill="#1e293b" transform="rotate(25 1129.0 592)">plan_finalized</text>
+  <line x1="85" y1="570" x2="90" y2="570" stroke="#334155"/>
+  <text x="80" y="575" text-anchor="end" font-size="12" font-family="Arial" fill="#334155">0</text>
+  <line x1="85" y1="474" x2="90" y2="474" stroke="#334155"/>
+  <text x="80" y="479" text-anchor="end" font-size="12" font-family="Arial" fill="#334155">180</text>
+  <line x1="85" y1="378" x2="90" y2="378" stroke="#334155"/>
+  <text x="80" y="383" text-anchor="end" font-size="12" font-family="Arial" fill="#334155">360</text>
+  <line x1="85" y1="282" x2="90" y2="282" stroke="#334155"/>
+  <text x="80" y="287" text-anchor="end" font-size="12" font-family="Arial" fill="#334155">540</text>
+  <line x1="85" y1="186" x2="90" y2="186" stroke="#334155"/>
+  <text x="80" y="191" text-anchor="end" font-size="12" font-family="Arial" fill="#334155">720</text>
+  <line x1="85" y1="90" x2="90" y2="90" stroke="#334155"/>
+  <text x="80" y="95" text-anchor="end" font-size="12" font-family="Arial" fill="#334155">900</text>
+</svg>
