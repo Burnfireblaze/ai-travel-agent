@@ -1,0 +1,8 @@
+{
+  "total_runs": 200,
+  "total_failures": 66,
+  "latency_threshold_ms": 1117.0765415616306,
+  "iteration_threshold": 5.0,
+  "latency_percentile": 0.95,
+  "iteration_percentile": 0.9
+}
