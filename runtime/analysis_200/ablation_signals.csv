@@ -1,0 +1,4 @@
+signal,support,failures_with_signal,successes_with_signal,precision_sufficiency,recall_necessity,failure_rate_without_signal,recall_all_signals,recall_without_signal,recall_drop
+latency_high,10,10,0,1.0,0.1515,0.2947,0.3939,0.2727,0.1212
+iteration_high,29,3,26,0.1034,0.0455,0.3684,0.3939,0.3939,0.0
+hard_gate_violation,16,16,0,1.0,0.2424,0.2717,0.3939,0.1667,0.2273

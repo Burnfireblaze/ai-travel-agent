@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import random
@@ -261,7 +262,7 @@ def choose_tools(rng: random.Random) -> list[str]:
     return rng.sample(TOOLS_ALL, n)
 
 
-def set_env_for_scenario(scenario: str, run_mode: str) -> dict[str, str]:
+def set_env_for_scenario(scenario: str, run_mode: str, *, severity_override: str | None = None) -> dict[str, str]:
     prev = {
         "SIMULATE_TOOL_TIMEOUT": os.environ.get("SIMULATE_TOOL_TIMEOUT", ""),
         "SIMULATE_BAD_RETRIEVAL": os.environ.get("SIMULATE_BAD_RETRIEVAL", ""),
@@ -269,7 +270,13 @@ def set_env_for_scenario(scenario: str, run_mode: str) -> dict[str, str]:
     }
     os.environ["SIMULATE_TOOL_TIMEOUT"] = "true" if scenario in {"tool_timeout", "both_env"} else "false"
     os.environ["SIMULATE_BAD_RETRIEVAL"] = "true" if scenario in {"bad_retrieval", "both_env"} else "false"
-    os.environ["FAILURE_SEVERITY_OVERRIDE"] = "critical" if run_mode == "failure" else ""
+    if run_mode == "failure":
+        if severity_override:
+            os.environ["FAILURE_SEVERITY_OVERRIDE"] = severity_override
+        elif not os.environ.get("FAILURE_SEVERITY_OVERRIDE"):
+            os.environ["FAILURE_SEVERITY_OVERRIDE"] = "critical"
+    else:
+        os.environ["FAILURE_SEVERITY_OVERRIDE"] = ""
     return prev
 
 
@@ -301,15 +308,25 @@ def restore_graph_components() -> None:
     graph_mod.export_ics = ORIGINAL_EXPORT_ICS
 
 
-def run_one(prompt: str, run_id: str, run_mode: str, scenario: str, tools: list[str], base_settings) -> dict[str, Any]:
-    prev_env = set_env_for_scenario(scenario, run_mode)
+def run_one(
+    prompt: str,
+    run_id: str,
+    run_mode: str,
+    scenario: str,
+    tools: list[str],
+    base_settings,
+    *,
+    max_tool_retries_failure: int = 3,
+    severity_override: str | None = None,
+) -> dict[str, Any]:
+    prev_env = set_env_for_scenario(scenario, run_mode, severity_override=severity_override)
     tracker = FailureTracker(run_id=run_id, user_id=USER_ID, runtime_dir=RUNTIME_DIR)
     tracker.combined_log_path = SINGLE_LOG
     set_failure_tracker(tracker)
 
     settings = base_settings
     if run_mode == "failure":
-        settings = replace(settings, max_tool_retries=3)
+        settings = replace(settings, max_tool_retries=max_tool_retries_failure)
     if scenario == "orchestrator_max_iters":
         settings = replace(settings, max_graph_iters=1)
     metrics = MetricsCollector(runtime_dir=RUNTIME_DIR, run_id=run_id, user_id=USER_ID)
@@ -386,29 +403,59 @@ def run_one(prompt: str, run_id: str, run_mode: str, scenario: str, tools: list[
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description="Run mixed success/failure scenarios with randomized order.")
+    parser.add_argument("--prompts-file", type=Path, default=PROMPTS_FILE)
+    parser.add_argument("--total-runs", type=int, default=TOTAL_RUNS)
+    parser.add_argument("--failure-runs", type=int, default=FAILURE_RUNS)
+    parser.add_argument("--success-runs", type=int, default=SUCCESS_RUNS)
+    parser.add_argument("--seed", type=int, default=SEED)
+    parser.add_argument("--user-id", type=str, default=USER_ID)
+    parser.add_argument("--out-log", type=Path, default=SINGLE_LOG)
+    parser.add_argument("--max-tool-retries-failure", type=int, default=3)
+    parser.add_argument("--failure-severity", type=str, default="critical")
+    args = parser.parse_args()
+
+    total_runs = args.total_runs
+    failure_runs = args.failure_runs
+    success_runs = args.success_runs
+    if failure_runs + success_runs != total_runs:
+        raise ValueError("success_runs + failure_runs must equal total_runs")
+
+    # Update globals used by run_one.
+    global SINGLE_LOG, USER_ID
+    SINGLE_LOG = args.out_log
+    USER_ID = args.user_id
+
     LOG_DIR.mkdir(parents=True, exist_ok=True)
     if SINGLE_LOG.exists():
         SINGLE_LOG.unlink()
 
     patch_graph_components()
 
-    rng = random.Random(SEED)
-    prompts = load_prompts(PROMPTS_FILE)
-    chosen_prompts = rng.sample(prompts, TOTAL_RUNS)
-    run_modes = (["success"] * SUCCESS_RUNS) + (["failure"] * FAILURE_RUNS)
+    rng = random.Random(args.seed)
+    prompts = load_prompts(args.prompts_file)
+    if not prompts:
+        raise ValueError(f"No prompts found in {args.prompts_file}")
+
+    if len(prompts) >= total_runs:
+        chosen_prompts = rng.sample(prompts, total_runs)
+    else:
+        chosen_prompts = [rng.choice(prompts) for _ in range(total_runs)]
+
+    run_modes = (["success"] * success_runs) + (["failure"] * failure_runs)
     rng.shuffle(run_modes)
 
     failure_scenarios: list[str] = []
-    while len(failure_scenarios) < FAILURE_RUNS:
+    while len(failure_scenarios) < failure_runs:
         failure_scenarios.extend(FAILURE_SCENARIOS)
-    failure_scenarios = failure_scenarios[:FAILURE_RUNS]
+    failure_scenarios = failure_scenarios[:failure_runs]
     rng.shuffle(failure_scenarios)
 
     base_settings = replace(load_settings(), user_id=USER_ID, runtime_dir=RUNTIME_DIR)
 
     results: list[dict[str, Any]] = []
     fail_idx = 0
-    for i in range(TOTAL_RUNS):
+    for i in range(total_runs):
         run_id = f"mix-{i+1:03d}"
         mode = run_modes[i]
         scenario = "none"
@@ -416,20 +463,30 @@ def main() -> None:
             scenario = failure_scenarios[fail_idx]
             fail_idx += 1
         tools = choose_tools(rng)
-        res = run_one(chosen_prompts[i], run_id, mode, scenario, tools, base_settings)
+
+        res = run_one(
+            chosen_prompts[i],
+            run_id,
+            mode,
+            scenario,
+            tools,
+            base_settings,
+            max_tool_retries_failure=args.max_tool_retries_failure,
+            severity_override=args.failure_severity,
+        )
         results.append(res)
         print(
-            f"[{i+1}/{TOTAL_RUNS}] {run_id} mode={mode} scenario={scenario} "
+            f"[{i+1}/{total_runs}] {run_id} mode={mode} scenario={scenario} "
             f"tools={len(tools)} failures={res['failure_count']} eval={res['overall_status']} "
             f"error={bool(res['runtime_error'])}"
         )
 
     with SINGLE_LOG.open("a", encoding="utf-8") as f:
         summary_data = {
-            "seed": SEED,
-            "total_runs": TOTAL_RUNS,
-            "success_runs": SUCCESS_RUNS,
-            "failure_runs": FAILURE_RUNS,
+            "seed": args.seed,
+            "total_runs": total_runs,
+            "success_runs": success_runs,
+            "failure_runs": failure_runs,
             "failure_scenarios": FAILURE_SCENARIOS,
             "results": results,
         }
@@ -448,10 +505,7 @@ def main() -> None:
             kind="normal",
             data=summary_data,
         )
-        f.write(
-            json.dumps(payload, ensure_ascii=False)
-            + "\n"
-        )
+        f.write(json.dumps(payload, ensure_ascii=False) + "\n")
 
     restore_graph_components()
     print(f"Single log: {SINGLE_LOG}")
