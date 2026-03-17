@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import json
+
 from ai_travel_agent.agents.nodes.validator import validator
+from ai_travel_agent.observability.logger import setup_logging
 
 
 def test_validator_invalid_date_asks_user():
@@ -109,3 +112,25 @@ def test_validator_memory_origin_conflict_uses_memory_when_not_explicit():
     out = validator(state, geocode_fn=lambda q: {"best": {"name": q}, "candidates": [], "ambiguous": False})
     assert out.get("needs_user_input") is False
     assert out["constraints"]["origin"] == "JFK"
+
+
+def test_validator_logs_validation_decision(tmp_path):
+    setup_logging(runtime_dir=tmp_path, level="INFO")
+    state = {
+        "run_id": "r1",
+        "user_id": "u1",
+        "user_query": "Trip from SFO to Tokyo 2026-04-01 to 2026-04-05",
+        "constraints": {"origin": "SFO", "destinations": ["Tokyo"], "start_date": "2026-04-01", "end_date": "2026-04-05"},
+        "context_hits": [],
+    }
+    out = validator(state, geocode_fn=lambda q: {"best": {"name": q}, "candidates": [], "ambiguous": False})
+    assert out["validation_decision"]["decision"] == "passed"
+
+    payloads = [
+        json.loads(line)
+        for line in (tmp_path / "logs" / "app.jsonl").read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    event = next(payload for payload in payloads if payload.get("event") == "validation_decision")
+    assert event["node_name"] == "validator"
+    assert event["validation_decision"]["decision"] == "passed"

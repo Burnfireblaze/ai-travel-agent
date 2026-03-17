@@ -53,12 +53,18 @@ def orchestrator(state: dict[str, Any], *, max_iters: int = 20) -> dict[str, Any
 
     state["current_step_index"] = idx
     state["current_step"] = dict(plan[idx])
+    state["tool_selected"] = plan[idx].get("tool_name")
     log_event(
         logger,
         level=logging.INFO,
         message=f"Step selected: {plan[idx].get('title', plan[idx].get('id', ''))}",
         event="step_selected",
         context=log_context_from_state(state, graph_node="orchestrator"),
-        data={"step": plan[idx]},
+        data={
+            "step": plan[idx],
+            "tool_selected": plan[idx].get("tool_name"),
+            "planner_decision": state.get("planner_decision"),
+            "validation_decision": state.get("validation_decision"),
+        },
     )
     return state

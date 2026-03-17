@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import date
 import re
 from dataclasses import dataclass
 from typing import Any
@@ -11,7 +12,10 @@ from ai_travel_agent.agents.state import EvaluationResult
 
 
 _URL_RE = re.compile(r"https?://[^\s)>\"]+")
-_PRICE_RE = re.compile(r"(\$\s?\d+|USD\s?\d+|\d+\s?USD)", re.IGNORECASE)
+_PRICE_RE = re.compile(
+    r"(?:(?:US\$|USD|\$|JPY|¥|EUR|€|GBP|£)\s?\d[\d,]*(?:\.\d+)?)|(?:\d[\d,]*(?:\.\d+)?\s?(?:USD|JPY|EUR|GBP))",
+    re.IGNORECASE,
+)
 
 
 REQUIRED_SECTIONS = [
@@ -118,8 +122,13 @@ def _assumptions_cover_missing(constraints: dict[str, Any], answer: str) -> bool
     return all(m in lower for m in missing)
 
 
+def _remove_section(answer: str, title: str) -> str:
+    pattern = re.compile(rf"(?ms)^##+\s+{re.escape(title)}\s*\n.*?(?=^##+\s+|\Z)")
+    return pattern.sub("", answer or "")
+
+
 def _no_fabricated_prices(answer: str) -> bool:
-    text = answer or ""
+    text = _remove_section(answer or "", "Budget")
     if _PRICE_RE.search(text):
         return False
     # Allow generic mentions like "prices may change" or "check prices" as long as we don't
@@ -144,8 +153,6 @@ def _calendar_ok(ics_bytes: bytes | None, constraints: dict[str, Any]) -> bool:
         end = constraints.get("end_date")
         if start and end:
             # inclusive days
-            from datetime import date
-
             ds = date.fromisoformat(start)
             de = date.fromisoformat(end)
             days = abs((de - ds).days) + 1
@@ -158,6 +165,53 @@ def _calendar_ok(ics_bytes: bytes | None, constraints: dict[str, Any]) -> bool:
 def _has_safety_disclaimer(answer: str) -> bool:
     lower = (answer or "").lower()
     return "verify with official sources" in lower or "not legal advice" in lower
+
+
+def _calendar_claim_mismatch(final_answer: str, hard_gates: dict[str, bool]) -> bool:
+    lower = (final_answer or "").lower()
+    claims_calendar = any(token in lower for token in [".ics", "ics exported", "calendar exported", "calendar download"])
+    return claims_calendar and hard_gates.get("calendar_export_correctness") is False
+
+
+def _strong_constraint_contradiction(constraints: dict[str, Any], final_answer: str) -> bool:
+    answer = final_answer or ""
+    start = constraints.get("start_date")
+    end = constraints.get("end_date")
+    if start and end:
+        for first, second in re.findall(r"(\d{4}-\d{2}-\d{2})\s*(?:to|through|until|-)\s*(\d{4}-\d{2}-\d{2})", answer):
+            if first != start or second != end:
+                return True
+        try:
+            allowed_start = date.fromisoformat(start)
+            allowed_end = date.fromisoformat(end)
+            mentioned = [date.fromisoformat(item) for item in re.findall(r"\b\d{4}-\d{2}-\d{2}\b", answer)]
+            out_of_range = [item for item in mentioned if item < allowed_start or item > allowed_end]
+            if out_of_range:
+                return True
+        except Exception:
+            return False
+    return False
+
+
+def derive_hallucination_metrics(
+    *,
+    constraints: dict[str, Any],
+    final_answer: str,
+    hard_gates: dict[str, bool],
+) -> dict[str, Any]:
+    checks = {
+        "fabricated_real_time_facts": hard_gates.get("no_fabricated_real_time_facts") is False,
+        "invalid_links": hard_gates.get("link_validity_format") is False,
+        "artifact_claim_mismatch": _calendar_claim_mismatch(final_answer, hard_gates),
+        "constraint_contradiction": _strong_constraint_contradiction(constraints, final_answer),
+    }
+    triggered = sum(1 for value in checks.values() if value)
+    total = len(checks)
+    return {
+        "hallucination_detected": triggered > 0,
+        "hallucination_ratio": round(triggered / max(total, 1), 4),
+        "hallucination_checks": checks,
+    }
 
 
 def evaluate_final(

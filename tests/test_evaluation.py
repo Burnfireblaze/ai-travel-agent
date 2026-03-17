@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from ai_travel_agent.evaluation import evaluate_final
+from ai_travel_agent.evaluation import derive_hallucination_metrics, evaluate_final
 from ai_travel_agent.tools.calendar_ics import create_itinerary_ics
 
 
@@ -57,3 +57,59 @@ Note: Visa/health requirements vary; verify with official sources (this is not l
     result = evaluate_final(constraints=constraints, final_answer=answer, ics_bytes=ics["ics_bytes"], eval_threshold=1.0)
     assert all(result.hard_gates.values())
 
+
+def test_evaluation_allows_budget_numbers_in_budget_section():
+    constraints = {
+        "origin": "NYC",
+        "destinations": ["Japan"],
+        "start_date": "2026-04-05",
+        "end_date": "2026-04-14",
+        "budget_usd": 3500,
+        "travelers": 2,
+    }
+    ics = create_itinerary_ics(trip_name="Japan", start_date="2026-04-05", end_date="2026-04-14")
+    answer = """
+# Trip plan
+## Summary
+Trip to Japan.
+## Assumptions
+All required details were provided.
+## Flights
+Links only: https://www.google.com/travel/flights?q=Flights+to+Japan
+## Lodging
+https://www.booking.com/searchresults.html?ss=Hotels+in+Japan
+## Day-by-day
+- Day 1: Arrival
+## Transit
+Use public transit.
+## Weather
+Check weather.
+## Budget
+- Total budget (provided): ~$3,500 for 2 traveler(s) (~$1,750 per traveler).
+- Heuristic allocation target:
+  - Flights: ~$1,400
+  - Accommodation: ~$1,225
+  - Food & Activities: ~$525
+  - Transportation: ~$245
+  - Miscellaneous: ~$105
+## Calendar
+ICS exported.
+Note: Visa/health requirements vary; verify with official sources (this is not legal advice).
+"""
+    result = evaluate_final(constraints=constraints, final_answer=answer, ics_bytes=ics["ics_bytes"], eval_threshold=1.0)
+    assert result.hard_gates["no_fabricated_real_time_facts"] is True
+
+
+def test_hallucination_metrics_trigger_for_failed_real_time_fact_gate():
+    constraints = {"destinations": ["Tokyo"], "start_date": "2026-03-01", "end_date": "2026-03-03"}
+    answer = "## Flights\n$499 flight found\n## Calendar\nICS exported."
+    hard_gates = {
+        "constraint_completeness": True,
+        "no_fabricated_real_time_facts": False,
+        "link_validity_format": True,
+        "calendar_export_correctness": False,
+        "safety_clarity_disclaimer": True,
+    }
+    metrics = derive_hallucination_metrics(constraints=constraints, final_answer=answer, hard_gates=hard_gates)
+    assert metrics["hallucination_detected"] is True
+    assert metrics["hallucination_ratio"] == 0.5

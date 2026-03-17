@@ -8,6 +8,8 @@ import urllib.request
 import urllib.error
 from typing import Any
 
+from ai_travel_agent.observability.metrics import get_current_metrics_collector
+
 
 _TOKEN_CACHE: dict[str, Any] = {"access_token": None, "expires_at": 0.0}
 
@@ -61,10 +63,16 @@ def _http_post_form(url: str, data: dict[str, str], timeout_s: float = 10.0) -> 
             "User-Agent": "ai-travel-agent/0.1",
         },
     )
+    collector = get_current_metrics_collector()
     try:
         with urllib.request.urlopen(req, timeout=timeout_s) as resp:
-            return json.loads(resp.read().decode("utf-8"))
+            payload = json.loads(resp.read().decode("utf-8"))
+        if collector is not None:
+            collector.record_api_request(success=True)
+        return payload
     except urllib.error.HTTPError as err:
+        if collector is not None:
+            collector.record_api_request(success=False)
         body = ""
         try:
             body = err.read().decode("utf-8")
@@ -76,14 +84,24 @@ def _http_post_form(url: str, data: dict[str, str], timeout_s: float = 10.0) -> 
             except Exception:
                 return {"errors": [{"title": f"HTTP {err.code}", "detail": body[:200]}]}
         raise
+    except Exception:
+        if collector is not None:
+            collector.record_api_request(success=False)
+        raise
 
 
 def _http_get_json(url: str, headers: dict[str, str], timeout_s: float = 10.0) -> dict[str, Any]:
     req = urllib.request.Request(url, headers={**headers, "User-Agent": "ai-travel-agent/0.1"})
+    collector = get_current_metrics_collector()
     try:
         with urllib.request.urlopen(req, timeout=timeout_s) as resp:
-            return json.loads(resp.read().decode("utf-8"))
+            payload = json.loads(resp.read().decode("utf-8"))
+        if collector is not None:
+            collector.record_api_request(success=True)
+        return payload
     except urllib.error.HTTPError as err:
+        if collector is not None:
+            collector.record_api_request(success=False)
         body = ""
         try:
             body = err.read().decode("utf-8")
@@ -94,6 +112,10 @@ def _http_get_json(url: str, headers: dict[str, str], timeout_s: float = 10.0) -
                 return json.loads(body)
             except Exception:
                 return {"errors": [{"title": f"HTTP {err.code}", "detail": body[:200]}]}
+        raise
+    except Exception:
+        if collector is not None:
+            collector.record_api_request(success=False)
         raise
 
 

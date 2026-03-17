@@ -5,8 +5,10 @@ from typing import Any
 
 from ai_travel_agent.agents.state import StepType
 from ai_travel_agent.agents.state import Issue, IssueKind, IssueSeverity
-from ai_travel_agent.evaluation import evaluate_final
+from ai_travel_agent.evaluation import derive_hallucination_metrics, evaluate_final
+from ai_travel_agent.observability.detectors import detect_pii
 from ai_travel_agent.observability.logger import get_logger, log_event
+from ai_travel_agent.observability.metrics import get_current_metrics_collector
 
 from .utils import log_context_from_state
 
@@ -52,7 +54,14 @@ def evaluate_final_node(state: dict[str, Any], *, eval_threshold: float) -> dict
         ics_bytes=ics_bytes,
         eval_threshold=eval_threshold,
     )
+    hallucination = derive_hallucination_metrics(
+        constraints=state.get("constraints") or {},
+        final_answer=state.get("final_answer", ""),
+        hard_gates=result.hard_gates,
+    )
+    pii_summary = detect_pii(state.get("final_answer", ""))
     state["evaluation"] = result.model_dump()
+    state["evaluation"]["hallucination"] = hallucination
     state.setdefault("issues", [])
     if result.overall_status == "failed":
         state["issues"].append(
@@ -64,12 +73,25 @@ def evaluate_final_node(state: dict[str, Any], *, eval_threshold: float) -> dict
                 details={"hard_gates": result.hard_gates, "rubric_scores": result.rubric_scores},
             ).model_dump()
         )
+    metrics = get_current_metrics_collector()
+    if metrics is not None:
+        metrics.set("goal_completed", result.overall_status == "good")
+        metrics.set("hallucination_detected", hallucination["hallucination_detected"])
+        metrics.set("hallucination_ratio", hallucination["hallucination_ratio"])
     log_event(
         logger,
         level=logging.INFO,
         message="Final evaluation completed",
         event="eval_final",
         context=log_context_from_state(state, graph_node="evaluate_final"),
-        data={"overall_status": result.overall_status, "hard_gates": result.hard_gates, "rubric": result.rubric_scores},
+        data={
+            "overall_status": result.overall_status,
+            "hard_gates": result.hard_gates,
+            "rubric": result.rubric_scores,
+            "goal_completed": result.overall_status == "good",
+            "hallucination_detected": hallucination["hallucination_detected"],
+            "hallucination_ratio": hallucination["hallucination_ratio"],
+            **pii_summary.as_payload(),
+        },
     )
     return state

@@ -1,15 +1,21 @@
 from __future__ import annotations
 
+import logging
 import re
 from datetime import date
 from typing import Any, Callable
 
 from ai_travel_agent.agents.state import Issue, IssueKind, IssueSeverity, StepType, TripConstraints
+from ai_travel_agent.observability.logger import get_logger, log_event
+
+from .utils import log_context_from_state
 
 
 ISO_DATE_RE = re.compile(r"\b(\d{4}-\d{2}-\d{2})\b")
 IATA_RE = re.compile(r"^[A-Za-z]{3}$")
 _CONSONANT_RUN_RE = re.compile(r"[bcdfghjklmnpqrstvwxyz]{6,}", re.IGNORECASE)
+
+logger = get_logger(__name__)
 
 
 def _parse_iso_date(s: str | None) -> date | None:
@@ -87,6 +93,44 @@ def _is_suspicious_place_name(name: str) -> bool:
     return False
 
 
+def _record_validation_decision(
+    state: dict[str, Any],
+    *,
+    decision: str,
+    constraints: TripConstraints,
+    grounded_places: dict[str, Any] | None = None,
+) -> None:
+    payload = {
+        "decision": decision,
+        "needs_user_input": bool(state.get("needs_user_input")),
+        "clarifying_questions": list(state.get("clarifying_questions") or []),
+        "warnings": list(state.get("validation_warnings") or []),
+        "issues": list(state.get("issues") or []),
+        "constraints": constraints.model_dump(),
+        "grounded_places": grounded_places if grounded_places is not None else state.get("grounded_places"),
+    }
+    state["validation_decision"] = payload
+    log_event(
+        logger,
+        level=logging.INFO,
+        message=f"Validation decision: {decision}",
+        event="validation_decision",
+        context=log_context_from_state(state, graph_node="validator"),
+        data={
+            "node_name": "validator",
+            "llm_input": None,
+            "llm_output": None,
+            "model_name": None,
+            "latency_ms": None,
+            "intent_decision": state.get("intent_decision"),
+            "validation_decision": payload,
+            "planner_decision": state.get("planner_decision"),
+            "tool_selected": state.get("tool_selected"),
+            "synthesis_decision": state.get("synthesis_decision"),
+        },
+    )
+
+
 def validator(
     state: dict[str, Any],
     *,
@@ -140,6 +184,8 @@ def validator(
         state["pending_fixup"] = {"field": "start_date"}
         state["clarifying_questions"] = ["Your start date looks invalid. Please provide start date as YYYY-MM-DD."]
         state["termination_reason"] = "asked_user"
+        state["constraints"] = constraints.model_dump()
+        _record_validation_decision(state, decision="blocked_invalid_start_date", constraints=constraints)
         return state
     if constraints.end_date and not de:
         issue = Issue(
@@ -154,6 +200,8 @@ def validator(
         state["pending_fixup"] = {"field": "end_date"}
         state["clarifying_questions"] = ["Your end date looks invalid. Please provide end date as YYYY-MM-DD."]
         state["termination_reason"] = "asked_user"
+        state["constraints"] = constraints.model_dump()
+        _record_validation_decision(state, decision="blocked_invalid_end_date", constraints=constraints)
         return state
 
     # Normalize swapped dates.
@@ -224,6 +272,8 @@ def validator(
         state["pending_fixup"] = {"kind": "missing_core", "missing": missing_core}
         state["clarifying_questions"] = [f"Please provide {m}." for m in missing_core[:4]]
         state["termination_reason"] = "asked_user"
+        state["constraints"] = constraints.model_dump()
+        _record_validation_decision(state, decision="blocked_missing_core_fields", constraints=constraints)
         return state
 
     # Geocode grounding.
@@ -263,6 +313,8 @@ def validator(
                         f"Your origin '{constraints.origin}' is ambiguous. Reply with 1-{len(options_list)}. Options: {options}",
                     ]
                     state["termination_reason"] = "asked_user"
+                    state["constraints"] = constraints.model_dump()
+                    _record_validation_decision(state, decision="blocked_ambiguous_origin", constraints=constraints)
                     return state
                 candidates = g.get("candidates") or []
                 if not g.get("best") and not candidates:
@@ -281,6 +333,8 @@ def validator(
                         f"I couldn't find your origin '{constraints.origin}'. Please provide a real departure city/airport (ideally an IATA code like SFO/JFK or 'City, Country').",
                     ]
                     state["termination_reason"] = "asked_user"
+                    state["constraints"] = constraints.model_dump()
+                    _record_validation_decision(state, decision="blocked_unknown_origin", constraints=constraints)
                     return state
                 grounded["origin"] = g.get("best")
             except Exception as e:
@@ -300,6 +354,8 @@ def validator(
                         f"I couldn't validate your origin '{constraints.origin}'. Please provide a real departure city/airport (e.g. 'San Francisco, US' or IATA like SFO).",
                     ]
                     state["termination_reason"] = "asked_user"
+                    state["constraints"] = constraints.model_dump()
+                    _record_validation_decision(state, decision="blocked_unvalidated_origin", constraints=constraints)
                     return state
 
     if geocode_fn is not None:
@@ -340,6 +396,8 @@ def validator(
                         f"Your destination '{dest}' is ambiguous. Reply with 1-{len(options_list)}. Options: {options}",
                     ]
                     state["termination_reason"] = "asked_user"
+                    state["constraints"] = constraints.model_dump()
+                    _record_validation_decision(state, decision="blocked_ambiguous_destination", constraints=constraints)
                     return state
                 candidates = g.get("candidates") or []
                 if not g.get("best") and not candidates:
@@ -358,6 +416,8 @@ def validator(
                         f"I couldn't find your destination '{dest}'. Please provide a real city/country (e.g. 'Bangkok, Thailand').",
                     ]
                     state["termination_reason"] = "asked_user"
+                    state["constraints"] = constraints.model_dump()
+                    _record_validation_decision(state, decision="blocked_unknown_destination", constraints=constraints)
                     return state
                 grounded["destinations"].append(g.get("best"))
             except Exception as e:
@@ -377,6 +437,8 @@ def validator(
                         f"I couldn't validate your destination '{dest}'. Please provide a real city/country (e.g. 'Bangkok, Thailand') so I can plan accurately.",
                     ]
                     state["termination_reason"] = "asked_user"
+                    state["constraints"] = constraints.model_dump()
+                    _record_validation_decision(state, decision="blocked_unvalidated_destination", constraints=constraints)
                     return state
                 grounded["destinations"].append({"name": dest})
 
@@ -384,4 +446,5 @@ def validator(
     state["grounded_places"] = grounded
     state["needs_user_input"] = False
     state["clarifying_questions"] = []
+    _record_validation_decision(state, decision="passed", constraints=constraints, grounded_places=grounded)
     return state

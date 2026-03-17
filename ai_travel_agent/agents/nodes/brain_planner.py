@@ -1,10 +1,17 @@
 from __future__ import annotations
 
 import json
+import logging
 from typing import Any
 
 from ai_travel_agent.agents.state import Issue, IssueKind, IssueSeverity, PlanStep, StepType
 from ai_travel_agent.llm import LLMClient
+from ai_travel_agent.observability.logger import get_logger, log_llm_event
+
+from .utils import log_context_from_state
+
+
+logger = get_logger(__name__)
 
 
 ALLOWED_STEP_TYPES = {StepType.RETRIEVE_CONTEXT, StepType.TOOL_CALL, StepType.SYNTHESIZE}
@@ -130,13 +137,20 @@ def brain_planner(state: dict[str, Any], *, llm: LLMClient) -> dict[str, Any]:
         "user_query": state.get("user_query", ""),
         "constraints": state.get("constraints") or {},
         "grounded_places": state.get("grounded_places") or {},
+        "reasoning_summary": state.get("reasoning_summary") or {},
         "context_hits_count": len(state.get("context_hits") or []),
         "policy": {
             "links_only": True,
             "no_live_prices": True,
         },
     }
-    raw = llm.invoke_text(system=SYSTEM, user=json.dumps(prompt, ensure_ascii=False), tags={"node": "brain_planner"})
+    llm_input = json.dumps(prompt, ensure_ascii=False)
+    raw = llm.invoke_text(
+        system=SYSTEM,
+        user=llm_input,
+        tags={"node": "brain_planner"},
+        context=log_context_from_state(state, graph_node="brain_planner"),
+    )
     data = _safe_json(raw) or {}
     items = data.get("plan") if isinstance(data.get("plan"), list) else None
 
@@ -154,7 +168,29 @@ def brain_planner(state: dict[str, Any], *, llm: LLMClient) -> dict[str, Any]:
         )
         from ai_travel_agent.agents.nodes.planner import planner as fallback_planner
 
-        return fallback_planner(state)
+        out = fallback_planner(state)
+        fallback_tools = [s.get("tool_name") for s in (out.get("plan") or []) if s.get("tool_name")]
+        out["planner_decision"] = {
+            "strategy": "fallback_planner",
+            "step_count": len(out.get("plan") or []),
+            "step_titles": [s.get("title") for s in (out.get("plan") or [])],
+        }
+        log_llm_event(
+            "brain_planner",
+            {"system": SYSTEM, "user": llm_input},
+            raw,
+            {
+                **llm.telemetry_metadata(),
+                "intent_decision": out.get("intent_decision"),
+                "validation_decision": out.get("validation_decision"),
+                "planner_decision": out.get("planner_decision"),
+                "tool_selected": fallback_tools,
+                "synthesis_decision": out.get("synthesis_decision"),
+            },
+            logger=logger,
+            context=log_context_from_state(out, graph_node="brain_planner"),
+        )
+        return out
 
     constraints = state.get("constraints") or {}
     dests = constraints.get("destinations") or []
@@ -165,4 +201,26 @@ def brain_planner(state: dict[str, Any], *, llm: LLMClient) -> dict[str, Any]:
     state["plan"] = [s.model_dump() for s in steps]
     state.setdefault("tool_results", [])
     state["current_step_index"] = 0
+    selected_tools = [step.tool_name for step in steps if step.tool_name]
+    state["planner_decision"] = {
+        "strategy": "llm_planner",
+        "step_count": len(state["plan"]),
+        "step_titles": [step.title for step in steps],
+        "selected_tools": selected_tools,
+    }
+    log_llm_event(
+        "brain_planner",
+        {"system": SYSTEM, "user": llm_input},
+        raw,
+        {
+            **llm.telemetry_metadata(),
+            "intent_decision": state.get("intent_decision"),
+            "validation_decision": state.get("validation_decision"),
+            "planner_decision": state.get("planner_decision"),
+            "tool_selected": selected_tools,
+            "synthesis_decision": state.get("synthesis_decision"),
+        },
+        logger=logger,
+        context=log_context_from_state(state, graph_node="brain_planner"),
+    )
     return state
