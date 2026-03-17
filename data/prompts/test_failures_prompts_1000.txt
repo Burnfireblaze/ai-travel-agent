@@ -1,0 +1,1001 @@
+# 1000 real travel-planning prompts for failure-injection runs
+Plan a 5-day trip to Paris from New Delhi in March with a mid-range budget and museum-focused itinerary.
+I want a 7-day Tokyo trip from San Francisco for 2 travelers focused on anime, ramen, and neighborhoods.
+Plan a family trip to Rome and Florence for 6 days from New York with kid-friendly activities and moderate pace.
+Create a 4-day budget trip to Bangkok from Singapore with food markets, temples, and local transit tips.
+Help me plan a 10-day Spain itinerary covering Barcelona and Madrid from Chicago with art and architecture interests.
+Plan a honeymoon trip to Bali for 8 days from Los Angeles with beach time, spa days, and one luxury stay.
+Design a 5-day Dubai itinerary from Mumbai including desert safari, shopping, and weather-aware day planning.
+I need a 6-day London trip from Boston for 3 adults with history, theater, and walkable day plans.
+Build a 5-day Istanbul travel plan from Berlin with cultural sites, food tours, and realistic transit notes.
+Plan a 9-day Japan trip from Seattle covering Tokyo, Kyoto, and Osaka with train-focused logistics.
+Create a 3-day quick trip to Paris from London with flights, hotel links, and compact day-by-day plan.
+Plan a 12-day Europe trip from Toronto covering Amsterdam, Brussels, and Paris with balanced pace and budget.
+Suggest a 4-day Lisbon itinerary from Dublin with seafood places and scenic tram routes.
+Plan a 6-day Seoul trip from Vancouver with K-pop shopping, street food, and palace visits.
+Create a 7-day Vietnam trip from Sydney covering Hanoi and Da Nang with beaches and local cuisine.
+Build a 5-day Cairo itinerary from Riyadh focused on pyramids, museums, and evening river cruises.
+Plan a 4-day Singapore trip from Jakarta with clean family-friendly attractions and efficient transit.
+Give me a 10-day Italy trip from Dallas visiting Venice, Florence, and Rome with train transfers.
+Plan a 6-day Prague and Vienna trip from Berlin with classical music, old town walks, and cafe stops.
+Design a 5-day Mexico City trip from Miami with art museums, markets, and safe neighborhood suggestions.
+Build a 7-day Greece trip from Paris covering Athens and Santorini with ferry logistics.
+Create a 5-day Zurich and Lucerne itinerary from Frankfurt with mountain day trips and easy transport.
+Plan a 3-day business-plus-leisure trip to Hong Kong from Bangalore with evening activities.
+I need a 9-day Australia trip from Los Angeles covering Sydney and Melbourne with wildlife options.
+Create a 6-day New Zealand South Island plan from Auckland with scenic drives and hikes.
+Plan a 5-day Reykjavik and Golden Circle trip from Boston with winter weather contingencies.
+Design a 7-day Peru trip from Mexico City including Lima and Cusco with altitude-aware pacing.
+Build an 8-day Morocco itinerary from Madrid covering Marrakech and Fes with local riads.
+Create a 6-day Cape Town trip from Nairobi with wineries, coast drives, and safety notes.
+Plan a 5-day Buenos Aires trip from Santiago with tango, steak restaurants, and neighborhood tips.
+Build a 7-day Jordan trip from Dubai with Petra, Wadi Rum, and Dead Sea logistics.
+Plan a 4-day Munich trip from Amsterdam around Christmas markets and train access.
+I need a 6-day Stockholm and Copenhagen trip from Oslo with ferries and bike-friendly routes.
+Create a 5-day Ireland road trip from London starting in Dublin and ending in Galway.
+Plan a 7-day California trip from Denver covering San Francisco and Yosemite with budget stays.
+Build a 6-day Pacific Northwest trip from Phoenix including Seattle and Portland with coffee and nature.
+Design a 5-day New York City trip from Atlanta with Broadway, museums, and subway tips.
+Plan a 4-day Washington DC trip from Chicago with monuments, Smithsonian, and family pacing.
+Create a 7-day Florida trip from Toronto for kids including Orlando parks and beach downtime.
+Build a 5-day Hawaii Oahu trip from San Jose with snorkeling and beginner surf lessons.
+Plan a 6-day Utah national parks trip from Austin with realistic drive times and weather checks.
+Design a 5-day Arizona trip from Seattle including Sedona and Grand Canyon sunrise plans.
+Create a 7-day Canadian Rockies trip from San Francisco with Banff and Jasper itinerary.
+Plan a 4-day New Orleans trip from New York with jazz clubs, food tours, and walking safety.
+Build a 5-day Nashville and Memphis trip from Boston with live music and BBQ stops.
+I need a 6-day Chicago trip from Los Angeles focused on architecture, food, and museums.
+Create a 5-day Alaska trip from Minneapolis with glacier day tours and daylight planning.
+Plan a 7-day road trip in Texas from Houston to Austin and San Antonio with family activities.
+Build a 6-day Colorado trip from Miami with Denver and Rocky Mountain National Park.
+Plan a 5-day Pacific Coast Highway trip from Los Angeles to San Francisco with key stops.
+Create a 4-day Philadelphia trip from Raleigh with history, food markets, and quick transit routes.
+Design a 5-day Boston trip from Charlotte with Freedom Trail, day trips, and seafood spots.
+Plan a 7-day Washington state trip from Dallas including Olympic National Park and Seattle.
+Create a 6-day New Mexico trip from Phoenix with Santa Fe art scene and local cuisine.
+Build a 5-day Michigan trip from New York covering Detroit and Sleeping Bear Dunes.
+Plan a 4-day Charleston trip from Washington DC with historic tours and coastal dining.
+Design a 5-day Savannah trip from Philadelphia with walkable routes and boutique stays.
+Create a 6-day Maine coast trip from Chicago with Acadia and lighthouse views.
+Plan a 5-day Vancouver trip from San Diego with nature parks and city food tours.
+Build a 7-day Montreal and Quebec City trip from Boston with winter-friendly activities.
+Create a 4-day Toronto city break from New York with CN Tower, islands, and museums.
+Plan a 6-day Cancun and Tulum trip from Houston with cenotes and ruins.
+Design a 5-day Costa Rica trip from Miami including Arenal and Monteverde with eco-lodges.
+Build a 7-day Colombia trip from Mexico City covering Bogota and Medellin safely.
+Create a 6-day Chile trip from Lima with Santiago and Valparaiso coastal pace.
+Plan a 5-day Uruguay trip from Buenos Aires with Montevideo and Colonia ferry timings.
+Build a 7-day Brazil trip from Lisbon covering Rio and Sao Paulo with flight options.
+Create a 6-day Egypt trip from Istanbul with Cairo and Luxor plus domestic transfers.
+Plan an 8-day South Africa trip from London with Cape Town and safari split.
+Design a 5-day Kenya trip from Dubai with Nairobi and Maasai Mara considerations.
+Build a 7-day Tanzania trip from Nairobi with Zanzibar beach extension.
+Create a 6-day Ethiopia trip from Rome including Addis Ababa and Lalibela.
+Plan a 5-day Ghana trip from New York with Accra cultural spots and local logistics.
+Build a 7-day Nigeria trip from Johannesburg focusing on Lagos business and leisure mix.
+Design a 6-day UAE trip from Riyadh covering Dubai and Abu Dhabi landmarks.
+Create a 5-day Oman trip from Doha with Muscat, wadis, and mountain drives.
+Plan a 7-day Saudi Arabia trip from Cairo including Riyadh and AlUla.
+Build a 6-day Qatar stopover trip from Mumbai with museums and desert activities.
+Create a 5-day Israel trip from Athens including Tel Aviv and Jerusalem highlights.
+Plan a 7-day Turkey trip from Frankfurt with Istanbul and Cappadocia balloons.
+Build a 6-day Georgia country trip from Dubai including Tbilisi and Kazbegi.
+Create a 5-day Armenia trip from Moscow with Yerevan history and local food.
+Plan a 7-day Azerbaijan trip from Istanbul including Baku and mountain villages.
+Design a 6-day Kazakhstan trip from Delhi with Almaty nature and city mix.
+Build a 5-day Uzbekistan trip from Dubai with Samarkand and Bukhara trains.
+Create a 7-day India Golden Triangle trip from Singapore with Delhi, Agra, Jaipur.
+Plan a 6-day Nepal trip from Delhi with Kathmandu and Pokhara adventure-lite plan.
+Build a 5-day Sri Lanka trip from Chennai with Colombo and Galle coast.
+Create a 7-day Maldives trip from Bangalore with resort split and seaplane timings.
+Plan a 6-day Bhutan trip from Kolkata with Thimphu and Paro culture-focused pacing.
+Build a 5-day Pakistan north trip from Lahore with Hunza scenery and realistic travel legs.
+Create a 7-day Bangladesh trip from Kuala Lumpur including Dhaka and Sylhet tea gardens.
+Plan a 6-day Indonesia trip from Perth with Bali and Nusa Penida day plans.
+Build a 5-day Malaysia trip from Singapore with Kuala Lumpur and Penang food focus.
+Create a 7-day Thailand trip from Delhi with Bangkok and Chiang Mai temples and markets.
+Plan a 6-day Philippines trip from Hong Kong including Manila and Cebu island activities.
+Build a 5-day Taiwan trip from Tokyo with Taipei street food and day hikes.
+Create a 7-day China trip from Seoul with Shanghai and Beijing highlights.
+Plan a 6-day South Korea trip from Osaka with Seoul and Busan efficient transit.
+Build a 5-day Japan winter trip from Taipei including Sapporo snow festival options.
+Create a 7-day Australia East Coast trip from Singapore with Sydney and Gold Coast.
+Plan a 6-day Fiji trip from Auckland with resort and activity balance.
+Build a 5-day Samoa trip from Sydney with beaches and cultural village visits.
+Create a 7-day French Polynesia trip from Los Angeles with Bora Bora focus.
+Plan a 6-day Alaska cruise add-on from Seattle with pre-cruise city itinerary.
+Build a 5-day cruise-friendly Miami trip from Dallas before Caribbean sailing.
+Create a 7-day ski trip to Switzerland from London with Zermatt and beginner lessons.
+Plan a 6-day Austrian Alps trip from Berlin with Innsbruck and scenic rail routes.
+Build a 5-day Norway fjords trip from Copenhagen with Bergen and ferry schedules.
+Create a 7-day Finland trip from Stockholm with Helsinki and Lapland winter activities.
+Plan a 6-day Iceland ring-road short version from Manchester with weather-safe backups.
+Build a 5-day Scotland Highlands trip from Dublin with Edinburgh start and end.
+Create a 7-day Portugal trip from New York with Lisbon, Porto, and Douro valley day trip.
+Plan a 6-day France south trip from Paris with Nice and Provence village stops.
+Build a 5-day Germany trip from Zurich with Munich and Berlin by train.
+Create a 7-day Netherlands and Belgium trip from London with Amsterdam, Antwerp, Brussels.
+Plan a 6-day Croatia trip from Vienna with Dubrovnik and Split ferry coordination.
+Build a 5-day Slovenia trip from Munich with Ljubljana and Lake Bled nature plan.
+Create a 7-day Serbia and Bosnia trip from Budapest with Belgrade and Sarajevo highlights.
+Plan a 6-day Romania trip from Athens with Bucharest and Brasov castle route.
+Build a 5-day Bulgaria trip from Istanbul with Sofia and Plovdiv cultural activities.
+Create a 7-day itinerary for Porto from San Francisco for 2 travelers, emphasizing beaches and water activities.
+Design a 12-day Da Nang trip from Boston with budget spending and rainy-day backups and indoor spots.
+Plan a 4-day city break in Porto from Chicago with beaches and water activities and day-by-day pacing.
+Put together a 12-day trip to Porto from Mexico City including local festivals and cultural shows and weather-aware planning.
+Build a 6-day travel plan from Jakarta to Casablanca with rainy-day backups and indoor spots and realistic transit notes.
+Build a 5-day travel plan from New York to Maldives with family-friendly attractions and realistic transit notes.
+Design a 8-day Helsinki trip from Vancouver with budget spending and museums and history.
+Plan a 8-day trip to Istanbul from Boston with a luxury budget focused on architecture and design.
+Plan a 4-day city break in Sao Paulo from Doha with museums and history and day-by-day pacing.
+Put together a 8-day trip to Bali from Oslo including beaches and water activities and weather-aware planning.
+Create a 6-day itinerary for Barcelona from Miami for 2 travelers, emphasizing museums and history.
+Build a 7-day travel plan from Boston to Cairo with photography spots and sunrise plans and realistic transit notes.
+Build a 8-day travel plan from London to Cappadocia with photography spots and sunrise plans and realistic transit notes.
+Create a 5-day itinerary for Osaka from Miami for 2 travelers, emphasizing local festivals and cultural shows.
+Put together a 9-day trip to Bogota from London including shopping and neighborhood exploration and weather-aware planning.
+Plan a 8-day trip to Tallinn from Manila with a budget budget focused on beaches and water activities.
+Plan a 7-day city break in Marrakech from Tokyo with beaches and water activities and day-by-day pacing.
+Put together a 10-day trip to Helsinki from Tokyo including shopping and neighborhood exploration and weather-aware planning.
+Put together a 7-day trip to Geneva from Doha including beaches and water activities and weather-aware planning.
+Plan a 7-day city break in Sao Paulo from Manila with nightlife and live music and day-by-day pacing.
+Design a 6-day Cappadocia trip from Sydney with mid-range spending and public transit tips and walkable days.
+Put together a 3-day trip to Maldives from Seattle including nature hikes and viewpoints and weather-aware planning.
+Design a 9-day Da Nang trip from London with luxury spending and museums and history.
+Plan a 10-day city break in Osaka from Hong Kong with architecture and design and day-by-day pacing.
+Build a 4-day travel plan from New York to Da Nang with wellness, spas, and slow pace and realistic transit notes.
+Design a 7-day Vienna trip from Seoul with comfort spending and nature hikes and viewpoints.
+Create a 7-day itinerary for Pokhara from New York for 2 travelers, emphasizing wellness, spas, and slow pace.
+Create a 7-day itinerary for Budapest from Bangalore for 2 travelers, emphasizing rainy-day backups and indoor spots.
+Plan a 5-day city break in Cappadocia from Vancouver with wellness, spas, and slow pace and day-by-day pacing.
+Plan a 8-day trip to Osaka from New York with a comfort budget focused on food tours and markets.
+Plan a 6-day city break in Bratislava from Bangkok with beaches and water activities and day-by-day pacing.
+Plan a 10-day city break in Prague from Seattle with wellness, spas, and slow pace and day-by-day pacing.
+Build a 10-day travel plan from Toronto to Zurich with nature hikes and viewpoints and realistic transit notes.
+Plan a 9-day city break in Osaka from Kolkata with shopping and neighborhood exploration and day-by-day pacing.
+Put together a 7-day trip to Kathmandu from Berlin including photography spots and sunrise plans and weather-aware planning.
+Create a 12-day itinerary for Cusco from Bangkok for 2 travelers, emphasizing museums and history.
+Plan a 8-day city break in Seville from Madrid with rainy-day backups and indoor spots and day-by-day pacing.
+Put together a 6-day trip to Kyoto from Madrid including museums and history and weather-aware planning.
+Build a 4-day travel plan from Dallas to Tallinn with adventure and outdoor activities and realistic transit notes.
+Design a 6-day Santiago trip from Miami with moderate spending and photography spots and sunrise plans.
+Design a 5-day Sao Paulo trip from Amsterdam with luxury spending and rainy-day backups and indoor spots.
+Plan a 9-day trip to Medellin from Rome with a mid-range budget focused on museums and history.
+Put together a 9-day trip to Istanbul from Auckland including art galleries and local crafts and weather-aware planning.
+Put together a 4-day trip to Da Nang from Dallas including nightlife and live music and weather-aware planning.
+Plan a 6-day city break in Budapest from Seoul with beaches and water activities and day-by-day pacing.
+Design a 9-day Zurich trip from Dubai with mid-range spending and architecture and design.
+Plan a 10-day trip to Seville from Rome with a luxury budget focused on museums and history.
+Design a 4-day Lisbon trip from Jakarta with mid-range spending and nature hikes and viewpoints.
+Plan a 6-day trip to Medellin from Delhi with a comfort budget focused on shopping and neighborhood exploration.
+Design a 3-day Cairo trip from London with comfort spending and architecture and design.
+Create a 12-day itinerary for Lima from Oslo for 2 travelers, emphasizing nature hikes and viewpoints.
+Plan a 3-day city break in Helsinki from Oslo with local festivals and cultural shows and day-by-day pacing.
+Plan a 8-day city break in Colombo from Dallas with food tours and markets and day-by-day pacing.
+Plan a 12-day city break in Santiago from Mumbai with food tours and markets and day-by-day pacing.
+Put together a 4-day trip to Glasgow from Seattle including museums and history and weather-aware planning.
+Plan a 4-day city break in Marrakech from Rome with beaches and water activities and day-by-day pacing.
+Plan a 4-day city break in Barcelona from Mexico City with photography spots and sunrise plans and day-by-day pacing.
+Put together a 8-day trip to Rio de Janeiro from Cape Town including beaches and water activities and weather-aware planning.
+Put together a 7-day trip to Riga from Tokyo including nature hikes and viewpoints and weather-aware planning.
+Design a 8-day Bogota trip from Copenhagen with budget spending and food tours and markets.
+Create a 4-day itinerary for Ho Chi Minh City from Sao Paulo for 2 travelers, emphasizing public transit tips and walkable days.
+Plan a 5-day trip to Vilnius from Bangalore with a moderate budget focused on shopping and neighborhood exploration.
+Plan a 7-day city break in Cappadocia from Rome with art galleries and local crafts and day-by-day pacing.
+Plan a 12-day city break in Taipei from Copenhagen with photography spots and sunrise plans and day-by-day pacing.
+Plan a 4-day trip to Chiang Mai from Copenhagen with a mid-range budget focused on architecture and design.
+Build a 12-day travel plan from Boston to Colombo with architecture and design and realistic transit notes.
+Put together a 8-day trip to Helsinki from Mexico City including photography spots and sunrise plans and weather-aware planning.
+Plan a 10-day trip to Santiago from Dublin with a moderate budget focused on shopping and neighborhood exploration.
+Plan a 9-day trip to Bali from Seattle with a moderate budget focused on food tours and markets.
+Put together a 5-day trip to Fiji from Seoul including nature hikes and viewpoints and weather-aware planning.
+Plan a 9-day trip to Hanoi from Dubai with a luxury budget focused on food tours and markets.
+Build a 5-day travel plan from Miami to Siem Reap with food tours and markets and realistic transit notes.
+Plan a 5-day trip to Hanoi from Nairobi with a comfort budget focused on nature hikes and viewpoints.
+Put together a 3-day trip to Cappadocia from Copenhagen including beaches and water activities and weather-aware planning.
+Plan a 4-day city break in Chiang Mai from Rome with wellness, spas, and slow pace and day-by-day pacing.
+Create a 5-day itinerary for Taipei from Melbourne for 2 travelers, emphasizing adventure and outdoor activities.
+Build a 3-day travel plan from Paris to Casablanca with local festivals and cultural shows and realistic transit notes.
+Put together a 6-day trip to Chiang Mai from Melbourne including nature hikes and viewpoints and weather-aware planning.
+Create a 3-day itinerary for Cairo from Boston for 2 travelers, emphasizing beaches and water activities.
+Put together a 4-day trip to Osaka from Medellin including day trips to nearby towns and weather-aware planning.
+Put together a 9-day trip to Vilnius from Auckland including nightlife and live music and weather-aware planning.
+Design a 6-day Vienna trip from Bangalore with budget spending and day trips to nearby towns.
+Plan a 8-day city break in Santiago from Bangalore with art galleries and local crafts and relaxed pacing.
+Plan a 12-day trip to Maldives from Medellin with a moderate budget focused on train-focused logistics.
+Plan a 4-day trip to Santorini from Cape Town with a luxury budget focused on cafe culture and bookshops.
+Build a 14-day travel plan from Hong Kong to Jasper with shopping and neighborhood exploration and realistic transit notes.
+Put together a 8-day trip to Queenstown from San Francisco including cafe culture and bookshops and weather-aware planning.
+Build a 10-day travel plan from Berlin to Glasgow with museums and history and realistic transit notes.
+Plan a 6-day trip to Dubrovnik from Riyadh with a luxury budget focused on nightlife and live music.
+Build a 14-day travel plan from Jakarta to Sao Paulo with cafe culture and bookshops and realistic transit notes.
+Build a 6-day travel plan from Sydney to Edinburgh with public transit tips and walkable days and realistic transit notes.
+Put together a 7-day trip to Phuket from London including art galleries and local crafts and weather-aware planning.
+Build a 7-day travel plan from Bangkok to Phuket with local festivals and cultural shows and realistic transit notes.
+Plan a 9-day city break in Fiji from Kuala Lumpur with nature hikes and viewpoints and fast-paced pacing.
+Create a 3-day itinerary for Zurich from Buenos Aires for two travelers, emphasizing beaches and water activities.
+Create a 9-day itinerary for Interlaken from Hong Kong for family, emphasizing local festivals and cultural shows.
+Build a 14-day travel plan from Riyadh to Valencia with public transit tips and walkable days and realistic transit notes.
+Put together a 8-day trip to Colombo from Medellin including budget-friendly local eats and weather-aware planning.
+Plan a 4-day trip to Dubrovnik from Cairo with a moderate budget focused on adventure and outdoor activities.
+Plan a 10-day city break in Santorini from Chicago with shopping and neighborhood exploration and relaxed pacing.
+Design a 4-day Bratislava trip from Mexico City with mid-range spending and cafe culture and bookshops.
+Create a 6-day itinerary for Phuket from Kolkata for solo, emphasizing food tours and markets.
+Create a 12-day itinerary for Hanoi from Manila for group of 3, emphasizing art galleries and local crafts.
+Design a 4-day Medellin trip from Miami with comfort spending and food tours and markets.
+Create a 10-day itinerary for Zurich from London for family, emphasizing museums and history.
+Put together a 4-day trip to Reykjavik from Seattle including public transit tips and walkable days and weather-aware planning.
+Plan a 7-day trip to Tallinn from Doha with a mid-range budget focused on day trips to nearby towns.
+Plan a 3-day trip to Cusco from Melbourne with a mid-range budget focused on local festivals and cultural shows.
+Create a 14-day itinerary for Glasgow from Cape Town for group of 3, emphasizing wellness, spas, and slow pace.
+Design a 7-day Zermatt trip from Rome with mid-range spending and adventure and outdoor activities.
+Put together a 7-day trip to Zurich from Paris including museums and history and weather-aware planning.
+Create a 6-day itinerary for Bogota from Singapore for family, emphasizing beaches and water activities.
+Build a 10-day travel plan from Bangkok to Colombo with public transit tips and walkable days and realistic transit notes.
+Design a 8-day Reykjavik trip from Singapore with luxury spending and shopping and neighborhood exploration.
+Create a 4-day itinerary for Lima from Doha for group of 4, emphasizing seasonal weather contingencies.
+Design a 9-day Split trip from Medellin with moderate spending and cafe culture and bookshops.
+Build a 6-day travel plan from Kolkata to Valencia with architecture and design and realistic transit notes.
+Plan a 6-day trip to Split from Cairo with a budget budget focused on seasonal weather contingencies.
+Plan a 7-day trip to Dubrovnik from Stockholm with a budget budget focused on art galleries and local crafts.
+Plan a 6-day trip to Budapest from Oslo with a comfort budget focused on seasonal weather contingencies.
+Create a 14-day itinerary for Krakow from Sydney for two travelers, emphasizing nature hikes and viewpoints.
+Put together a 5-day trip to Santorini from Los Angeles including adventure and outdoor activities and weather-aware planning.
+Plan a 9-day trip to Siem Reap from Paris with a comfort budget focused on beaches and water activities.
+Create a 12-day itinerary for Taipei from Doha for couple, emphasizing seasonal weather contingencies.
+Create a 6-day itinerary for Buenos Aires from Bangalore for group of 4, emphasizing family-friendly attractions.
+Plan a 6-day trip to Hanoi from Kolkata with a mid-range budget focused on adventure and outdoor activities.
+Plan a 10-day city break in Phuket from Vancouver with adventure and outdoor activities and balanced pacing.
+Plan a 6-day city break in Geneva from Madrid with wellness, spas, and slow pace and fast-paced pacing.
+Plan a 12-day city break in Fiji from Amsterdam with adventure and outdoor activities and fast-paced pacing.
+Plan a 5-day trip to Phuket from Riyadh with a moderate budget focused on shopping and neighborhood exploration.
+Put together a 12-day trip to Dubrovnik from Doha including cafe culture and bookshops and weather-aware planning.
+Plan a 10-day trip to Maldives from Buenos Aires with a budget budget focused on adventure and outdoor activities.
+Plan a 3-day city break in Bratislava from Vancouver with day trips to nearby towns and relaxed pacing.
+Plan a 4-day city break in Taipei from London with shopping and neighborhood exploration and balanced pacing.
+Plan a 10-day city break in Hanoi from Berlin with public transit tips and walkable days and fast-paced pacing.
+Build a 12-day travel plan from Delhi to Medellin with budget-friendly local eats and realistic transit notes.
+Build a 12-day travel plan from Dallas to Santiago with cafe culture and bookshops and realistic transit notes.
+Design a 9-day Seville trip from Berlin with mid-range spending and nature hikes and viewpoints.
+Plan a 9-day city break in Geneva from Sao Paulo with nature hikes and viewpoints and balanced pacing.
+Build a 14-day travel plan from Bangalore to Cappadocia with public transit tips and walkable days and realistic transit notes.
+Build a 7-day travel plan from Sydney to Santiago with seasonal weather contingencies and realistic transit notes.
+Put together a 12-day trip to Cusco from Bangalore including local festivals and cultural shows and weather-aware planning.
+Design a 8-day Siem Reap trip from Cape Town with luxury spending and rainy-day backups and indoor spots.
+Create a 6-day itinerary for Buenos Aires from Auckland for two travelers, emphasizing nature hikes and viewpoints.
+Plan a 5-day city break in Buenos Aires from Berlin with seasonal weather contingencies and relaxed pacing.
+Build a 9-day travel plan from Mumbai to Interlaken with day trips to nearby towns and realistic transit notes.
+Plan a 7-day city break in Vienna from Doha with local festivals and cultural shows and balanced pacing.
+Put together a 4-day trip to Hanoi from Bogota including adventure and outdoor activities and weather-aware planning.
+Put together a 6-day trip to Porto from Mexico City including nature hikes and viewpoints and weather-aware planning.
+Plan a 6-day city break in Split from Oslo with wellness, spas, and slow pace and relaxed pacing.
+Plan a 14-day city break in Kyoto from Manila with food tours and markets and relaxed pacing.
+Build a 12-day travel plan from Dallas to Buenos Aires with museums and history and realistic transit notes.
+Build a 10-day travel plan from Cape Town to Helsinki with museums and history and realistic transit notes.
+Plan a 3-day city break in Cairo from Miami with cafe culture and bookshops and relaxed pacing.
+Plan a 5-day city break in Vienna from Mexico City with seasonal weather contingencies and fast-paced pacing.
+Design a 4-day Ljubljana trip from Bogota with mid-range spending and adventure and outdoor activities.
+Plan a 12-day trip to Valencia from Singapore with a comfort budget focused on train-focused logistics.
+Plan a 3-day trip to Colombo from Nairobi with a budget budget focused on photography spots and sunrise plans.
+Design a 8-day Interlaken trip from Medellin with mid-range spending and art galleries and local crafts.
+Build a 4-day travel plan from Rome to Rio de Janeiro with adventure and outdoor activities and realistic transit notes.
+Design a 4-day Taipei trip from Delhi with moderate spending and adventure and outdoor activities.
+Build a 12-day travel plan from Miami to Rio de Janeiro with local festivals and cultural shows and realistic transit notes.
+Build a 10-day travel plan from Boston to Tallinn with rainy-day backups and indoor spots and realistic transit notes.
+Plan a 4-day city break in Lisbon from Kolkata with train-focused logistics and balanced pacing.
+Plan a 6-day trip to Athens from Boston with a comfort budget focused on beaches and water activities.
+Plan a 6-day city break in Buenos Aires from New York with seasonal weather contingencies and balanced pacing.
+Plan a 5-day city break in Siem Reap from Paris with day trips to nearby towns and balanced pacing.
+Put together a 14-day trip to Banff from Hong Kong including seasonal weather contingencies and weather-aware planning.
+Build a 9-day travel plan from Santiago to Colombo with local festivals and cultural shows and realistic transit notes.
+Build a 8-day travel plan from Paris to Ljubljana with architecture and design and realistic transit notes.
+Put together a 9-day trip to Rio de Janeiro from Cairo including family-friendly attractions and weather-aware planning.
+Plan a 7-day trip to Queenstown from Auckland with a budget budget focused on rainy-day backups and indoor spots.
+Plan a 6-day city break in Budapest from Dubai with nightlife and live music and balanced pacing.
+Plan a 7-day trip to Dubrovnik from Rome with a comfort budget focused on cafe culture and bookshops.
+Create a 4-day itinerary for Pokhara from Sao Paulo for group of 3, emphasizing architecture and design.
+Plan a 6-day trip to Maldives from Jakarta with a moderate budget focused on rainy-day backups and indoor spots.
+Create a 3-day itinerary for Glasgow from Mumbai for family, emphasizing budget-friendly local eats.
+Design a 14-day Barcelona trip from Seoul with comfort spending and nature hikes and viewpoints.
+Plan a 10-day trip to Chiang Mai from Doha with a luxury budget focused on train-focused logistics.
+Plan a 14-day trip to Cairo from Chicago with a budget budget focused on cafe culture and bookshops.
+Build a 8-day travel plan from Hong Kong to Taipei with museums and history and realistic transit notes.
+Plan a 9-day city break in Vilnius from Jakarta with cafe culture and bookshops and fast-paced pacing.
+Plan a 8-day city break in Phuket from Melbourne with architecture and design and balanced pacing.
+Design a 3-day Santorini trip from Doha with moderate spending and museums and history.
+Create a 8-day itinerary for Vienna from Manila for family, emphasizing public transit tips and walkable days.
+Build a 9-day travel plan from Cairo to Warsaw with beaches and water activities and realistic transit notes.
+Plan a 12-day trip to Santorini from Toronto with a mid-range budget focused on budget-friendly local eats.
+Design a 10-day Budapest trip from Medellin with comfort spending and cafe culture and bookshops.
+Design a 10-day Cusco trip from London with mid-range spending and day trips to nearby towns.
+Build a 6-day travel plan from Sao Paulo to Helsinki with wellness, spas, and slow pace and realistic transit notes.
+Plan a 3-day city break in Rio de Janeiro from Perth with budget-friendly local eats and balanced pacing.
+Create a 12-day itinerary for Interlaken from Toronto for couple, emphasizing food tours and markets.
+Plan a 7-day trip to Barcelona from Dubai with a mid-range budget focused on beaches and water activities.
+Build a 9-day travel plan from New York to Reykjavik with adventure and outdoor activities and realistic transit notes.
+Plan a 5-day city break in Cappadocia from Perth with family-friendly attractions and balanced pacing.
+Build a 5-day travel plan from Miami to Zermatt with shopping and neighborhood exploration and realistic transit notes.
+Plan a 8-day city break in Edinburgh from San Francisco with photography spots and sunrise plans and fast-paced pacing.
+Plan a 14-day city break in Cusco from Seoul with shopping and neighborhood exploration and relaxed pacing.
+Put together a 5-day trip to Glasgow from Delhi including family-friendly attractions and weather-aware planning.
+Build a 4-day travel plan from Berlin to Ljubljana with art galleries and local crafts and realistic transit notes.
+Plan a 8-day city break in Medellin from Dublin with rainy-day backups and indoor spots and balanced pacing.
+Plan a 3-day trip to Cairo from Rome with a mid-range budget focused on seasonal weather contingencies.
+Create a 8-day itinerary for Valencia from London for group of 4, emphasizing local festivals and cultural shows.
+Plan a 3-day city break in Cappadocia from Kolkata with beaches and water activities and fast-paced pacing.
+Create a 9-day itinerary for Pokhara from Madrid for family, emphasizing wellness, spas, and slow pace.
+Plan a 3-day city break in Bratislava from Nairobi with family-friendly attractions and fast-paced pacing.
+Put together a 3-day trip to Prague from Singapore including museums and history and weather-aware planning.
+Put together a 8-day trip to Chiang Mai from Boston including rainy-day backups and indoor spots and weather-aware planning.
+Plan a 12-day trip to Budapest from Delhi with a mid-range budget focused on cafe culture and bookshops.
+Plan a 5-day trip to Vienna from Rome with a comfort budget focused on train-focused logistics.
+Design a 9-day Chiang Mai trip from Copenhagen with budget spending and museums and history.
+Build a 7-day travel plan from San Francisco to Banff with wellness, spas, and slow pace and realistic transit notes.
+Build a 7-day travel plan from Melbourne to Geneva with cafe culture and bookshops and realistic transit notes.
+Put together a 9-day trip to Edinburgh from Santiago including rainy-day backups and indoor spots and weather-aware planning.
+Design a 10-day Maldives trip from Tokyo with luxury spending and museums and history.
+Put together a 14-day trip to Barcelona from Auckland including art galleries and local crafts and weather-aware planning.
+Put together a 5-day trip to Bali from Cape Town including local festivals and cultural shows and weather-aware planning.
+Plan a 5-day city break in Seville from Melbourne with public transit tips and walkable days and fast-paced pacing.
+Create a 5-day itinerary for Interlaken from Perth for group of 4, emphasizing photography spots and sunrise plans.
+Plan a 6-day city break in Reykjavik from Mexico City with family-friendly attractions and relaxed pacing.
+Build a 4-day travel plan from Los Angeles to Chiang Mai with nightlife and live music and realistic transit notes.
+Put together a 6-day trip to Krakow from Madrid including train-focused logistics and weather-aware planning.
+Design a 9-day Lima trip from Sydney with comfort spending and cafe culture and bookshops.
+Design a 12-day Valencia trip from Singapore with luxury spending and wellness, spas, and slow pace.
+Design a 6-day Valencia trip from Dubai with luxury spending and nature hikes and viewpoints.
+Plan a 14-day city break in Jasper from Chicago with train-focused logistics and fast-paced pacing.
+Build a 14-day travel plan from Doha to Medellin with food tours and markets and realistic transit notes.
+Design a 10-day Pokhara trip from Delhi with moderate spending and cafe culture and bookshops.
+Plan a 14-day city break in Lisbon from Amsterdam with food tours and markets and relaxed pacing.
+Plan a 6-day city break in Ho Chi Minh City from Medellin with art galleries and local crafts and fast-paced pacing.
+Create a 7-day itinerary for Bali from Sao Paulo for couple, emphasizing day trips to nearby towns.
+Plan a 5-day trip to Sao Paulo from Hong Kong with a moderate budget focused on adventure and outdoor activities.
+Build a 9-day travel plan from Sydney to Reykjavik with adventure and outdoor activities and realistic transit notes.
+Design a 8-day Edinburgh trip from Mumbai with budget spending and day trips to nearby towns.
+Plan a 12-day city break in Pokhara from Bogota with museums and history and balanced pacing.
+Build a 14-day travel plan from Sao Paulo to Split with day trips to nearby towns and realistic transit notes.
+Design a 9-day Banff trip from Seattle with mid-range spending and art galleries and local crafts.
+Design a 7-day Ho Chi Minh City trip from Dubai with luxury spending and beaches and water activities.
+Plan a 6-day trip to Phuket from Hong Kong with a luxury budget focused on art galleries and local crafts.
+Plan a 8-day trip to Phuket from Sao Paulo with a comfort budget focused on adventure and outdoor activities.
+Plan a 4-day trip to Santorini from Lima with a moderate budget focused on family-friendly attractions.
+Put together a 5-day trip to Santiago from Buenos Aires including seasonal weather contingencies and weather-aware planning.
+Plan a 10-day trip to Pokhara from Seoul with a budget budget focused on day trips to nearby towns.
+Create a 10-day itinerary for Siem Reap from Miami for couple, emphasizing budget-friendly local eats.
+Plan a 4-day trip to Rio de Janeiro from New York with a luxury budget focused on art galleries and local crafts.
+Plan a 12-day city break in Hanoi from Copenhagen with museums and history and balanced pacing.
+Design a 4-day Istanbul trip from Vancouver with comfort spending and adventure and outdoor activities.
+Build a 6-day travel plan from Rome to Zermatt with seasonal weather contingencies and realistic transit notes.
+Put together a 12-day trip to Fiji from Doha including nightlife and live music and weather-aware planning.
+Design a 6-day Sao Paulo trip from Oslo with mid-range spending and art galleries and local crafts.
+Build a 8-day travel plan from Berlin to Istanbul with museums and history and realistic transit notes.
+Build a 3-day travel plan from Nairobi to Budapest with shopping and neighborhood exploration and realistic transit notes.
+Put together a 8-day trip to Interlaken from Doha including museums and history and weather-aware planning.
+Create a 12-day itinerary for Bogota from Mexico City for group of 3, emphasizing day trips to nearby towns.
+Plan a 6-day city break in Bali from San Francisco with beaches and water activities and relaxed pacing.
+Create a 10-day itinerary for Ljubljana from Doha for group of 3, emphasizing shopping and neighborhood exploration.
+Plan a 10-day trip to Cairo from Amsterdam with a moderate budget focused on art galleries and local crafts.
+Design a 8-day Vienna trip from Boston with budget spending and beaches and water activities.
+Build a 8-day travel plan from Lima to Pokhara with family-friendly attractions and realistic transit notes.
+Plan a 3-day trip to Casablanca from Madrid with a mid-range budget focused on budget-friendly local eats.
+Plan a 4-day city break in Siem Reap from Boston with nature hikes and viewpoints and fast-paced pacing.
+Plan a 8-day trip to Reykjavik from Kuala Lumpur with a luxury budget focused on art galleries and local crafts.
+Put together a 9-day trip to Split from New York including photography spots and sunrise plans and weather-aware planning.
+Plan a 9-day trip to Bali from Mexico City with a mid-range budget focused on adventure and outdoor activities.
+Put together a 7-day trip to Edinburgh from Paris including day trips to nearby towns and weather-aware planning.
+Design a 4-day Budapest trip from Mumbai with luxury spending and cafe culture and bookshops.
+Create a 4-day itinerary for Geneva from Singapore for group of 4, emphasizing seasonal weather contingencies.
+Create a 7-day itinerary for Athens from Hong Kong for group of 3, emphasizing art galleries and local crafts.
+Plan a 4-day trip to Vienna from Cairo with a luxury budget focused on photography spots and sunrise plans.
+Plan a 4-day city break in Zurich from Seattle with seasonal weather contingencies and relaxed pacing.
+Design a 12-day Rio de Janeiro trip from Bogota with moderate spending and public transit tips and walkable days.
+Plan a 9-day trip to Bratislava from Delhi with a comfort budget focused on seasonal weather contingencies.
+Create a 4-day itinerary for Riga from Los Angeles for solo, emphasizing wellness, spas, and slow pace.
+Put together a 10-day trip to Santiago from London including museums and history and weather-aware planning.
+Design a 12-day Bogota trip from Seattle with mid-range spending and day trips to nearby towns.
+Plan a 7-day city break in Medellin from Madrid with food tours and markets and relaxed pacing.
+Plan a 8-day trip to Da Nang from Tokyo with a budget budget focused on family-friendly attractions.
+Create a 3-day itinerary for Krakow from Amsterdam for two travelers, emphasizing nightlife and live music.
+Put together a 7-day trip to Zurich from Bangkok including public transit tips and walkable days and weather-aware planning.
+Create a 3-day itinerary for Valencia from Mexico City for group of 3, emphasizing nightlife and live music.
+Build a 5-day travel plan from Medellin to Geneva with beaches and water activities and realistic transit notes.
+Design a 10-day Santorini trip from Delhi with luxury spending and nature hikes and viewpoints.
+Create a 8-day itinerary for Cusco from Sao Paulo for couple, emphasizing cafe culture and bookshops.
+Plan a 14-day city break in Queenstown from Buenos Aires with local festivals and cultural shows and fast-paced pacing.
+Plan a 9-day city break in Geneva from Sydney with local festivals and cultural shows and balanced pacing.
+Create a 4-day itinerary for Bali from Tokyo for group of 4, emphasizing beaches and water activities.
+Create a 5-day itinerary for Reykjavik from Seoul for two travelers, emphasizing family-friendly attractions.
+Plan a 8-day city break in Budapest from Bogota with day trips to nearby towns and fast-paced pacing.
+Plan a 9-day city break in Warsaw from Boston with cafe culture and bookshops and balanced pacing.
+Design a 14-day Bratislava trip from Boston with moderate spending and train-focused logistics.
+Plan a 12-day trip to Sao Paulo from Paris with a moderate budget focused on budget-friendly local eats.
+Design a 14-day Jasper trip from Doha with luxury spending and local festivals and cultural shows.
+Plan a 5-day trip to Siem Reap from Doha with a comfort budget focused on photography spots and sunrise plans.
+Design a 14-day Maldives trip from Vancouver with budget spending and nightlife and live music.
+Plan a 5-day city break in Barcelona from Madrid with budget-friendly local eats and fast-paced pacing.
+Plan a 12-day trip to Reykjavik from Sao Paulo with a comfort budget focused on adventure and outdoor activities.
+Create a 10-day itinerary for Taipei from Berlin for couple, emphasizing food tours and markets.
+Plan a 7-day trip to Chiang Mai from Copenhagen with a budget budget focused on museums and history.
+Plan a 4-day trip to Krakow from Sydney with a mid-range budget focused on local festivals and cultural shows.
+Design a 8-day Buenos Aires trip from Bogota with luxury spending and nature hikes and viewpoints.
+Build a 6-day travel plan from Dallas to Ho Chi Minh City with adventure and outdoor activities and realistic transit notes.
+Put together a 9-day trip to Lisbon from Perth including rainy-day backups and indoor spots and weather-aware planning.
+Create a 12-day itinerary for Krakow from Dubai for two travelers, emphasizing train-focused logistics.
+Put together a 10-day trip to Kyoto from Paris including wellness, spas, and slow pace and weather-aware planning.
+Plan a 12-day city break in Kyoto from Boston with public transit tips and walkable days and relaxed pacing.
+Create a 12-day itinerary for Pokhara from Santiago for solo, emphasizing family-friendly attractions.
+Create a 12-day itinerary for Hanoi from Los Angeles for solo, emphasizing family-friendly attractions.
+Create a 10-day itinerary for Istanbul from Dallas for two travelers, emphasizing beaches and water activities.
+Plan a 8-day city break in Bratislava from Sydney with family-friendly attractions and balanced pacing.
+Create a 4-day itinerary for Dubrovnik from Melbourne for group of 3, emphasizing shopping and neighborhood exploration.
+Build a 3-day travel plan from Medellin to Athens with train-focused logistics and realistic transit notes.
+Build a 10-day travel plan from London to Riga with budget-friendly local eats and realistic transit notes.
+Put together a 9-day trip to Hanoi from Doha including wellness, spas, and slow pace and weather-aware planning.
+Plan a 7-day city break in Reykjavik from Bogota with local festivals and cultural shows and balanced pacing.
+Plan a 8-day city break in Lisbon from Manila with photography spots and sunrise plans and fast-paced pacing.
+Build a 10-day travel plan from New York to Lake Bled with wellness, spas, and slow pace and realistic transit notes.
+Build a 10-day travel plan from Dallas to Athens with photography spots and sunrise plans and realistic transit notes.
+Plan a 9-day trip to Cairo from Jakarta with a budget budget focused on family-friendly attractions.
+Build a 9-day travel plan from New York to Porto with nightlife and live music and realistic transit notes.
+Build a 4-day travel plan from Tokyo to Banff with architecture and design and realistic transit notes.
+Create a 4-day itinerary for Vilnius from Madrid for couple, emphasizing architecture and design.
+Put together a 3-day trip to Bali from New York including day trips to nearby towns and weather-aware planning.
+Create a 12-day itinerary for Da Nang from Medellin for two travelers, emphasizing photography spots and sunrise plans.
+Build a 4-day travel plan from Seattle to Kathmandu with nature hikes and viewpoints and realistic transit notes.
+Plan a 8-day city break in Reykjavik from Boston with museums and history and relaxed pacing.
+Design a 3-day Lima trip from Berlin with comfort spending and food tours and markets.
+Build a 8-day travel plan from Hong Kong to Santorini with budget-friendly local eats and realistic transit notes.
+Put together a 12-day trip to Osaka from Lima including rainy-day backups and indoor spots and weather-aware planning.
+Plan a 9-day city break in Maldives from Melbourne with day trips to nearby towns and fast-paced pacing.
+Plan a 3-day trip to Prague from Bogota with a luxury budget focused on local festivals and cultural shows.
+Design a 12-day Lima trip from Cairo with moderate spending and shopping and neighborhood exploration.
+Plan a 3-day city break in Maldives from Seattle with public transit tips and walkable days and fast-paced pacing.
+Design a 3-day Kathmandu trip from Manila with luxury spending and public transit tips and walkable days.
+Plan a 6-day trip to Maldives from Boston with a comfort budget focused on seasonal weather contingencies.
+Build a 5-day travel plan from Madrid to Santiago with family-friendly attractions and realistic transit notes.
+Plan a 3-day city break in Ho Chi Minh City from Bangalore with day trips to nearby towns and fast-paced pacing.
+Create a 14-day itinerary for Seville from Delhi for solo, emphasizing art galleries and local crafts.
+Plan a 7-day city break in Chiang Mai from Bangalore with food tours and markets and fast-paced pacing.
+Design a 5-day Maldives trip from Oslo with budget spending and art galleries and local crafts.
+Create a 8-day itinerary for Ljubljana from Stockholm for group of 3, emphasizing family-friendly attractions.
+Design a 10-day Dubrovnik trip from Kolkata with mid-range spending and photography spots and sunrise plans.
+Plan a 14-day trip to Fiji from Dubai with a moderate budget focused on photography spots and sunrise plans.
+Design a 3-day Kathmandu trip from Doha with comfort spending and museums and history.
+Create a 4-day itinerary for Santorini from Medellin for couple, emphasizing nature hikes and viewpoints.
+Design a 5-day Lake Bled trip from Vancouver with luxury spending and photography spots and sunrise plans.
+Plan a 5-day city break in Marrakech from Riyadh with rainy-day backups and indoor spots and relaxed pacing.
+Plan a 4-day trip to Warsaw from Hong Kong with a moderate budget focused on architecture and design.
+Put together a 9-day trip to Edinburgh from Mumbai including local festivals and cultural shows and weather-aware planning.
+Build a 6-day travel plan from Vancouver to Fiji with museums and history and realistic transit notes.
+Design a 6-day Bogota trip from Auckland with mid-range spending and family-friendly attractions.
+Plan a 6-day city break in Edinburgh from Nairobi with shopping and neighborhood exploration and relaxed pacing.
+Plan a 9-day city break in Ljubljana from Madrid with shopping and neighborhood exploration and relaxed pacing.
+Build a 8-day travel plan from San Francisco to Maldives with shopping and neighborhood exploration and realistic transit notes.
+Design a 7-day Santiago trip from Singapore with luxury spending and shopping and neighborhood exploration.
+Plan a 12-day city break in Casablanca from Berlin with nightlife and live music and relaxed pacing.
+Plan a 4-day trip to Hanoi from Jakarta with a mid-range budget focused on museums and history.
+Plan a 8-day city break in Santorini from Boston with family-friendly attractions and fast-paced pacing.
+Plan a 14-day city break in Glasgow from Doha with architecture and design and relaxed pacing.
+Plan a 4-day city break in Cappadocia from Berlin with food tours and markets and balanced pacing.
+Put together a 8-day trip to Budapest from Boston including wellness, spas, and slow pace and weather-aware planning.
+Design a 8-day Marrakech trip from Perth with moderate spending and beaches and water activities.
+Plan a 10-day trip to Lisbon from Bangalore with a comfort budget focused on wellness, spas, and slow pace.
+Design a 4-day Jasper trip from Madrid with comfort spending and shopping and neighborhood exploration.
+Plan a 10-day trip to Vienna from Vancouver with a budget budget focused on rainy-day backups and indoor spots.
+Plan a 3-day city break in Vienna from Los Angeles with wellness, spas, and slow pace and balanced pacing.
+Put together a 6-day trip to Krakow from Riyadh including budget-friendly local eats and weather-aware planning.
+Create a 14-day itinerary for Casablanca from New York for two travelers, emphasizing family-friendly attractions.
+Put together a 7-day trip to Cusco from Hong Kong including cafe culture and bookshops and weather-aware planning.
+Put together a 12-day trip to Edinburgh from Perth including seasonal weather contingencies and weather-aware planning.
+Build a 4-day travel plan from Manila to Da Nang with seasonal weather contingencies and realistic transit notes.
+Design a 10-day Taipei trip from Boston with mid-range spending and wellness, spas, and slow pace.
+Build a 14-day travel plan from Bangalore to Phuket with shopping and neighborhood exploration and realistic transit notes.
+Plan a 12-day city break in Zurich from Sydney with rainy-day backups and indoor spots and balanced pacing.
+Put together a 6-day trip to Lisbon from Tokyo including budget-friendly local eats and weather-aware planning.
+Build a 3-day travel plan from Bangkok to Casablanca with seasonal weather contingencies and realistic transit notes.
+Create a 4-day itinerary for Pokhara from Mexico City for couple, emphasizing cafe culture and bookshops.
+Create a 5-day itinerary for Phuket from Berlin for family, emphasizing budget-friendly local eats.
+Put together a 8-day trip to Rio de Janeiro from Buenos Aires including family-friendly attractions and weather-aware planning.
+Plan a 4-day trip to Kathmandu from Dublin with a comfort budget focused on wellness, spas, and slow pace.
+Plan a 10-day trip to Lake Bled from Los Angeles with a budget budget focused on train-focused logistics.
+Plan a 12-day trip to Phuket from Santiago with a comfort budget focused on adventure and outdoor activities.
+Create a 8-day itinerary for Maldives from Buenos Aires for group of 4, emphasizing local festivals and cultural shows.
+Create a 14-day itinerary for Kyoto from Vancouver for family, emphasizing budget-friendly local eats.
+Put together a 12-day trip to Osaka from Kolkata including budget-friendly local eats and weather-aware planning.
+Create a 12-day itinerary for Colombo from Doha for two travelers, emphasizing budget-friendly local eats.
+Build a 4-day travel plan from Vancouver to Edinburgh with local festivals and cultural shows and realistic transit notes.
+Plan a 7-day city break in Cairo from Perth with shopping and neighborhood exploration and relaxed pacing.
+Plan a 12-day trip to Cusco from Rome with a luxury budget focused on train-focused logistics.
+Build a 12-day travel plan from Los Angeles to Athens with shopping and neighborhood exploration and realistic transit notes.
+Plan a 3-day trip to Dubrovnik from Hong Kong with a luxury budget focused on museums and history.
+Put together a 10-day trip to Medellin from Doha including rainy-day backups and indoor spots and weather-aware planning.
+Build a 8-day travel plan from Doha to Bogota with shopping and neighborhood exploration and realistic transit notes.
+Build a 3-day travel plan from Dublin to Valencia with family-friendly attractions and realistic transit notes.
+Design a 8-day Valencia trip from Paris with comfort spending and museums and history.
+Create a 9-day itinerary for Zurich from Manila for group of 3, emphasizing beaches and water activities.
+Build a 4-day travel plan from Bangkok to Cusco with local festivals and cultural shows and realistic transit notes.
+Plan a 9-day city break in Lima from Oslo with adventure and outdoor activities and relaxed pacing.
+Plan a 12-day trip to Kyoto from Bangkok with a mid-range budget focused on public transit tips and walkable days.
+Plan a 14-day city break in Porto from Boston with shopping and neighborhood exploration and fast-paced pacing.
+Build a 9-day travel plan from Bangalore to Chiang Mai with wellness, spas, and slow pace and realistic transit notes.
+Build a 3-day travel plan from Doha to Cappadocia with food tours and markets and realistic transit notes.
+Plan a 8-day trip to Kathmandu from Tokyo with a moderate budget focused on seasonal weather contingencies.
+Put together a 12-day trip to Reykjavik from Bangkok including train-focused logistics and weather-aware planning.
+Plan a 5-day city break in Budapest from Tokyo with shopping and neighborhood exploration and fast-paced pacing.
+Design a 4-day Zermatt trip from Oslo with mid-range spending and museums and history.
+Put together a 14-day trip to Bogota from Vancouver including shopping and neighborhood exploration and weather-aware planning.
+Create a 14-day itinerary for Hanoi from Santiago for family, emphasizing rainy-day backups and indoor spots.
+Plan a 5-day city break in Da Nang from San Francisco with train-focused logistics and relaxed pacing.
+Create a 10-day itinerary for Krakow from Hong Kong for solo, emphasizing food tours and markets.
+Design a 10-day Rio de Janeiro trip from Madrid with luxury spending and budget-friendly local eats.
+Design a 10-day Jasper trip from Perth with luxury spending and local festivals and cultural shows.
+Design a 3-day Colombo trip from Lima with budget spending and rainy-day backups and indoor spots.
+Put together a 12-day trip to Athens from Copenhagen including rainy-day backups and indoor spots and weather-aware planning.
+Design a 6-day Cusco trip from Doha with comfort spending and museums and history.
+Build a 9-day travel plan from Mexico City to Prague with shopping and neighborhood exploration and realistic transit notes.
+Put together a 12-day trip to Athens from Copenhagen including budget-friendly local eats and weather-aware planning.
+Plan a 3-day trip to Da Nang from Boston with a mid-range budget focused on nature hikes and viewpoints.
+Design a 10-day Maldives trip from Amsterdam with budget spending and local festivals and cultural shows.
+Design a 8-day Reykjavik trip from Hong Kong with comfort spending and nature hikes and viewpoints.
+Put together a 4-day trip to Buenos Aires from Miami including budget-friendly local eats and weather-aware planning.
+Design a 12-day Rio de Janeiro trip from Cape Town with comfort spending and museums and history.
+Design a 6-day Cappadocia trip from Seoul with comfort spending and train-focused logistics.
+Design a 8-day Osaka trip from Medellin with luxury spending and beaches and water activities.
+Plan a 3-day trip to Buenos Aires from Chicago with a comfort budget focused on nightlife and live music.
+Design a 5-day Edinburgh trip from Nairobi with mid-range spending and rainy-day backups and indoor spots.
+Design a 5-day Zermatt trip from Sydney with comfort spending and photography spots and sunrise plans.
+Create a 8-day itinerary for Istanbul from Dubai for family, emphasizing train-focused logistics.
+Build a 7-day travel plan from Cape Town to Bratislava with train-focused logistics and realistic transit notes.
+Plan a 10-day city break in Vilnius from Jakarta with photography spots and sunrise plans and relaxed pacing.
+Plan a 5-day city break in Rio de Janeiro from Kolkata with train-focused logistics and fast-paced pacing.
+Plan a 12-day city break in Barcelona from Perth with train-focused logistics and balanced pacing.
+Create a 5-day itinerary for Casablanca from Seattle for group of 4, emphasizing beaches and water activities.
+Put together a 8-day trip to Prague from Kuala Lumpur including photography spots and sunrise plans and weather-aware planning.
+Plan a 8-day trip to Colombo from Doha with a moderate budget focused on rainy-day backups and indoor spots.
+Design a 4-day Lima trip from Delhi with budget spending and seasonal weather contingencies.
+Plan a 6-day trip to Tallinn from Kuala Lumpur with a budget budget focused on beaches and water activities.
+Build a 12-day travel plan from Melbourne to Bogota with train-focused logistics and realistic transit notes.
+Plan a 3-day city break in Edinburgh from Stockholm with budget-friendly local eats and balanced pacing.
+Create a 9-day itinerary for Jasper from Toronto for solo, emphasizing beaches and water activities.
+Create a 8-day itinerary for Lisbon from Doha for solo, emphasizing train-focused logistics.
+Create a 12-day itinerary for Hanoi from San Francisco for group of 4, emphasizing photography spots and sunrise plans.
+Create a 12-day itinerary for Seville from Bangalore for group of 3, emphasizing food tours and markets.
+Design a 8-day Santiago trip from Rome with mid-range spending and nightlife and live music.
+Put together a 8-day trip to Lima from Stockholm including day trips to nearby towns and weather-aware planning.
+Put together a 10-day trip to Barcelona from Boston including food tours and markets and weather-aware planning.
+Create a 9-day itinerary for Interlaken from New York for family, emphasizing beaches and water activities.
+Plan a 14-day city break in Hanoi from Perth with day trips to nearby towns and relaxed pacing.
+Build a 7-day travel plan from New York to Osaka with family-friendly attractions and realistic transit notes.
+Create a 9-day itinerary for Maldives from Stockholm for group of 3, emphasizing cafe culture and bookshops.
+Put together a 10-day trip to Ljubljana from Chicago including nightlife and live music and weather-aware planning.
+Build a 4-day travel plan from Rome to Cairo with wellness, spas, and slow pace and realistic transit notes.
+Plan a 6-day city break in Siem Reap from Seattle with museums and history and relaxed pacing.
+Put together a 8-day trip to Rio de Janeiro from New York including beaches and water activities and weather-aware planning.
+Put together a 8-day trip to Marrakech from Perth including food tours and markets and weather-aware planning.
+Plan a 7-day trip to Queenstown from Nairobi with a budget budget focused on rainy-day backups and indoor spots.
+Plan a 6-day trip to Interlaken from Miami with a budget budget focused on nightlife and live music.
+Design a 8-day Lake Bled trip from Singapore with moderate spending and nightlife and live music.
+Create a 4-day itinerary for Cappadocia from Vancouver for couple, emphasizing shopping and neighborhood exploration.
+Design a 4-day Siem Reap trip from Paris with luxury spending and shopping and neighborhood exploration.
+Create a 7-day itinerary for Pokhara from Bogota for group of 4, emphasizing day trips to nearby towns.
+Put together a 14-day trip to Bratislava from Doha including adventure and outdoor activities and weather-aware planning.
+Create a 3-day itinerary for Bratislava from Berlin for couple, emphasizing rainy-day backups and indoor spots.
+Design a 10-day Zurich trip from Doha with budget spending and nature hikes and viewpoints.
+Put together a 3-day trip to Valencia from Dublin including train-focused logistics and weather-aware planning.
+Design a 12-day Taipei trip from Kolkata with mid-range spending and nightlife and live music.
+Design a 14-day Sao Paulo trip from Bangalore with comfort spending and day trips to nearby towns.
+Build a 3-day travel plan from Doha to Geneva with architecture and design and realistic transit notes.
+Build a 3-day travel plan from Nairobi to Geneva with cafe culture and bookshops and realistic transit notes.
+Create a 7-day itinerary for Krakow from Delhi for family, emphasizing family-friendly attractions.
+Plan a 7-day trip to Kathmandu from Seattle with a budget budget focused on rainy-day backups and indoor spots.
+Plan a 5-day city break in Hanoi from Mumbai with local festivals and cultural shows and fast-paced pacing.
+Create a 14-day itinerary for Prague from Dublin for two travelers, emphasizing rainy-day backups and indoor spots.
+Plan a 12-day trip to Kyoto from Sao Paulo with a comfort budget focused on beaches and water activities.
+Create a 6-day itinerary for Seville from Nairobi for group of 4, emphasizing local festivals and cultural shows.
+Create a 7-day itinerary for Vienna from Paris for group of 4, emphasizing rainy-day backups and indoor spots.
+Build a 5-day travel plan from Tokyo to Edinburgh with nightlife and live music and realistic transit notes.
+Plan a 9-day trip to Marrakech from Melbourne with a mid-range budget focused on family-friendly attractions.
+Plan a 7-day trip to Rio de Janeiro from Miami with a luxury budget focused on cafe culture and bookshops.
+Design a 4-day Lake Bled trip from Mumbai with luxury spending and day trips to nearby towns.
+Plan a 14-day trip to Casablanca from Doha with a luxury budget focused on train-focused logistics.
+Build a 8-day travel plan from Auckland to Lisbon with rainy-day backups and indoor spots and realistic transit notes.
+Plan a 14-day city break in Cappadocia from Mexico City with beaches and water activities and fast-paced pacing.
+Build a 7-day travel plan from Mexico City to Riga with cafe culture and bookshops and realistic transit notes.
+Design a 12-day Valencia trip from Copenhagen with mid-range spending and day trips to nearby towns.
+Plan a 14-day trip to Banff from Paris with a mid-range budget focused on adventure and outdoor activities.
+Design a 7-day Porto trip from Vancouver with luxury spending and museums and history.
+Plan a 4-day trip to Maldives from Tokyo with a moderate budget focused on cafe culture and bookshops.
+Build a 8-day travel plan from London to Tallinn with nightlife and live music and realistic transit notes.
+Plan a 14-day city break in Dubrovnik from Toronto with seasonal weather contingencies and balanced pacing.
+Create a 12-day itinerary for Marrakech from Seattle for group of 3, emphasizing nightlife and live music.
+Plan a 6-day trip to Lake Bled from Cairo with a mid-range budget focused on museums and history.
+Plan a 14-day trip to Maldives from Dubai with a luxury budget focused on museums and history.
+Design a 14-day Helsinki trip from Jakarta with comfort spending and food tours and markets.
+Design a 4-day Siem Reap trip from Bangalore with luxury spending and local festivals and cultural shows.
+Build a 6-day travel plan from Doha to Riga with photography spots and sunrise plans and realistic transit notes.
+Build a 7-day travel plan from Jakarta to Ho Chi Minh City with shopping and neighborhood exploration and realistic transit notes.
+Plan a 14-day trip to Siem Reap from Kolkata with a comfort budget focused on seasonal weather contingencies.
+Plan a 12-day trip to Bogota from Medellin with a luxury budget focused on local festivals and cultural shows.
+Plan a 5-day city break in Bogota from Copenhagen with shopping and neighborhood exploration and relaxed pacing.
+Put together a 6-day trip to Warsaw from Bangalore including family-friendly attractions and weather-aware planning.
+Design a 12-day Colombo trip from Dublin with budget spending and photography spots and sunrise plans.
+Create a 8-day itinerary for Phuket from Tokyo for group of 4, emphasizing shopping and neighborhood exploration.
+Create a 14-day itinerary for Rio de Janeiro from Bangkok for two travelers, emphasizing shopping and neighborhood exploration.
+Design a 12-day Zurich trip from Lima with luxury spending and seasonal weather contingencies.
+Plan a 4-day city break in Kathmandu from Berlin with adventure and outdoor activities and relaxed pacing.
+Create a 6-day itinerary for Ljubljana from Sydney for couple, emphasizing photography spots and sunrise plans.
+Design a 12-day Buenos Aires trip from Jakarta with moderate spending and adventure and outdoor activities.
+Build a 7-day travel plan from Sydney to Osaka with public transit tips and walkable days and realistic transit notes.
+Put together a 10-day trip to Interlaken from Dallas including adventure and outdoor activities and weather-aware planning.
+Plan a 14-day city break in Geneva from Sao Paulo with beaches and water activities and balanced pacing.
+Put together a 3-day trip to Bratislava from Oslo including adventure and outdoor activities and weather-aware planning.
+Design a 10-day Ho Chi Minh City trip from Buenos Aires with moderate spending and nightlife and live music.
+Design a 9-day Porto trip from Vancouver with budget spending and museums and history.
+Plan a 6-day city break in Kathmandu from Buenos Aires with local festivals and cultural shows and balanced pacing.
+Plan a 9-day city break in Porto from Lima with shopping and neighborhood exploration and fast-paced pacing.
+Create a 4-day itinerary for Casablanca from Toronto for solo, emphasizing architecture and design.
+Plan a 5-day city break in Bali from Medellin with nature hikes and viewpoints and balanced pacing.
+Put together a 7-day trip to Glasgow from Delhi including budget-friendly local eats and weather-aware planning.
+Plan a 7-day trip to Medellin from Riyadh with a mid-range budget focused on cafe culture and bookshops.
+Build a 4-day travel plan from Bangalore to Maldives with family-friendly attractions and realistic transit notes.
+Put together a 4-day trip to Barcelona from Buenos Aires including shopping and neighborhood exploration and weather-aware planning.
+Plan a 5-day trip to Kyoto from Chicago with a comfort budget focused on seasonal weather contingencies.
+Build a 6-day travel plan from Nairobi to Kyoto with nature hikes and viewpoints and realistic transit notes.
+Put together a 3-day trip to Fiji from Stockholm including train-focused logistics and weather-aware planning.
+Plan a 4-day city break in Warsaw from Medellin with seasonal weather contingencies and fast-paced pacing.
+Plan a 12-day trip to Maldives from Jakarta with a comfort budget focused on nightlife and live music.
+Put together a 5-day trip to Prague from Doha including nature hikes and viewpoints and weather-aware planning.
+Design a 8-day Medellin trip from London with budget spending and art galleries and local crafts.
+Plan a 14-day trip to Pokhara from Bangalore with a moderate budget focused on train-focused logistics.
+Build a 8-day travel plan from Stockholm to Porto with food tours and markets and realistic transit notes.
+Build a 14-day travel plan from Manila to Santorini with seasonal weather contingencies and realistic transit notes.
+Create a 10-day itinerary for Prague from Oslo for family, emphasizing shopping and neighborhood exploration.
+Design a 3-day Da Nang trip from Perth with moderate spending and rainy-day backups and indoor spots.
+Put together a 6-day trip to Prague from Sao Paulo including food tours and markets and weather-aware planning.
+Design a 7-day Reykjavik trip from Seattle with luxury spending and shopping and neighborhood exploration.
+Plan a 8-day trip to Budapest from Chicago with a luxury budget focused on local festivals and cultural shows.
+Plan a 10-day city break in Prague from Bangalore with budget-friendly local eats and balanced pacing.
+Build a 8-day travel plan from Riyadh to Medellin with local festivals and cultural shows and realistic transit notes.
+Design a 7-day Zermatt trip from Cairo with mid-range spending and architecture and design.
+Put together a 8-day trip to Riga from Delhi including day trips to nearby towns and weather-aware planning.
+Put together a 9-day trip to Budapest from Perth including rainy-day backups and indoor spots and weather-aware planning.
+Design a 6-day Cappadocia trip from Sydney with mid-range spending and beaches and water activities.
+Plan a 14-day city break in Queenstown from Dublin with nightlife and live music and relaxed pacing.
+Create a 10-day itinerary for Santorini from Toronto for solo, emphasizing train-focused logistics.
+Create a 8-day itinerary for Santiago from Berlin for couple, emphasizing photography spots and sunrise plans.
+Plan a 9-day city break in Seville from Sydney with adventure and outdoor activities and fast-paced pacing.
+Design a 8-day Maldives trip from Bangalore with comfort spending and cafe culture and bookshops.
+Plan a 10-day trip to Krakow from Bogota with a budget budget focused on adventure and outdoor activities.
+Create a 10-day itinerary for Cusco from Stockholm for solo, emphasizing family-friendly attractions.
+Build a 8-day travel plan from Dublin to Reykjavik with food tours and markets and realistic transit notes.
+Create a 10-day itinerary for Krakow from Vancouver for couple, emphasizing museums and history.
+Plan a 3-day trip to Santiago from Toronto with a budget budget focused on architecture and design.
+Design a 10-day Vienna trip from Madrid with comfort spending and beaches and water activities.
+Plan a 14-day trip to Cusco from New York with a moderate budget focused on budget-friendly local eats.
+Put together a 12-day trip to Marrakech from Seoul including cafe culture and bookshops and weather-aware planning.
+Build a 7-day travel plan from Madrid to Phuket with nightlife and live music and realistic transit notes.
+Plan a 4-day trip to Santorini from Miami with a moderate budget focused on cafe culture and bookshops.
+Plan a 7-day trip to Buenos Aires from Doha with a mid-range budget focused on nightlife and live music.
+Plan a 6-day city break in Krakow from Bangalore with architecture and design and balanced pacing.
+Create a 5-day itinerary for Maldives from Buenos Aires for group of 3, emphasizing budget-friendly local eats.
+Plan a 9-day trip to Chiang Mai from Miami with a budget budget focused on beaches and water activities.
+Design a 7-day Istanbul trip from Bogota with comfort spending and local festivals and cultural shows.
+Put together a 10-day trip to Interlaken from Kuala Lumpur including wellness, spas, and slow pace and weather-aware planning.
+Create a 10-day itinerary for Istanbul from Bangalore for family, emphasizing family-friendly attractions.
+Create a 5-day itinerary for Reykjavik from Copenhagen for family, emphasizing beaches and water activities.
+Plan a 3-day trip to Fiji from Seoul with a luxury budget focused on local festivals and cultural shows.
+Put together a 10-day trip to Reykjavik from Madrid including nature hikes and viewpoints and weather-aware planning.
+Plan a 4-day city break in Jasper from Stockholm with adventure and outdoor activities and balanced pacing.
+Put together a 8-day trip to Split from Hong Kong including budget-friendly local eats and weather-aware planning.
+Plan a 6-day trip to Rio de Janeiro from Madrid with a luxury budget focused on shopping and neighborhood exploration.
+Create a 10-day itinerary for Riga from Mumbai for solo, emphasizing rainy-day backups and indoor spots.
+Put together a 9-day trip to Cappadocia from Oslo including photography spots and sunrise plans and weather-aware planning.
+Plan a 3-day trip to Reykjavik from Mexico City with a luxury budget focused on cafe culture and bookshops.
+Design a 14-day Ljubljana trip from Toronto with budget spending and architecture and design.
+Put together a 4-day trip to Reykjavik from Manila including wellness, spas, and slow pace and weather-aware planning.
+Build a 7-day travel plan from Kuala Lumpur to Vilnius with cafe culture and bookshops and realistic transit notes.
+Plan a 7-day city break in Colombo from Nairobi with family-friendly attractions and fast-paced pacing.
+Design a 10-day Vienna trip from Madrid with budget spending and beaches and water activities.
+Plan a 4-day trip to Edinburgh from Miami with a budget budget focused on seasonal weather contingencies.
+Put together a 3-day trip to Warsaw from Chicago including nightlife and live music and weather-aware planning.
+Build a 9-day travel plan from Dubai to Cusco with adventure and outdoor activities and realistic transit notes.
+Design a 4-day Siem Reap trip from Doha with budget spending and nightlife and live music.
+Put together a 9-day trip to Vilnius from Cape Town including wellness, spas, and slow pace and weather-aware planning.
+Create a 8-day itinerary for Barcelona from Bogota for solo, emphasizing nightlife and live music.
+Design a 7-day Prague trip from Doha with comfort spending and museums and history.
+Design a 8-day Helsinki trip from Berlin with moderate spending and adventure and outdoor activities.
+Build a 4-day travel plan from Santiago to Banff with family-friendly attractions and realistic transit notes.
+Design a 14-day Reykjavik trip from Perth with moderate spending and wellness, spas, and slow pace.
+Put together a 8-day trip to Ljubljana from Buenos Aires including beaches and water activities and weather-aware planning.
+Build a 4-day travel plan from Medellin to Reykjavik with museums and history and realistic transit notes.
+Build a 8-day travel plan from Doha to Warsaw with nightlife and live music and realistic transit notes.
+Create a 14-day itinerary for Lima from Vancouver for group of 3, emphasizing architecture and design.
+Plan a 9-day city break in Istanbul from Tokyo with art galleries and local crafts and fast-paced pacing.
+Plan a 4-day trip to Phuket from Madrid with a moderate budget focused on photography spots and sunrise plans.
+Build a 14-day travel plan from Riyadh to Marrakech with shopping and neighborhood exploration and realistic transit notes.
+Plan a 6-day city break in Seville from Seattle with art galleries and local crafts and relaxed pacing.
+Put together a 14-day trip to Cairo from Paris including food tours and markets and weather-aware planning.
+Design a 8-day Helsinki trip from Doha with luxury spending and adventure and outdoor activities.
+Plan a 4-day trip to Osaka from Madrid with a comfort budget focused on art galleries and local crafts.
+Put together a 4-day trip to Queenstown from Doha including family-friendly attractions and weather-aware planning.
+Build a 3-day travel plan from Boston to Dubrovnik with nature hikes and viewpoints and realistic transit notes.
+Plan a 7-day city break in Vienna from Seoul with rainy-day backups and indoor spots and relaxed pacing.
+Plan a 3-day city break in Cappadocia from Bangalore with adventure and outdoor activities and relaxed pacing.
+Plan a 8-day trip to Lake Bled from Toronto with a comfort budget focused on local festivals and cultural shows.
+Plan a 5-day trip to Krakow from Miami with a mid-range budget focused on rainy-day backups and indoor spots.
+Plan a 5-day city break in Lima from Rome with rainy-day backups and indoor spots and fast-paced pacing.
+Design a 7-day Bratislava trip from Manila with luxury spending and rainy-day backups and indoor spots.
+Put together a 12-day trip to Osaka from Seattle including shopping and neighborhood exploration and weather-aware planning.
+Build a 8-day travel plan from Melbourne to Maldives with cafe culture and bookshops and realistic transit notes.
+Create a 10-day itinerary for Reykjavik from Melbourne for couple, emphasizing adventure and outdoor activities.
+Plan a 14-day trip to Siem Reap from Dallas with a moderate budget focused on local festivals and cultural shows.
+Plan a 9-day trip to Bratislava from Toronto with a budget budget focused on public transit tips and walkable days.
+Plan a 3-day city break in Banff from Hong Kong with train-focused logistics and relaxed pacing.
+Create a 10-day itinerary for Buenos Aires from Delhi for group of 4, emphasizing photography spots and sunrise plans.
+Plan a 5-day trip to Chiang Mai from Dublin with a moderate budget focused on wellness, spas, and slow pace.
+Put together a 10-day trip to Chiang Mai from Seoul including adventure and outdoor activities and weather-aware planning.
+Design a 7-day Da Nang trip from Tokyo with budget spending and food tours and markets.
+Plan a 5-day city break in Krakow from Singapore with train-focused logistics and relaxed pacing.
+Plan a 12-day trip to Chiang Mai from Santiago with a luxury budget focused on seasonal weather contingencies.
+Plan a 10-day city break in Colombo from Doha with beaches and water activities and balanced pacing.
+Create a 7-day itinerary for Dubrovnik from San Francisco for group of 3, emphasizing nightlife and live music.
+Plan a 14-day trip to Hanoi from Cape Town with a budget budget focused on public transit tips and walkable days.
+Plan a 6-day trip to Kathmandu from Miami with a comfort budget focused on wellness, spas, and slow pace.
+Plan a 5-day trip to Banff from Sao Paulo with a moderate budget focused on adventure and outdoor activities.
+Build a 14-day travel plan from Rome to Budapest with nature hikes and viewpoints and realistic transit notes.
+Build a 9-day travel plan from Doha to Santiago with seasonal weather contingencies and realistic transit notes.
+Build a 3-day travel plan from Miami to Cappadocia with budget-friendly local eats and realistic transit notes.
+Plan a 7-day trip to Warsaw from Seattle with a mid-range budget focused on train-focused logistics.
+Put together a 8-day trip to Seville from Toronto including art galleries and local crafts and weather-aware planning.
+Design a 7-day Medellin trip from Auckland with mid-range spending and museums and history.
+Design a 10-day Marrakech trip from Nairobi with budget spending and adventure and outdoor activities.
+Build a 3-day travel plan from Dallas to Da Nang with museums and history and realistic transit notes.
+Put together a 8-day trip to Taipei from Cairo including food tours and markets and weather-aware planning.
+Plan a 7-day city break in Lima from Toronto with food tours and markets and relaxed pacing.
+Build a 3-day travel plan from Cairo to Edinburgh with budget-friendly local eats and realistic transit notes.
+Plan a 6-day city break in Reykjavik from Manila with family-friendly attractions and fast-paced pacing.
+Plan a 8-day trip to Barcelona from Delhi with a luxury budget focused on wellness, spas, and slow pace.
+Design a 9-day Glasgow trip from Perth with comfort spending and wellness, spas, and slow pace.
+Plan a 4-day city break in Seville from Sao Paulo with shopping and neighborhood exploration and fast-paced pacing.
+Plan a 14-day trip to Buenos Aires from Paris with a luxury budget focused on local festivals and cultural shows.
+Plan a 6-day city break in Seville from Dublin with budget-friendly local eats and fast-paced pacing.
+Build a 14-day travel plan from Jakarta to Banff with nature hikes and viewpoints and realistic transit notes.
+Create a 7-day itinerary for Da Nang from Cairo for solo, emphasizing adventure and outdoor activities.
+Create a 7-day itinerary for Da Nang from Stockholm for solo, emphasizing wellness, spas, and slow pace.
+Build a 8-day travel plan from Bangkok to Medellin with art galleries and local crafts and realistic transit notes.
+Plan a 8-day trip to Hanoi from Nairobi with a luxury budget focused on rainy-day backups and indoor spots.
+Put together a 8-day trip to Krakow from Bangkok including wellness, spas, and slow pace and weather-aware planning.
+Create a 9-day itinerary for Siem Reap from Bangalore for couple, emphasizing photography spots and sunrise plans.
+Design a 8-day Ljubljana trip from Mexico City with moderate spending and rainy-day backups and indoor spots.
+Build a 9-day travel plan from Dublin to Edinburgh with nightlife and live music and realistic transit notes.
+Put together a 8-day trip to Reykjavik from Dublin including nightlife and live music and weather-aware planning.
+Design a 12-day Glasgow trip from Bangalore with mid-range spending and train-focused logistics.
+Create a 7-day itinerary for Vilnius from Perth for group of 3, emphasizing shopping and neighborhood exploration.
+Create a 3-day itinerary for Casablanca from Sao Paulo for couple, emphasizing art galleries and local crafts.
+Put together a 9-day trip to Prague from Kolkata including food tours and markets and weather-aware planning.
+Put together a 5-day trip to Tallinn from Paris including cafe culture and bookshops and weather-aware planning.
+Plan a 8-day city break in Edinburgh from Perth with nightlife and live music and relaxed pacing.
+Create a 4-day itinerary for Taipei from Berlin for group of 4, emphasizing nightlife and live music.
+Design a 5-day Marrakech trip from Perth with comfort spending and day trips to nearby towns.
+Design a 10-day Dubrovnik trip from Stockholm with budget spending and nightlife and live music.
+Build a 7-day travel plan from Cairo to Geneva with art galleries and local crafts and realistic transit notes.
+Build a 8-day travel plan from Perth to Dubrovnik with local festivals and cultural shows and realistic transit notes.
+Build a 6-day travel plan from Dubai to Zermatt with wellness, spas, and slow pace and realistic transit notes.
+Create a 9-day itinerary for Cairo from New York for couple, emphasizing public transit tips and walkable days.
+Put together a 8-day trip to Geneva from Tokyo including day trips to nearby towns and weather-aware planning.
+Design a 3-day Helsinki trip from Riyadh with comfort spending and photography spots and sunrise plans.
+Create a 6-day itinerary for Siem Reap from New York for couple, emphasizing budget-friendly local eats.
+Plan a 9-day city break in Pokhara from Oslo with nature hikes and viewpoints and balanced pacing.
+Build a 8-day travel plan from Cape Town to Helsinki with photography spots and sunrise plans and realistic transit notes.
+Design a 10-day Barcelona trip from Cape Town with budget spending and nightlife and live music.
+Put together a 3-day trip to Casablanca from San Francisco including shopping and neighborhood exploration and weather-aware planning.
+Create a 14-day itinerary for Casablanca from Tokyo for group of 4, emphasizing nature hikes and viewpoints.
+Create a 7-day itinerary for Lima from Oslo for solo, emphasizing nature hikes and viewpoints.
+Plan a 10-day city break in Queenstown from Lima with photography spots and sunrise plans and relaxed pacing.
+Plan a 12-day city break in Lisbon from Madrid with nature hikes and viewpoints and relaxed pacing.
+Build a 10-day travel plan from Santiago to Bratislava with beaches and water activities and realistic transit notes.
+Create a 10-day itinerary for Kathmandu from San Francisco for solo, emphasizing nature hikes and viewpoints.
+Plan a 7-day trip to Ljubljana from Los Angeles with a mid-range budget focused on nature hikes and viewpoints.
+Put together a 12-day trip to Valencia from Mexico City including family-friendly attractions and weather-aware planning.
+Put together a 7-day trip to Santiago from Toronto including adventure and outdoor activities and weather-aware planning.
+Build a 8-day travel plan from Paris to Edinburgh with budget-friendly local eats and realistic transit notes.
+Put together a 14-day trip to Casablanca from Bangkok including museums and history and weather-aware planning.
+Plan a 4-day city break in Zurich from Boston with cafe culture and bookshops and relaxed pacing.
+Design a 8-day Ho Chi Minh City trip from Seoul with mid-range spending and train-focused logistics.
+Design a 6-day Valencia trip from Bangalore with luxury spending and adventure and outdoor activities.
+Plan a 5-day trip to Helsinki from Kolkata with a comfort budget focused on local festivals and cultural shows.
+Plan a 9-day trip to Reykjavik from Madrid with a budget budget focused on local festivals and cultural shows.
+Design a 5-day Zermatt trip from Berlin with moderate spending and train-focused logistics.
+Build a 3-day travel plan from Riyadh to Porto with nature hikes and viewpoints and realistic transit notes.
+Design a 9-day Lake Bled trip from Cape Town with comfort spending and local festivals and cultural shows.
+Build a 12-day travel plan from Stockholm to Santorini with beaches and water activities and realistic transit notes.
+Plan a 9-day trip to Colombo from Bangalore with a mid-range budget focused on train-focused logistics.
+Create a 7-day itinerary for Porto from Santiago for couple, emphasizing day trips to nearby towns.
+Create a 8-day itinerary for Rio de Janeiro from Doha for group of 4, emphasizing architecture and design.
+Put together a 9-day trip to Zurich from Hong Kong including nightlife and live music and weather-aware planning.
+Put together a 6-day trip to Da Nang from Bogota including food tours and markets and weather-aware planning.
+Put together a 3-day trip to Kathmandu from Paris including day trips to nearby towns and weather-aware planning.
+Plan a 7-day trip to Kyoto from Amsterdam with a mid-range budget focused on family-friendly attractions.
+Create a 3-day itinerary for Reykjavik from Berlin for solo, emphasizing art galleries and local crafts.
+Plan a 6-day city break in Banff from Los Angeles with shopping and neighborhood exploration and relaxed pacing.
+Plan a 7-day city break in Bali from Doha with budget-friendly local eats and balanced pacing.
+Build a 6-day travel plan from Tokyo to Vienna with food tours and markets and realistic transit notes.
+Plan a 8-day city break in Medellin from London with rainy-day backups and indoor spots and balanced pacing.
+Build a 14-day travel plan from Oslo to Zurich with architecture and design and realistic transit notes.
+Design a 9-day Santiago trip from Cairo with budget spending and seasonal weather contingencies.
+Create a 4-day itinerary for Ho Chi Minh City from Hong Kong for solo, emphasizing rainy-day backups and indoor spots.
+Plan a 5-day city break in Prague from Seattle with adventure and outdoor activities and fast-paced pacing.
+Build a 3-day travel plan from Lima to Jasper with nightlife and live music and realistic transit notes.
+Plan a 5-day city break in Lima from Los Angeles with food tours and markets and relaxed pacing.
+Plan a 7-day city break in Buenos Aires from Bogota with public transit tips and walkable days and fast-paced pacing.
+Plan a 8-day trip to Hanoi from Bogota with a luxury budget focused on art galleries and local crafts.
+Create a 14-day itinerary for Maldives from Seoul for group of 3, emphasizing public transit tips and walkable days.
+Plan a 6-day trip to Reykjavik from Dallas with a comfort budget focused on seasonal weather contingencies.
+Put together a 6-day trip to Barcelona from Dubai including beaches and water activities and weather-aware planning.
+Put together a 5-day trip to Helsinki from Perth including local festivals and cultural shows and weather-aware planning.
+Plan a 6-day city break in Budapest from Rome with rainy-day backups and indoor spots and fast-paced pacing.
+Design a 6-day Chiang Mai trip from Jakarta with comfort spending and adventure and outdoor activities.
+Plan a 12-day city break in Kathmandu from Doha with rainy-day backups and indoor spots and relaxed pacing.
+Build a 3-day travel plan from Seoul to Warsaw with budget-friendly local eats and realistic transit notes.
+Plan a 9-day city break in Colombo from Miami with rainy-day backups and indoor spots and balanced pacing.
+Build a 7-day travel plan from New York to Jasper with art galleries and local crafts and realistic transit notes.
+Create a 4-day itinerary for Hanoi from Miami for group of 3, emphasizing family-friendly attractions.
+Put together a 14-day trip to Casablanca from Perth including seasonal weather contingencies and weather-aware planning.
+Design a 5-day Colombo trip from Madrid with budget spending and seasonal weather contingencies.
+Plan a 14-day city break in Warsaw from Lima with family-friendly attractions and balanced pacing.
+Create a 10-day itinerary for Seville from Amsterdam for two travelers, emphasizing rainy-day backups and indoor spots.
+Put together a 5-day trip to Kyoto from Nairobi including rainy-day backups and indoor spots and weather-aware planning.
+Design a 4-day Cusco trip from Stockholm with moderate spending and cafe culture and bookshops.
+Plan a 6-day trip to Zurich from Amsterdam with a luxury budget focused on train-focused logistics.
+Design a 4-day Zurich trip from Chicago with comfort spending and beaches and water activities.
+Build a 5-day travel plan from Miami to Pokhara with photography spots and sunrise plans and realistic transit notes.
+Put together a 8-day trip to Geneva from Chicago including art galleries and local crafts and weather-aware planning.
+Create a 12-day itinerary for Krakow from Manila for couple, emphasizing local festivals and cultural shows.
+Design a 12-day Siem Reap trip from Singapore with comfort spending and rainy-day backups and indoor spots.
+Plan a 8-day city break in Glasgow from Seoul with train-focused logistics and fast-paced pacing.
+Create a 4-day itinerary for Casablanca from Tokyo for solo, emphasizing train-focused logistics.
+Design a 7-day Tallinn trip from London with moderate spending and rainy-day backups and indoor spots.
+Build a 10-day travel plan from Perth to Ho Chi Minh City with cafe culture and bookshops and realistic transit notes.
+Plan a 9-day city break in Colombo from Buenos Aires with wellness, spas, and slow pace and balanced pacing.
+Create a 14-day itinerary for Zurich from Seoul for group of 3, emphasizing art galleries and local crafts.
+Plan a 5-day city break in Vilnius from Bogota with day trips to nearby towns and balanced pacing.
+Plan a 7-day city break in Valencia from Miami with shopping and neighborhood exploration and fast-paced pacing.
+Put together a 3-day trip to Vilnius from Rome including wellness, spas, and slow pace and weather-aware planning.
+Plan a 7-day city break in Queenstown from Berlin with nightlife and live music and balanced pacing.
+Design a 8-day Krakow trip from Kuala Lumpur with mid-range spending and cafe culture and bookshops.
+Design a 7-day Chiang Mai trip from Jakarta with moderate spending and wellness, spas, and slow pace.
+Put together a 6-day trip to Bratislava from London including train-focused logistics and weather-aware planning.
+Design a 4-day Buenos Aires trip from San Francisco with budget spending and rainy-day backups and indoor spots.
+Create a 3-day itinerary for Santorini from Amsterdam for family, emphasizing seasonal weather contingencies.
+Put together a 14-day trip to Cairo from New York including adventure and outdoor activities and weather-aware planning.
+Create a 5-day itinerary for Bali from Medellin for group of 3, emphasizing nature hikes and viewpoints.
+Build a 14-day travel plan from New York to Reykjavik with shopping and neighborhood exploration and realistic transit notes.
+Build a 8-day travel plan from Hong Kong to Sao Paulo with nature hikes and viewpoints and realistic transit notes.
+Plan a 14-day trip to Sao Paulo from San Francisco with a comfort budget focused on nightlife and live music.
+Put together a 6-day trip to Jasper from Cape Town including food tours and markets and weather-aware planning.
+Plan a 9-day trip to Santiago from Mexico City with a comfort budget focused on architecture and design.
+Plan a 7-day city break in Colombo from Seoul with nature hikes and viewpoints and relaxed pacing.
+Plan a 3-day trip to Santorini from Vancouver with a luxury budget focused on food tours and markets.
+Build a 8-day travel plan from Cape Town to Buenos Aires with budget-friendly local eats and realistic transit notes.
+Design a 5-day Kyoto trip from Copenhagen with mid-range spending and wellness, spas, and slow pace.
+Design a 6-day Ljubljana trip from Dubai with comfort spending and art galleries and local crafts.
+Design a 6-day Marrakech trip from Mumbai with mid-range spending and art galleries and local crafts.
+Build a 14-day travel plan from Los Angeles to Colombo with budget-friendly local eats and realistic transit notes.
+Plan a 4-day city break in Hanoi from Auckland with food tours and markets and fast-paced pacing.
+Build a 14-day travel plan from Kolkata to Santorini with budget-friendly local eats and realistic transit notes.
+Design a 10-day Buenos Aires trip from Melbourne with moderate spending and wellness, spas, and slow pace.
+Put together a 14-day trip to Krakow from Dubai including photography spots and sunrise plans and weather-aware planning.
+Build a 4-day travel plan from Amsterdam to Interlaken with train-focused logistics and realistic transit notes.
+Plan a 3-day trip to Lisbon from Amsterdam with a luxury budget focused on nightlife and live music.
+Design a 4-day Pokhara trip from Doha with mid-range spending and photography spots and sunrise plans.
+Design a 10-day Da Nang trip from Seattle with luxury spending and architecture and design.
+Put together a 4-day trip to Banff from Amsterdam including adventure and outdoor activities and weather-aware planning.
+Build a 3-day travel plan from Jakarta to Osaka with seasonal weather contingencies and realistic transit notes.
+Plan a 6-day city break in Prague from Bogota with day trips to nearby towns and relaxed pacing.
+Create a 8-day itinerary for Hanoi from Amsterdam for group of 4, emphasizing public transit tips and walkable days.
+Put together a 9-day trip to Chiang Mai from Berlin including family-friendly attractions and weather-aware planning.
+Plan a 9-day trip to Lima from Hong Kong with a budget budget focused on rainy-day backups and indoor spots.
+Design a 14-day Reykjavik trip from Singapore with comfort spending and public transit tips and walkable days.
+Put together a 3-day trip to Buenos Aires from Dublin including architecture and design and weather-aware planning.
+Plan a 12-day trip to Valencia from Doha with a budget budget focused on nature hikes and viewpoints.
+Plan a 8-day trip to Cairo from Stockholm with a luxury budget focused on public transit tips and walkable days.
+Plan a 9-day trip to Fiji from Oslo with a moderate budget focused on shopping and neighborhood exploration.
+Create a 7-day itinerary for Kyoto from New York for two travelers, emphasizing rainy-day backups and indoor spots.
+Plan a 4-day trip to Chiang Mai from Cape Town with a moderate budget focused on public transit tips and walkable days.
+Plan a 12-day city break in Ho Chi Minh City from Lima with rainy-day backups and indoor spots and relaxed pacing.
+Create a 9-day itinerary for Marrakech from Doha for couple, emphasizing beaches and water activities.
+Build a 8-day travel plan from Dubai to Seville with seasonal weather contingencies and realistic transit notes.
+Put together a 10-day trip to Queenstown from Miami including beaches and water activities and weather-aware planning.
+Create a 12-day itinerary for Zurich from Perth for group of 4, emphasizing local festivals and cultural shows.
+Plan a 6-day trip to Medellin from Stockholm with a budget budget focused on photography spots and sunrise plans.
+Design a 14-day Split trip from Cairo with mid-range spending and art galleries and local crafts.
+Plan a 7-day city break in Valencia from Dubai with train-focused logistics and balanced pacing.
+Put together a 6-day trip to Zermatt from Perth including local festivals and cultural shows and weather-aware planning.
+Design a 9-day Helsinki trip from Riyadh with luxury spending and local festivals and cultural shows.
+Create a 6-day itinerary for Barcelona from Madrid for solo, emphasizing local festivals and cultural shows.
+Plan a 5-day city break in Cappadocia from Boston with food tours and markets and balanced pacing.
+Create a 10-day itinerary for Cappadocia from Singapore for group of 3, emphasizing family-friendly attractions.
+Plan a 9-day city break in Bratislava from Cairo with local festivals and cultural shows and fast-paced pacing.
+Design a 7-day Cappadocia trip from Jakarta with luxury spending and day trips to nearby towns.
+Create a 14-day itinerary for Da Nang from Lima for group of 4, emphasizing day trips to nearby towns.
+Build a 7-day travel plan from Rome to Lima with cafe culture and bookshops and realistic transit notes.
+Plan a 12-day city break in Vilnius from Tokyo with architecture and design and fast-paced pacing.
+Plan a 9-day trip to Maldives from Seattle with a budget budget focused on seasonal weather contingencies.
+Plan a 9-day trip to Cusco from Copenhagen with a budget budget focused on photography spots and sunrise plans.
+Build a 4-day travel plan from San Francisco to Krakow with food tours and markets and realistic transit notes.
+Plan a 4-day city break in Helsinki from Paris with beaches and water activities and fast-paced pacing.
+Design a 4-day Jasper trip from Chicago with budget spending and shopping and neighborhood exploration.
+Put together a 12-day trip to Warsaw from Hong Kong including photography spots and sunrise plans and weather-aware planning.
+Plan a 12-day city break in Maldives from Singapore with shopping and neighborhood exploration and balanced pacing.
+Create a 14-day itinerary for Osaka from Los Angeles for family, emphasizing nature hikes and viewpoints.
+Plan a 12-day city break in Zermatt from Sydney with seasonal weather contingencies and fast-paced pacing.
+Build a 6-day travel plan from San Francisco to Queenstown with architecture and design and realistic transit notes.
+Design a 12-day Marrakech trip from Riyadh with luxury spending and food tours and markets.
+Create a 14-day itinerary for Lake Bled from Nairobi for couple, emphasizing beaches and water activities.
+Put together a 9-day trip to Jasper from Sydney including wellness, spas, and slow pace and weather-aware planning.
+Put together a 10-day trip to Queenstown from Riyadh including food tours and markets and weather-aware planning.
+Put together a 12-day trip to Split from Sydney including public transit tips and walkable days and weather-aware planning.
+Plan a 8-day city break in Barcelona from Copenhagen with rainy-day backups and indoor spots and relaxed pacing.
+Plan a 10-day trip to Kathmandu from Mumbai with a mid-range budget focused on nightlife and live music.
+Plan a 9-day trip to Edinburgh from Berlin with a comfort budget focused on beaches and water activities.
+Build a 4-day travel plan from Manila to Krakow with wellness, spas, and slow pace and realistic transit notes.
+Plan a 3-day trip to Phuket from Nairobi with a luxury budget focused on rainy-day backups and indoor spots.
+Build a 10-day travel plan from Nairobi to Riga with shopping and neighborhood exploration and realistic transit notes.
+Put together a 4-day trip to Ljubljana from Dallas including seasonal weather contingencies and weather-aware planning.
+Plan a 7-day trip to Barcelona from London with a budget budget focused on local festivals and cultural shows.
+Build a 14-day travel plan from Perth to Cusco with architecture and design and realistic transit notes.
+Plan a 10-day city break in Zermatt from Miami with public transit tips and walkable days and fast-paced pacing.
+Create a 6-day itinerary for Vilnius from Buenos Aires for two travelers, emphasizing budget-friendly local eats.
+Design a 9-day Casablanca trip from New York with mid-range spending and photography spots and sunrise plans.
+Create a 7-day itinerary for Kyoto from Sao Paulo for two travelers, emphasizing architecture and design.
+Build a 8-day travel plan from Chicago to Helsinki with train-focused logistics and realistic transit notes.
+Build a 14-day travel plan from Bangkok to Zurich with shopping and neighborhood exploration and realistic transit notes.
+Plan a 10-day city break in Cairo from Miami with food tours and markets and fast-paced pacing.
+Build a 14-day travel plan from Seoul to Vilnius with local festivals and cultural shows and realistic transit notes.
+Plan a 7-day trip to Cappadocia from Auckland with a comfort budget focused on family-friendly attractions.
+Design a 10-day Lake Bled trip from Seattle with moderate spending and museums and history.
+Build a 9-day travel plan from Singapore to Santiago with art galleries and local crafts and realistic transit notes.
+Plan a 5-day trip to Ljubljana from Santiago with a luxury budget focused on photography spots and sunrise plans.
+Design a 9-day Warsaw trip from Bogota with moderate spending and architecture and design.
+Put together a 8-day trip to Split from Manila including budget-friendly local eats and weather-aware planning.
+Plan a 5-day trip to Santiago from Bogota with a moderate budget focused on museums and history.
+Plan a 8-day city break in Medellin from Mumbai with train-focused logistics and balanced pacing.
+Put together a 9-day trip to Tallinn from Delhi including rainy-day backups and indoor spots and weather-aware planning.
+Create a 7-day itinerary for Istanbul from Bangalore for couple, emphasizing seasonal weather contingencies.
+Build a 6-day travel plan from Nairobi to Split with museums and history and realistic transit notes.
+Put together a 6-day trip to Santiago from Singapore including public transit tips and walkable days and weather-aware planning.
+Design a 4-day Valencia trip from Kuala Lumpur with mid-range spending and train-focused logistics.
+Build a 8-day travel plan from Toronto to Rio de Janeiro with nightlife and live music and realistic transit notes.
+Put together a 10-day trip to Lisbon from San Francisco including photography spots and sunrise plans and weather-aware planning.
+Create a 7-day itinerary for Reykjavik from Sao Paulo for group of 4, emphasizing beaches and water activities.
+Plan a 6-day trip to Bogota from Rome with a budget budget focused on adventure and outdoor activities.
+Create a 4-day itinerary for Ljubljana from Jakarta for solo, emphasizing wellness, spas, and slow pace.
+Put together a 9-day trip to Buenos Aires from Sao Paulo including train-focused logistics and weather-aware planning.
+Build a 9-day travel plan from Boston to Casablanca with art galleries and local crafts and realistic transit notes.
+Put together a 6-day trip to Vilnius from Oslo including shopping and neighborhood exploration and weather-aware planning.
+Build a 12-day travel plan from Seoul to Barcelona with wellness, spas, and slow pace and realistic transit notes.
+Design a 7-day Hanoi trip from Bangkok with moderate spending and photography spots and sunrise plans.
+Put together a 12-day trip to Budapest from Melbourne including photography spots and sunrise plans and weather-aware planning.
+Plan a 7-day trip to Lisbon from Bangalore with a budget budget focused on architecture and design.
+Plan a 6-day city break in Ho Chi Minh City from Seattle with museums and history and balanced pacing.
+Plan a 8-day trip to Hanoi from Santiago with a budget budget focused on train-focused logistics.
+Plan a 14-day city break in Lima from San Francisco with budget-friendly local eats and fast-paced pacing.
+Create a 8-day itinerary for Reykjavik from Stockholm for group of 3, emphasizing museums and history.
+Design a 12-day Buenos Aires trip from Bangalore with budget spending and train-focused logistics.
+Plan a 14-day trip to Colombo from New York with a luxury budget focused on wellness, spas, and slow pace.
+Design a 5-day Krakow trip from Berlin with moderate spending and family-friendly attractions.
+Design a 6-day Santorini trip from Oslo with moderate spending and food tours and markets.
+Put together a 12-day trip to Taipei from Seoul including local festivals and cultural shows and weather-aware planning.
+Plan a 5-day city break in Bali from Buenos Aires with budget-friendly local eats and balanced pacing.
+Put together a 12-day trip to Tallinn from Cape Town including family-friendly attractions and weather-aware planning.
+Plan a 5-day trip to Vienna from Doha with a budget budget focused on seasonal weather contingencies.
+Put together a 4-day trip to Lake Bled from Madrid including art galleries and local crafts and weather-aware planning.
+Plan a 9-day trip to Glasgow from Hong Kong with a luxury budget focused on local festivals and cultural shows.
+Put together a 6-day trip to Athens from Jakarta including family-friendly attractions and weather-aware planning.
+Plan a 6-day trip to Interlaken from Lima with a luxury budget focused on family-friendly attractions.
+Design a 4-day Santorini trip from Boston with moderate spending and day trips to nearby towns.
+Create a 6-day itinerary for Banff from Manila for group of 4, emphasizing cafe culture and bookshops.
+Design a 6-day Zurich trip from Stockholm with budget spending and nature hikes and viewpoints.
+Build a 7-day travel plan from Tokyo to Barcelona with seasonal weather contingencies and realistic transit notes.
