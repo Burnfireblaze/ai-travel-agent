@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import random
@@ -27,6 +28,7 @@ from ai_travel_agent.observability.failure_tracker import (
     set_failure_tracker,
 )
 from ai_travel_agent.observability.canonical_schema import build_canonical_record
+from ai_travel_agent.observability.aura_bridge import configure_aura, get_aura_status
 from ai_travel_agent.observability.logger import LogContext, get_logger, log_event
 from ai_travel_agent.observability.metrics import MetricsCollector
 
@@ -261,7 +263,7 @@ def choose_tools(rng: random.Random) -> list[str]:
     return rng.sample(TOOLS_ALL, n)
 
 
-def set_env_for_scenario(scenario: str, run_mode: str) -> dict[str, str]:
+def set_env_for_scenario(scenario: str, run_mode: str, *, severity_override: str | None = None) -> dict[str, str]:
     prev = {
         "SIMULATE_TOOL_TIMEOUT": os.environ.get("SIMULATE_TOOL_TIMEOUT", ""),
         "SIMULATE_BAD_RETRIEVAL": os.environ.get("SIMULATE_BAD_RETRIEVAL", ""),
@@ -269,7 +271,13 @@ def set_env_for_scenario(scenario: str, run_mode: str) -> dict[str, str]:
     }
     os.environ["SIMULATE_TOOL_TIMEOUT"] = "true" if scenario in {"tool_timeout", "both_env"} else "false"
     os.environ["SIMULATE_BAD_RETRIEVAL"] = "true" if scenario in {"bad_retrieval", "both_env"} else "false"
-    os.environ["FAILURE_SEVERITY_OVERRIDE"] = "critical" if run_mode == "failure" else ""
+    if run_mode == "failure":
+        if severity_override:
+            os.environ["FAILURE_SEVERITY_OVERRIDE"] = severity_override
+        elif not os.environ.get("FAILURE_SEVERITY_OVERRIDE"):
+            os.environ["FAILURE_SEVERITY_OVERRIDE"] = "critical"
+    else:
+        os.environ["FAILURE_SEVERITY_OVERRIDE"] = ""
     return prev
 
 
@@ -301,15 +309,25 @@ def restore_graph_components() -> None:
     graph_mod.export_ics = ORIGINAL_EXPORT_ICS
 
 
-def run_one(prompt: str, run_id: str, run_mode: str, scenario: str, tools: list[str], base_settings) -> dict[str, Any]:
-    prev_env = set_env_for_scenario(scenario, run_mode)
+def run_one(
+    prompt: str,
+    run_id: str,
+    run_mode: str,
+    scenario: str,
+    tools: list[str],
+    base_settings,
+    *,
+    max_tool_retries_failure: int = 3,
+    severity_override: str | None = None,
+) -> dict[str, Any]:
+    prev_env = set_env_for_scenario(scenario, run_mode, severity_override=severity_override)
     tracker = FailureTracker(run_id=run_id, user_id=USER_ID, runtime_dir=RUNTIME_DIR)
     tracker.combined_log_path = SINGLE_LOG
     set_failure_tracker(tracker)
 
     settings = base_settings
     if run_mode == "failure":
-        settings = replace(settings, max_tool_retries=3)
+        settings = replace(settings, max_tool_retries=max_tool_retries_failure)
     if scenario == "orchestrator_max_iters":
         settings = replace(settings, max_graph_iters=1)
     metrics = MetricsCollector(runtime_dir=RUNTIME_DIR, run_id=run_id, user_id=USER_ID)
@@ -351,6 +369,26 @@ def run_one(prompt: str, run_id: str, run_mode: str, scenario: str, tools: list[
             pass
 
     eval_data = (out.get("evaluation") or {}) if isinstance(out, dict) else {}
+    termination_reason = out.get("termination_reason") if isinstance(out, dict) else None
+    metrics.set("eval_overall_status", eval_data.get("overall_status"))
+    metrics.set("eval_hard_gates", eval_data.get("hard_gates"))
+    metrics.set("eval_rubric_scores", eval_data.get("rubric"))
+    hallucination = eval_data.get("hallucination") or {}
+    if isinstance(hallucination, dict):
+        metrics.set("hallucination_detected", hallucination.get("hallucination_detected", False))
+        metrics.set("hallucination_ratio", hallucination.get("hallucination_ratio"))
+
+    if runtime_error:
+        run_status = "error"
+    elif termination_reason == "asked_user":
+        run_status = "asked_user"
+    elif termination_reason in {"finalized", "max_iters"}:
+        run_status = "ok"
+    else:
+        run_status = "unknown"
+
+    record = metrics.finalize_record(status=run_status, termination_reason=termination_reason)
+    metrics.write(record)
     log_event(
         logger,
         level=20,
@@ -360,11 +398,32 @@ def run_one(prompt: str, run_id: str, run_mode: str, scenario: str, tools: list[
         data={
             "run_mode": run_mode,
             "scenario": scenario,
-            "termination_reason": out.get("termination_reason") if isinstance(out, dict) else None,
+            "termination_reason": termination_reason,
             "overall_status": eval_data.get("overall_status"),
             "has_hard_gates": bool(eval_data.get("hard_gates")),
             "failure_count": len(tracker.failures),
             "runtime_error": runtime_error,
+            "task_completed": record.get("task_completed"),
+            "goal_completed": record.get("goal_completed"),
+            "task_completion_rate": record.get("task_completion_rate"),
+            "goal_completion_rate": record.get("goal_completion_rate"),
+            "tokens_in": record.get("tokens_in"),
+            "tokens_out": record.get("tokens_out"),
+            "tokens_total": record.get("tokens_total"),
+            "avg_tokens_per_request": record.get("avg_tokens_per_request"),
+            "ttft_ms": record.get("ttft_ms"),
+            "api_requests_total": record.get("api_requests_total"),
+            "api_errors_total": record.get("api_errors_total"),
+            "api_error_rate": record.get("api_error_rate"),
+            "hallucination_detected": record.get("hallucination_detected"),
+            "hallucination_ratio": record.get("hallucination_ratio"),
+            "hallucination_rate": record.get("hallucination_rate"),
+            "pii_detected": record.get("pii_detected"),
+            "pii_leak_count": record.get("pii_leak_count"),
+            "pii_types": record.get("pii_types"),
+            "process_uptime_ms": record.get("process_uptime_ms"),
+            "system_uptime_seconds": record.get("system_uptime_seconds"),
+            "iteration_count": record.get("iteration_count"),
         },
     )
 
@@ -378,7 +437,7 @@ def run_one(prompt: str, run_id: str, run_mode: str, scenario: str, tools: list[
         "run_mode": run_mode,
         "scenario": scenario,
         "selected_tools": tools,
-        "termination_reason": out.get("termination_reason") if isinstance(out, dict) else None,
+        "termination_reason": termination_reason,
         "overall_status": eval_data.get("overall_status"),
         "failure_count": len(tracker.failures),
         "runtime_error": runtime_error,
@@ -386,29 +445,70 @@ def run_one(prompt: str, run_id: str, run_mode: str, scenario: str, tools: list[
 
 
 def main() -> None:
+    global SINGLE_LOG, USER_ID
+    parser = argparse.ArgumentParser(description="Run mixed success/failure scenarios with randomized order.")
+    parser.add_argument("--prompts-file", type=Path, default=PROMPTS_FILE)
+    parser.add_argument("--total-runs", type=int, default=TOTAL_RUNS)
+    parser.add_argument("--failure-runs", type=int, default=FAILURE_RUNS)
+    parser.add_argument("--success-runs", type=int, default=SUCCESS_RUNS)
+    parser.add_argument("--seed", type=int, default=SEED)
+    parser.add_argument("--user-id", type=str, default=USER_ID)
+    parser.add_argument("--out-log", type=Path, default=SINGLE_LOG)
+    parser.add_argument("--max-tool-retries-failure", type=int, default=3)
+    parser.add_argument("--failure-severity", type=str, default="critical")
+    args = parser.parse_args()
+
+    total_runs = args.total_runs
+    failure_runs = args.failure_runs
+    success_runs = args.success_runs
+    if failure_runs + success_runs != total_runs:
+        raise ValueError("success_runs + failure_runs must equal total_runs")
+
+    # Update globals used by run_one.
+    SINGLE_LOG = args.out_log
+    USER_ID = args.user_id
     LOG_DIR.mkdir(parents=True, exist_ok=True)
     if SINGLE_LOG.exists():
         SINGLE_LOG.unlink()
 
     patch_graph_components()
 
-    rng = random.Random(SEED)
-    prompts = load_prompts(PROMPTS_FILE)
-    chosen_prompts = rng.sample(prompts, TOTAL_RUNS)
-    run_modes = (["success"] * SUCCESS_RUNS) + (["failure"] * FAILURE_RUNS)
+    rng = random.Random(args.seed)
+    prompts = load_prompts(args.prompts_file)
+    if not prompts:
+        raise ValueError(f"No prompts found in {args.prompts_file}")
+
+    if len(prompts) >= total_runs:
+        chosen_prompts = rng.sample(prompts, total_runs)
+    else:
+        chosen_prompts = [rng.choice(prompts) for _ in range(total_runs)]
+
+    run_modes = (["success"] * success_runs) + (["failure"] * failure_runs)
     rng.shuffle(run_modes)
 
     failure_scenarios: list[str] = []
-    while len(failure_scenarios) < FAILURE_RUNS:
+    while len(failure_scenarios) < failure_runs:
         failure_scenarios.extend(FAILURE_SCENARIOS)
-    failure_scenarios = failure_scenarios[:FAILURE_RUNS]
+    failure_scenarios = failure_scenarios[:failure_runs]
     rng.shuffle(failure_scenarios)
 
     base_settings = replace(load_settings(), user_id=USER_ID, runtime_dir=RUNTIME_DIR)
+    configure_aura(
+        enabled=base_settings.aura_enabled,
+        policy_path=base_settings.aura_policy_path,
+        host=base_settings.aura_log_host,
+        port=base_settings.aura_log_port,
+        service_name=base_settings.aura_service_name,
+        timeout_s=base_settings.aura_timeout_s,
+    )
+    if base_settings.aura_enabled:
+        aura_status = get_aura_status()
+        if aura_status.get("init_error"):
+            print(f"Aura initialization failed: {aura_status['init_error']}")
 
     results: list[dict[str, Any]] = []
     fail_idx = 0
-    for i in range(TOTAL_RUNS):
+    for i in range(total_runs):
         run_id = f"mix-{i+1:03d}"
         mode = run_modes[i]
         scenario = "none"
@@ -416,20 +516,30 @@ def main() -> None:
             scenario = failure_scenarios[fail_idx]
             fail_idx += 1
         tools = choose_tools(rng)
-        res = run_one(chosen_prompts[i], run_id, mode, scenario, tools, base_settings)
+
+        res = run_one(
+            chosen_prompts[i],
+            run_id,
+            mode,
+            scenario,
+            tools,
+            base_settings,
+            max_tool_retries_failure=args.max_tool_retries_failure,
+            severity_override=args.failure_severity,
+        )
         results.append(res)
         print(
-            f"[{i+1}/{TOTAL_RUNS}] {run_id} mode={mode} scenario={scenario} "
+            f"[{i+1}/{total_runs}] {run_id} mode={mode} scenario={scenario} "
             f"tools={len(tools)} failures={res['failure_count']} eval={res['overall_status']} "
             f"error={bool(res['runtime_error'])}"
         )
 
     with SINGLE_LOG.open("a", encoding="utf-8") as f:
         summary_data = {
-            "seed": SEED,
-            "total_runs": TOTAL_RUNS,
-            "success_runs": SUCCESS_RUNS,
-            "failure_runs": FAILURE_RUNS,
+            "seed": args.seed,
+            "total_runs": total_runs,
+            "success_runs": success_runs,
+            "failure_runs": failure_runs,
             "failure_scenarios": FAILURE_SCENARIOS,
             "results": results,
         }
@@ -448,10 +558,7 @@ def main() -> None:
             kind="normal",
             data=summary_data,
         )
-        f.write(
-            json.dumps(payload, ensure_ascii=False)
-            + "\n"
-        )
+        f.write(json.dumps(payload, ensure_ascii=False) + "\n")
 
     restore_graph_components()
     print(f"Single log: {SINGLE_LOG}")

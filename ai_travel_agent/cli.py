@@ -19,7 +19,8 @@ from ai_travel_agent.graph import build_app
 from ai_travel_agent.agents.state import StepType
 from ai_travel_agent.evaluation import derive_hallucination_metrics
 from ai_travel_agent.memory import MemoryStore
-from ai_travel_agent.observability.logger import LogContext, get_logger, log_event, setup_logging
+from ai_travel_agent.observability.aura_bridge import configure_aura, get_aura_status, is_detailed_logging_enabled
+from ai_travel_agent.observability.logger import TELEMETRY, LogContext, get_logger, log_event, setup_logging
 from ai_travel_agent.observability.metrics import MetricsCollector
 
 
@@ -308,7 +309,19 @@ def chat(
     if runtime_dir:
         settings = replace(settings, runtime_dir=runtime_dir)
 
+    configure_aura(
+        enabled=settings.aura_enabled,
+        policy_path=settings.aura_policy_path,
+        host=settings.aura_log_host,
+        port=settings.aura_log_port,
+        service_name=settings.aura_service_name,
+        timeout_s=settings.aura_timeout_s,
+    )
     setup_logging(runtime_dir=settings.runtime_dir, level=settings.log_level)
+    if settings.aura_enabled:
+        aura_status = get_aura_status()
+        if aura_status.get("init_error"):
+            console.print(f"Aura initialization failed: {aura_status['init_error']}")
 
     memory = MemoryStore(user_id=settings.user_id, persist_dir=settings.chroma_persist_dir, embedding_model=settings.embedding_model)
 
@@ -321,6 +334,9 @@ def chat(
             continue
         if user_query.lower() in {"quit", "exit"}:
             break
+
+        if not is_detailed_logging_enabled():
+            TELEMETRY.set_mode("MINIMAL")
 
         run_id = str(uuid.uuid4())
         metrics = MetricsCollector(runtime_dir=settings.runtime_dir, run_id=run_id, user_id=settings.user_id)
@@ -510,6 +526,8 @@ def chat(
             event="run_end",
             context=LogContext(run_id=run_id, user_id=settings.user_id),
             data={
+                "overall_status": run_status,
+                "termination_reason": term,
                 "task_completed": record.get("task_completed"),
                 "goal_completed": record.get("goal_completed"),
                 "task_completion_rate": record.get("task_completion_rate"),

@@ -13,10 +13,18 @@ class TelemetryController:
         return self.mode
 
     def should_log_detailed(self, state: dict) -> bool:
-        # Switch to detailed if any failure signal is set
-        signals = state.get("signals", {})
         if self.mode == "DETAILED":
             return True
+
+        try:
+            from ai_travel_agent.observability.aura_bridge import is_detailed_logging_enabled
+
+            if is_detailed_logging_enabled():
+                return True
+        except Exception:
+            pass
+
+        signals = state.get("signals", {})
         if any(signals.get(sig) for sig in ["tool_error", "no_results", "memory_unavailable", "timeout_risk"]):
             self.set_mode("DETAILED")
             return True
@@ -65,6 +73,35 @@ def _sanitize(value: Any) -> Any:
     return value
 
 
+def _build_payload(
+    *,
+    level: str,
+    module: str,
+    message: str,
+    event: str,
+    context: LogContext | None,
+    data: Mapping[str, Any] | None,
+    kind: str = "normal",
+    run_id_override: str | None = None,
+    user_id_override: str | None = None,
+) -> dict[str, Any]:
+    return build_canonical_record(
+        ts=_utc_now_iso(),
+        level=level,
+        module=module,
+        message=message,
+        event=event,
+        run_id=run_id_override if run_id_override is not None else (context.run_id if context else None),
+        user_id=user_id_override if user_id_override is not None else (context.user_id if context else None),
+        node=context.graph_node if context else None,
+        step_type=context.step_type if context else None,
+        step_id=context.step_id if context else None,
+        step_title=context.step_title if context else None,
+        kind=kind,
+        data=_sanitize(dict(data)) if data is not None else None,
+    )
+
+
 @dataclass(frozen=True)
 class LogContext:
     run_id: str | None = None
@@ -95,20 +132,21 @@ class JsonlHandler(Handler):
             data.setdefault("telemetry_event_index", next_index)
             if event == "run_end":
                 data["telemetry_events_total"] = next_index
-            payload = build_canonical_record(
-                ts=_utc_now_iso(),
+            payload = _build_payload(
                 level=record.levelname,
                 module=record.name,
                 message=record.getMessage(),
                 event=event,
-                run_id=run_id,
-                user_id=getattr(record, "user_id", None),
-                node=getattr(record, "graph_node", None),
-                step_type=getattr(record, "step_type", None),
-                step_id=getattr(record, "step_id", None),
-                step_title=getattr(record, "step_title", None),
+                context=LogContext(
+                    run_id=run_id,
+                    user_id=getattr(record, "user_id", None),
+                    graph_node=getattr(record, "graph_node", None),
+                    step_type=getattr(record, "step_type", None),
+                    step_id=getattr(record, "step_id", None),
+                    step_title=getattr(record, "step_title", None),
+                ),
+                data=data,
                 kind=getattr(record, "kind", "normal"),
-                data=_sanitize(data) if data else None,
             )
 
             with self._path.open("a", encoding="utf-8") as f:
@@ -226,24 +264,30 @@ def log_event(
     if payload:
         extra["data"] = payload
     logger.log(level, message, extra=extra)
-    _write_combined_log_event(
-        level=level,
+    payload = _build_payload(
+        level=logging.getLevelName(level),
         module=logger.name,
         message=message,
         event=event,
         context=context,
         data=payload if payload else None,
     )
+    _write_combined_log_event(
+        payload=payload,
+        context=context,
+    )
+    try:
+        from ai_travel_agent.observability.aura_bridge import capture_event
+
+        capture_event(payload)
+    except Exception:
+        return
 
 
 def _write_combined_log_event(
     *,
-    level: int,
-    module: str,
-    message: str,
-    event: str,
+    payload: dict[str, Any],
     context: LogContext | None,
-    data: Mapping[str, Any] | None,
 ) -> None:
     """Best-effort mirror of normal events into run-level combined log."""
     try:
@@ -258,24 +302,20 @@ def _write_combined_log_event(
         if context_run_id and context_run_id != tracker.run_id:
             return
 
-        payload = build_canonical_record(
-            ts=_utc_now_iso(),
-            level=logging.getLevelName(level),
-            module=module,
-            message=message,
-            event=event,
-            run_id=tracker.run_id,
-            user_id=tracker.user_id,
-            node=context.graph_node if context else None,
-            step_type=context.step_type if context else None,
-            step_id=context.step_id if context else None,
-            step_title=context.step_title if context else None,
+        combined_payload = _build_payload(
+            level=payload["level"],
+            module=payload["span_payload"]["module"],
+            message=payload["span_payload"]["message"],
+            event=payload["event"],
+            context=context,
+            data=payload["span_payload"].get("data"),
             kind="normal",
-            data=_sanitize(dict(data)) if data is not None else None,
+            run_id_override=tracker.run_id,
+            user_id_override=tracker.user_id,
         )
 
         with tracker.combined_log_path.open("a", encoding="utf-8") as f:
-            f.write(json.dumps(payload, ensure_ascii=False) + "\n")
+            f.write(json.dumps(combined_payload, ensure_ascii=False) + "\n")
     except Exception:
         # Telemetry logging must never break application flow.
         return

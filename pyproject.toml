@@ -35,6 +35,10 @@ dev = [
 [project.scripts]
 ai-travel-agent = "ai_travel_agent.cli:app"
 
+[tool.setuptools.packages.find]
+include = ["ai_travel_agent*"]
+exclude = ["runtime*", "aura_lib*"]
+
 [tool.pytest.ini_options]
 addopts = "-q"
 testpaths = ["tests"]
