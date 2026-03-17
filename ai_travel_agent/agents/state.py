@@ -12,6 +12,7 @@ class StepType(StrEnum):
     INTENT_PARSE = "INTENT_PARSE"
     VALIDATE_INPUTS = "VALIDATE_INPUTS"
     RETRIEVE_CONTEXT = "RETRIEVE_CONTEXT"
+    REASONING = "REASONING"
     PLAN_DRAFT = "PLAN_DRAFT"
     PLAN_REFINE = "PLAN_REFINE"
     TOOL_CALL = "TOOL_CALL"
@@ -96,6 +97,13 @@ class AgentState(TypedDict, total=False):
     grounded_places: dict[str, Any]
     validation_warnings: list[str]
     conflicts_detected: list[dict[str, Any]]
+    reasoning_summary: dict[str, Any]
+    reasoning_log_lines: list[str]
+    intent_decision: dict[str, Any]
+    validation_decision: dict[str, Any]
+    planner_decision: dict[str, Any]
+    tool_selected: str | None
+    synthesis_decision: dict[str, Any]
     plan: list[dict[str, Any]]
     tool_results: list[dict[str, Any]]
 

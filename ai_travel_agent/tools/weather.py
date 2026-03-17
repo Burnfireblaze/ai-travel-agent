@@ -5,11 +5,22 @@ import urllib.parse
 import urllib.request
 from typing import Any, Mapping
 
+from ai_travel_agent.observability.metrics import get_current_metrics_collector
+
 
 def _http_get_json(url: str, timeout_s: float = 8.0) -> Any:
     req = urllib.request.Request(url, headers={"User-Agent": "ai-travel-agent/0.1"})
-    with urllib.request.urlopen(req, timeout=timeout_s) as resp:
-        return json.loads(resp.read().decode("utf-8"))
+    collector = get_current_metrics_collector()
+    try:
+        with urllib.request.urlopen(req, timeout=timeout_s) as resp:
+            payload = json.loads(resp.read().decode("utf-8"))
+        if collector is not None:
+            collector.record_api_request(success=True)
+        return payload
+    except Exception:
+        if collector is not None:
+            collector.record_api_request(success=False)
+        raise
 
 
 def weather_summary(*, destination: str, start_date: str | None, end_date: str | None) -> Mapping[str, Any]:
@@ -72,4 +83,3 @@ def weather_summary(*, destination: str, start_date: str | None, end_date: str |
                 }
             ],
         }
-

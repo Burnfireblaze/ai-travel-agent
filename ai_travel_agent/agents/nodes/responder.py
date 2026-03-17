@@ -6,6 +6,13 @@ from typing import Any
 from urllib.parse import quote_plus
 
 
+_MONEY_RE = re.compile(
+    r"(?:(?:US\$|USD|\$|JPY|¥|EUR|€|GBP|£)\s?\d[\d,]*(?:\.\d+)?)|(?:\d[\d,]*(?:\.\d+)?\s?(?:USD|JPY|EUR|GBP))",
+    flags=re.IGNORECASE,
+)
+_PRICE_WORD_RE = re.compile(r"\b(price|prices|cost|costs|fare|fares)\b.{0,25}\d[\d,]*(?:\.\d+)?", flags=re.IGNORECASE)
+
+
 def _section_block(answer: str, title: str) -> tuple[int, int] | None:
     """
     Returns (start, end) span of a '## {title}' section including its content.
@@ -132,6 +139,55 @@ def _extract_unavailable_note(summary: str) -> str | None:
     if "unavailable" in summary.lower():
         return summary.strip()
     return None
+
+
+def _budget_breakdown_body(*, budget: float, travelers: int | None) -> str:
+    total = max(0.0, float(budget))
+    traveler_count = max(1, int(travelers) if travelers else 1)
+    per_traveler = total / traveler_count
+    buckets = [
+        ("Flights", 0.40),
+        ("Accommodation", 0.35),
+        ("Food & Activities", 0.15),
+        ("Transportation", 0.07),
+        ("Miscellaneous", 0.03),
+    ]
+
+    remaining = int(round(total))
+    lines = [
+        f"- Total budget (provided): ~${total:,.0f} for {traveler_count} traveler(s) (~${per_traveler:,.0f} per traveler).",
+        "- Heuristic allocation target:",
+    ]
+    for index, (label, ratio) in enumerate(buckets):
+        if index == len(buckets) - 1:
+            amount = remaining
+        else:
+            amount = int(round(total * ratio))
+            remaining -= amount
+        lines.append(f"  - {label}: ~${amount:,.0f}")
+    lines.append("- Treat these as planning targets only; use the links above to validate live market prices.")
+    return "\n".join(lines)
+
+
+def _budget_guidance_body() -> str:
+    return (
+        "- Heuristic split: flights 35–55%, lodging 25–40%, food+activities 15–30%, local transit 5–10%.\n"
+        "- If you share a budget, I can tailor the itinerary and tradeoffs."
+    )
+
+
+def _sanitize_non_budget_prices(answer: str) -> str:
+    budget_body = _get_section_body(answer, "Budget")
+    placeholder = "__BUDGET_SECTION_PLACEHOLDER__"
+    if budget_body is not None:
+        answer = _set_section(answer, "Budget", placeholder)
+
+    answer = _MONEY_RE.sub("[price omitted]", answer)
+    answer = _PRICE_WORD_RE.sub(lambda m: re.sub(r"\d[\d,]*(?:\.\d+)?", "[price omitted]", m.group(0)), answer)
+
+    if budget_body is not None:
+        answer = _set_section(answer, "Budget", budget_body)
+    return answer
 
 
 def responder(state: dict[str, Any]) -> dict[str, Any]:
@@ -369,31 +425,19 @@ def responder(state: dict[str, Any]) -> dict[str, Any]:
 
     # Budget
     budget_body = _get_section_body(answer, "Budget") or ""
-    if "not available" in budget_body.lower() or not budget_body:
-        budget = constraints.get("budget_usd")
-        travelers = constraints.get("travelers")
-        if budget is not None:
-            try:
-                b = float(budget)
-                t = int(travelers) if travelers else 1
-                per = b / max(1, t)
-                answer = _set_section(
-                    answer,
-                    "Budget",
-                    f"- Total budget (provided): ~${b:,.0f} for {t} traveler(s) (~${per:,.0f} per traveler).\n- Heuristic split: flights 35–55%, lodging 25–40%, food+activities 15–30%, local transit 5–10%.\n- No live prices; use the links above to validate.",
-                )
-            except Exception:
-                answer = _set_section(
-                    answer,
-                    "Budget",
-                    "- Heuristic split: flights 35–55%, lodging 25–40%, food+activities 15–30%, local transit 5–10%.\n- No live prices; use links to validate.",
-                )
-        else:
+    budget = constraints.get("budget_usd")
+    travelers = constraints.get("travelers")
+    if budget is not None:
+        try:
             answer = _set_section(
                 answer,
                 "Budget",
-                "- Heuristic split: flights 35–55%, lodging 25–40%, food+activities 15–30%, local transit 5–10%.\n- If you share a budget, I can tailor the itinerary and tradeoffs.",
+                _budget_breakdown_body(budget=float(budget), travelers=int(travelers) if travelers else None),
             )
+        except Exception:
+            answer = _set_section(answer, "Budget", _budget_guidance_body())
+    elif "not available" in budget_body.lower() or not budget_body:
+        answer = _set_section(answer, "Budget", _budget_guidance_body())
 
     # Calendar
     cal_body = _get_section_body(answer, "Calendar") or ""
@@ -403,8 +447,7 @@ def responder(state: dict[str, Any]) -> dict[str, Any]:
         else:
             answer = _set_section(answer, "Calendar", "- Provide `start_date` and `end_date` to export an `.ics` calendar.")
 
-    # Strip currency claims (links-only MVP).
-    answer = re.sub(r"(\$\s?\d+|USD\s?\d+|\d+\s?USD)", "[price omitted]", answer, flags=re.IGNORECASE)
+    answer = _sanitize_non_budget_prices(answer)
 
     state["final_answer"] = answer.strip() + "\n"
     return state

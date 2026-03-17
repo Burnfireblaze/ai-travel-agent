@@ -7,6 +7,7 @@ except ImportError:
         return default
 
 import json
+import logging
 import re
 from typing import Any
 
@@ -14,8 +15,7 @@ from pydantic import ValidationError
 
 from ai_travel_agent.agents.state import StepType, TripConstraints
 from ai_travel_agent.llm import LLMClient
-from ai_travel_agent.observability.logger import TELEMETRY
-from ai_travel_agent.observability.logger import TELEMETRY
+from ai_travel_agent.observability.logger import TELEMETRY, get_logger, log_llm_event
 # Failure tracking imports
 try:
     from ai_travel_agent.observability.failure_tracker import (
@@ -24,6 +24,11 @@ try:
     FAILURE_TRACKING_AVAILABLE = True
 except ImportError:
     FAILURE_TRACKING_AVAILABLE = False
+
+from .utils import log_context_from_state
+
+
+logger = get_logger(__name__)
 
 
 SYSTEM = """You are a travel assistant. Extract trip constraints from the user's request.
@@ -202,12 +207,19 @@ def _clarifying_questions(constraints: TripConstraints) -> list[str]:
 def intent_parser(state: dict[str, Any], *, llm: LLMClient) -> dict[str, Any]:
     state["current_step"] = {"step_type": StepType.INTENT_PARSE, "title": "Parse intent and constraints"}
     user = get_prompt(state.get("user_query", ""))
+    raw = ""
 
     try:
         # Use telemetry controller to determine logging mode
         if TELEMETRY.should_log_detailed(state):
             TELEMETRY.set_mode("DETAILED")
-        raw = llm.invoke_text(system=SYSTEM, user=user, tags={"node": "intent_parser"}, state=state)
+        raw = llm.invoke_text(
+            system=SYSTEM,
+            user=user,
+            tags={"node": "intent_parser"},
+            state=state,
+            context=log_context_from_state(state, graph_node="intent_parser"),
+        )
         parsed = _extract_json_object(raw)
         if parsed is None:
             constraints = TripConstraints()
@@ -323,4 +335,25 @@ def intent_parser(state: dict[str, Any], *, llm: LLMClient) -> dict[str, Any]:
     else:
         state["needs_user_input"] = False
         state["clarifying_questions"] = []
+    state["intent_decision"] = {
+        "constraints": state["constraints"],
+        "needs_user_input": state["needs_user_input"],
+        "clarifying_questions": state["clarifying_questions"],
+        "notes": constraints.notes,
+    }
+    log_llm_event(
+        "intent_parser",
+        {"system": SYSTEM, "user": user},
+        raw,
+        {
+            **llm.telemetry_metadata(),
+            "intent_decision": state["intent_decision"],
+            "validation_decision": state.get("validation_decision"),
+            "planner_decision": state.get("planner_decision"),
+            "tool_selected": state.get("tool_selected"),
+            "synthesis_decision": state.get("synthesis_decision"),
+        },
+        logger=logger,
+        context=log_context_from_state(state, graph_node="intent_parser"),
+    )
     return state

@@ -7,7 +7,7 @@ from typing import Any
 
 from ai_travel_agent.agents.state import Issue, IssueKind, IssueSeverity, StepType, ToolResult
 from ai_travel_agent.llm import LLMClient
-from ai_travel_agent.observability.logger import get_logger, log_event
+from ai_travel_agent.observability.logger import get_logger, log_event, log_llm_event
 from ai_travel_agent.observability.metrics import MetricsCollector
 from ai_travel_agent.memory import MemoryStore
 
@@ -351,7 +351,12 @@ def executor(
             "prompt_chars": len(prompt),
         },
     )
-    answer = llm.invoke_text(system=SYNTH_SYSTEM, user=prompt, tags={"node": "executor", "kind": "synthesize"})
+    answer = llm.invoke_text(
+        system=SYNTH_SYSTEM,
+        user=prompt,
+        tags={"node": "executor", "kind": "synthesize"},
+        context=log_context_from_state(state, graph_node="executor"),
+    )
     state["final_answer"] = answer
     # Best-effort extract day titles for ICS.
     day_titles: list[str] = []
@@ -359,6 +364,27 @@ def executor(
         title = (m.group(2) or "").strip()
         day_titles.append(title or f"Day {m.group(1)}")
     state["itinerary_day_titles"] = day_titles[:21]
+    state["synthesis_decision"] = {
+        "answer_chars": len(answer),
+        "tool_results_used": len(tool_results),
+        "context_hits_used": len(context_hits),
+        "itinerary_day_titles": len(state["itinerary_day_titles"]),
+    }
+    log_llm_event(
+        "executor",
+        {"system": SYNTH_SYSTEM, "user": prompt},
+        answer,
+        {
+            **llm.telemetry_metadata(),
+            "intent_decision": state.get("intent_decision"),
+            "validation_decision": state.get("validation_decision"),
+            "planner_decision": state.get("planner_decision"),
+            "tool_selected": state.get("tool_selected"),
+            "synthesis_decision": state.get("synthesis_decision"),
+        },
+        logger=logger,
+        context=log_context_from_state(state, graph_node="executor"),
+    )
     log_event(
         logger,
         level=logging.INFO,
