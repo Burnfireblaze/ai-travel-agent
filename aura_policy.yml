@@ -1,0 +1,240 @@
+policy:
+  name: ai_travel_agent_policy
+  version: 1.1
+  author: aura_system
+  collision_resolution: override
+
+rulesets:
+  - name: general
+    priority: 1
+
+  - name: maximal_logging
+    priority: 2
+
+rules:
+  - ruleset: general
+    tag: failure_escalation
+    name: escalate_on_failure_signal
+    action:
+      type: switch_ruleset
+      target: maximal_logging
+    log_fields:
+      - ts
+      - run_id
+      - run_mode
+      - scenario
+      - event
+      - event_group
+      - level
+      - node
+      - span_type
+      - step_id
+      - step_index
+      - tool_name
+      - tool_attempt
+      - tool_latency_ms
+      - status
+      - overall_status
+      - termination_reason
+      - latency_ms
+      - iteration_count
+      - tokens_in
+      - tokens_out
+      - tokens_total
+      - avg_tokens_per_request
+      - ttft_ms
+      - context_hits
+      - tool_results_count
+      - failure_count_run_so_far
+      - error_type
+      - error_message
+      - failure_category
+      - failure_severity
+      - task_completed
+      - goal_completed
+      - task_completion_rate
+      - goal_completion_rate
+      - hallucination_detected
+      - hallucination_ratio
+      - hallucination_rate
+      - pii_detected
+      - pii_leak_count
+      - pii_types
+      - api_requests_total
+      - api_errors_total
+      - api_error_rate
+      - process_uptime_ms
+      - system_uptime_seconds
+      - telemetry_event_index
+      - telemetry_events_total
+      - span_payload.message
+      - span_payload.step_title
+    evaluation_on: OR
+    conditions:
+      - field: event
+        comparator: "=="
+        value: node_error
+      - field: event
+        comparator: "=="
+        value: llm_error
+      - field: event
+        comparator: "=="
+        value: tool_error
+      - field: event
+        comparator: "=="
+        value: fallback_tool_failure
+      - field: event
+        comparator: "=="
+        value: fallback_no_results
+      - field: event
+        comparator: "=="
+        value: fallback_memory_unavailable
+      - field: event
+        comparator: "=="
+        value: failure_recorded
+
+  - ruleset: maximal_logging
+    tag: healthy_reset
+    name: reset_after_healthy_run
+    action:
+      type: switch_ruleset
+      target: general
+    log_fields:
+      - ts
+      - run_id
+      - prompt_id
+      - run_mode
+      - scenario
+      - event
+      - event_group
+      - level
+      - node
+      - span_type
+      - step_id
+      - step_index
+      - tool_name
+      - tool_attempt
+      - tool_latency_ms
+      - attempt
+      - status
+      - overall_status
+      - termination_reason
+      - latency_ms
+      - iteration_count
+      - model_name
+      - model
+      - tokens_in
+      - tokens_out
+      - tokens_total
+      - avg_tokens_per_request
+      - ttft_ms
+      - cost_usd
+      - context_hits
+      - tool_results_count
+      - failure_count_run_so_far
+      - error_type
+      - error_message
+      - failure_category
+      - failure_severity
+      - recovered
+      - task_completed
+      - goal_completed
+      - task_completion_rate
+      - goal_completion_rate
+      - hallucination_detected
+      - hallucination_ratio
+      - hallucination_rate
+      - pii_detected
+      - pii_leak_count
+      - pii_types
+      - api_requests_total
+      - api_errors_total
+      - api_error_rate
+      - process_uptime_ms
+      - system_uptime_seconds
+      - telemetry_event_index
+      - telemetry_events_total
+      - span_payload.message
+      - span_payload.step_title
+      - span_payload.data
+    evaluation_on: AND
+    conditions:
+      - field: event
+        comparator: "=="
+        value: run_end
+      - field: overall_status
+        comparator: "=="
+        value: ok
+
+  - ruleset: maximal_logging
+    tag: mixed_campaign_reset
+    name: reset_after_healthy_mixed_run
+    action:
+      type: switch_ruleset
+      target: general
+    log_fields:
+      - ts
+      - run_id
+      - prompt_id
+      - run_mode
+      - scenario
+      - event
+      - event_group
+      - level
+      - node
+      - span_type
+      - step_id
+      - step_index
+      - tool_name
+      - tool_attempt
+      - tool_latency_ms
+      - attempt
+      - status
+      - overall_status
+      - termination_reason
+      - latency_ms
+      - iteration_count
+      - model_name
+      - model
+      - tokens_in
+      - tokens_out
+      - tokens_total
+      - avg_tokens_per_request
+      - ttft_ms
+      - cost_usd
+      - context_hits
+      - tool_results_count
+      - failure_count_run_so_far
+      - error_type
+      - error_message
+      - failure_category
+      - failure_severity
+      - recovered
+      - task_completed
+      - goal_completed
+      - task_completion_rate
+      - goal_completion_rate
+      - hallucination_detected
+      - hallucination_ratio
+      - hallucination_rate
+      - pii_detected
+      - pii_leak_count
+      - pii_types
+      - api_requests_total
+      - api_errors_total
+      - api_error_rate
+      - process_uptime_ms
+      - system_uptime_seconds
+      - telemetry_event_index
+      - telemetry_events_total
+      - span_payload.message
+      - span_payload.step_title
+      - span_payload.data
+    evaluation_on: AND
+    conditions:
+      - field: event
+        comparator: "=="
+        value: mixed_run_end
+      - field: overall_status
+        comparator: "=="
+        value: good

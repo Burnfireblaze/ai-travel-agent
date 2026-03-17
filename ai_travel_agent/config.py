@@ -22,6 +22,12 @@ class Settings:
     max_graph_iters: int
     eval_threshold: float
     max_tool_retries: int
+    aura_enabled: bool
+    aura_policy_path: Path
+    aura_log_host: str
+    aura_log_port: int
+    aura_service_name: str
+    aura_timeout_s: float
 
     # Fault injection flags
     simulate_tool_timeout: bool = False
@@ -32,9 +38,11 @@ class Settings:
 def load_settings() -> Settings:
     load_dotenv(override=False)
 
+    repo_root = Path(__file__).resolve().parents[1]
     runtime_dir = Path(os.getenv("RUNTIME_DIR", "./runtime"))
     chroma_persist_dir = Path(os.getenv("CHROMA_PERSIST_DIR", "./data/chroma_persistent"))
     llm_provider = os.getenv("LLM_PROVIDER", "ollama").strip().lower()
+    aura_policy_path = Path(os.getenv("AURA_POLICY_PATH", str(repo_root / "aura_policy.yml")))
 
     return Settings(
         llm_provider=llm_provider,
@@ -50,6 +58,12 @@ def load_settings() -> Settings:
         max_graph_iters=int(os.getenv("MAX_GRAPH_ITERS", "20")),
         eval_threshold=float(os.getenv("EVAL_THRESHOLD", "3.5")),
         max_tool_retries=int(os.getenv("MAX_TOOL_RETRIES", "1")),
+        aura_enabled=os.getenv("AURA_ENABLED", "false").lower() == "true",
+        aura_policy_path=aura_policy_path,
+        aura_log_host=os.getenv("AURA_LOG_HOST", "localhost"),
+        aura_log_port=int(os.getenv("AURA_LOG_PORT", "3100")),
+        aura_service_name=os.getenv("AURA_SERVICE_NAME", "ai-travel-agent"),
+        aura_timeout_s=float(os.getenv("AURA_TIMEOUT_S", "2.0")),
         simulate_tool_timeout=os.getenv("SIMULATE_TOOL_TIMEOUT", "false").lower() == "true",
         simulate_bad_retrieval=os.getenv("SIMULATE_BAD_RETRIEVAL", "false").lower() == "true",
         failure_seed=int(os.getenv("FAILURE_SEED", "42")),

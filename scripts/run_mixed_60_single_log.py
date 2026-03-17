@@ -28,6 +28,7 @@ from ai_travel_agent.observability.failure_tracker import (
     set_failure_tracker,
 )
 from ai_travel_agent.observability.canonical_schema import build_canonical_record
+from ai_travel_agent.observability.aura_bridge import configure_aura, get_aura_status
 from ai_travel_agent.observability.logger import LogContext, get_logger, log_event
 from ai_travel_agent.observability.metrics import MetricsCollector
 
@@ -368,6 +369,26 @@ def run_one(
             pass
 
     eval_data = (out.get("evaluation") or {}) if isinstance(out, dict) else {}
+    termination_reason = out.get("termination_reason") if isinstance(out, dict) else None
+    metrics.set("eval_overall_status", eval_data.get("overall_status"))
+    metrics.set("eval_hard_gates", eval_data.get("hard_gates"))
+    metrics.set("eval_rubric_scores", eval_data.get("rubric"))
+    hallucination = eval_data.get("hallucination") or {}
+    if isinstance(hallucination, dict):
+        metrics.set("hallucination_detected", hallucination.get("hallucination_detected", False))
+        metrics.set("hallucination_ratio", hallucination.get("hallucination_ratio"))
+
+    if runtime_error:
+        run_status = "error"
+    elif termination_reason == "asked_user":
+        run_status = "asked_user"
+    elif termination_reason in {"finalized", "max_iters"}:
+        run_status = "ok"
+    else:
+        run_status = "unknown"
+
+    record = metrics.finalize_record(status=run_status, termination_reason=termination_reason)
+    metrics.write(record)
     log_event(
         logger,
         level=20,
@@ -377,11 +398,32 @@ def run_one(
         data={
             "run_mode": run_mode,
             "scenario": scenario,
-            "termination_reason": out.get("termination_reason") if isinstance(out, dict) else None,
+            "termination_reason": termination_reason,
             "overall_status": eval_data.get("overall_status"),
             "has_hard_gates": bool(eval_data.get("hard_gates")),
             "failure_count": len(tracker.failures),
             "runtime_error": runtime_error,
+            "task_completed": record.get("task_completed"),
+            "goal_completed": record.get("goal_completed"),
+            "task_completion_rate": record.get("task_completion_rate"),
+            "goal_completion_rate": record.get("goal_completion_rate"),
+            "tokens_in": record.get("tokens_in"),
+            "tokens_out": record.get("tokens_out"),
+            "tokens_total": record.get("tokens_total"),
+            "avg_tokens_per_request": record.get("avg_tokens_per_request"),
+            "ttft_ms": record.get("ttft_ms"),
+            "api_requests_total": record.get("api_requests_total"),
+            "api_errors_total": record.get("api_errors_total"),
+            "api_error_rate": record.get("api_error_rate"),
+            "hallucination_detected": record.get("hallucination_detected"),
+            "hallucination_ratio": record.get("hallucination_ratio"),
+            "hallucination_rate": record.get("hallucination_rate"),
+            "pii_detected": record.get("pii_detected"),
+            "pii_leak_count": record.get("pii_leak_count"),
+            "pii_types": record.get("pii_types"),
+            "process_uptime_ms": record.get("process_uptime_ms"),
+            "system_uptime_seconds": record.get("system_uptime_seconds"),
+            "iteration_count": record.get("iteration_count"),
         },
     )
 
@@ -395,7 +437,7 @@ def run_one(
         "run_mode": run_mode,
         "scenario": scenario,
         "selected_tools": tools,
-        "termination_reason": out.get("termination_reason") if isinstance(out, dict) else None,
+        "termination_reason": termination_reason,
         "overall_status": eval_data.get("overall_status"),
         "failure_count": len(tracker.failures),
         "runtime_error": runtime_error,
@@ -403,6 +445,7 @@ def run_one(
 
 
 def main() -> None:
+    global SINGLE_LOG, USER_ID
     parser = argparse.ArgumentParser(description="Run mixed success/failure scenarios with randomized order.")
     parser.add_argument("--prompts-file", type=Path, default=PROMPTS_FILE)
     parser.add_argument("--total-runs", type=int, default=TOTAL_RUNS)
@@ -422,10 +465,8 @@ def main() -> None:
         raise ValueError("success_runs + failure_runs must equal total_runs")
 
     # Update globals used by run_one.
-    global SINGLE_LOG, USER_ID
     SINGLE_LOG = args.out_log
     USER_ID = args.user_id
-
     LOG_DIR.mkdir(parents=True, exist_ok=True)
     if SINGLE_LOG.exists():
         SINGLE_LOG.unlink()
@@ -452,6 +493,18 @@ def main() -> None:
     rng.shuffle(failure_scenarios)
 
     base_settings = replace(load_settings(), user_id=USER_ID, runtime_dir=RUNTIME_DIR)
+    configure_aura(
+        enabled=base_settings.aura_enabled,
+        policy_path=base_settings.aura_policy_path,
+        host=base_settings.aura_log_host,
+        port=base_settings.aura_log_port,
+        service_name=base_settings.aura_service_name,
+        timeout_s=base_settings.aura_timeout_s,
+    )
+    if base_settings.aura_enabled:
+        aura_status = get_aura_status()
+        if aura_status.get("init_error"):
+            print(f"Aura initialization failed: {aura_status['init_error']}")
 
     results: list[dict[str, Any]] = []
     fail_idx = 0
