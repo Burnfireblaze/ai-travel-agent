@@ -21,6 +21,8 @@ def log_context_from_state(state: dict[str, Any], *, graph_node: str) -> LogCont
         step_type=step.get("step_type"),
         step_id=step.get("id"),
         step_title=step.get("title"),
+        step_index=state.get("current_step_index"),
+        iteration_count=state.get("loop_iterations"),
     )
 
 
@@ -32,6 +34,9 @@ def instrument_node(
 ) -> Callable[[dict[str, Any]], dict[str, Any]]:
     def wrapped(state: dict[str, Any]) -> dict[str, Any]:
         state["current_node"] = node_name
+        iteration_count = state.get("loop_iterations")
+        if iteration_count is not None:
+            metrics.set("iteration_count", iteration_count)
         ctx = log_context_from_state(state, graph_node=node_name)
         log_event(logger, level=logging.INFO, message="Node enter", event="node_enter", context=ctx)
         metrics.inc("graph_node_transitions", 1)
@@ -39,6 +44,9 @@ def instrument_node(
         started = time.perf_counter()
         try:
             out = fn(state)
+            iteration_count = (out or state).get("loop_iterations")
+            if iteration_count is not None:
+                metrics.set("iteration_count", iteration_count)
             elapsed_ms = (time.perf_counter() - started) * 1000.0
             metrics.observe_ms(f"node_latency_ms.{node_name}", elapsed_ms)
             log_event(

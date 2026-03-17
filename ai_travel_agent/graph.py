@@ -17,6 +17,7 @@ from ai_travel_agent.agents.nodes import (
     memory_writer,
     orchestrator,
     planner,
+    reasoning_engine,
     responder,
     validator,
 )
@@ -52,16 +53,23 @@ def build_app(
     metrics: MetricsCollector,
 ) -> Any:
     tools = build_tools()
+    model_name = (
+        f"{settings.llm_provider}/{settings.ollama_model}"
+        if settings.llm_provider == "ollama"
+        else f"{settings.llm_provider}/{settings.groq_model}"
+    )
     # Use a single model (provider-configured) for all stages for predictability.
     chat_intent = build_chat_model(settings=settings, json_mode=True, temperature=0.0)
+    chat_reasoning = build_chat_model(settings=settings, json_mode=True, temperature=0.0)
     chat_planner = build_chat_model(settings=settings, json_mode=True, temperature=0.0)
     chat_triage = build_chat_model(settings=settings, json_mode=True, temperature=0.0)
     chat_synth = build_chat_model(settings=settings, json_mode=False, temperature=0.2)
 
-    llm_intent = LLMClient(runnable=chat_intent, metrics=metrics, run_id=metrics.run_id, user_id=metrics.user_id)
-    llm_planner = LLMClient(runnable=chat_planner, metrics=metrics, run_id=metrics.run_id, user_id=metrics.user_id)
-    llm_triage = LLMClient(runnable=chat_triage, metrics=metrics, run_id=metrics.run_id, user_id=metrics.user_id)
-    llm_synth = LLMClient(runnable=chat_synth, metrics=metrics, run_id=metrics.run_id, user_id=metrics.user_id)
+    llm_intent = LLMClient(runnable=chat_intent, metrics=metrics, run_id=metrics.run_id, user_id=metrics.user_id, model_name=model_name)
+    llm_reasoning = LLMClient(runnable=chat_reasoning, metrics=metrics, run_id=metrics.run_id, user_id=metrics.user_id, model_name=model_name)
+    llm_planner = LLMClient(runnable=chat_planner, metrics=metrics, run_id=metrics.run_id, user_id=metrics.user_id, model_name=model_name)
+    llm_triage = LLMClient(runnable=chat_triage, metrics=metrics, run_id=metrics.run_id, user_id=metrics.user_id, model_name=model_name)
+    llm_synth = LLMClient(runnable=chat_synth, metrics=metrics, run_id=metrics.run_id, user_id=metrics.user_id, model_name=model_name)
 
     graph: StateGraph = StateGraph(AgentState)
 
@@ -83,6 +91,14 @@ def build_app(
             node_name="validator",
             metrics=metrics,
             fn=lambda s: validator(s, geocode_fn=geocode_place),
+        ),
+    )
+    graph.add_node(
+        "reasoning_engine",
+        instrument_node(
+            node_name="reasoning_engine",
+            metrics=metrics,
+            fn=lambda s: reasoning_engine(s, llm=llm_reasoning),
         ),
     )
     graph.add_node(
@@ -149,10 +165,11 @@ def build_app(
 
     graph.add_conditional_edges("intent_parser", _intent_route, {"validator": "validator", "__end__": END})
 
-    def _validator_route(state: dict[str, Any]) -> Literal["brain_planner", "__end__"]:
-        return "__end__" if state.get("needs_user_input") else "brain_planner"
+    def _validator_route(state: dict[str, Any]) -> Literal["reasoning_engine", "__end__"]:
+        return "__end__" if state.get("needs_user_input") else "reasoning_engine"
 
-    graph.add_conditional_edges("validator", _validator_route, {"brain_planner": "brain_planner", "__end__": END})
+    graph.add_conditional_edges("validator", _validator_route, {"reasoning_engine": "reasoning_engine", "__end__": END})
+    graph.add_edge("reasoning_engine", "brain_planner")
     graph.add_edge("brain_planner", "orchestrator")
 
     def _orch_route(state: dict[str, Any]) -> Literal["executor", "responder"]:

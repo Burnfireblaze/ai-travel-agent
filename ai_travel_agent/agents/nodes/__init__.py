@@ -1,6 +1,7 @@
 from .context_controller import context_controller
 from .intent_parser import intent_parser
 from .validator import validator
+from .reasoning_engine import reasoning_engine
 from .brain_planner import brain_planner
 from .planner import planner
 from .orchestrator import orchestrator
@@ -15,6 +16,7 @@ __all__ = [
     "context_controller",
     "intent_parser",
     "validator",
+    "reasoning_engine",
     "brain_planner",
     "planner",
     "orchestrator",

@@ -17,6 +17,7 @@ import re
 from ai_travel_agent.config import load_settings
 from ai_travel_agent.graph import build_app
 from ai_travel_agent.agents.state import StepType
+from ai_travel_agent.evaluation import derive_hallucination_metrics
 from ai_travel_agent.memory import MemoryStore
 from ai_travel_agent.observability.logger import LogContext, get_logger, log_event, setup_logging
 from ai_travel_agent.observability.metrics import MetricsCollector
@@ -213,6 +214,11 @@ def _render_status(state: dict[str, Any]) -> Panel:
     return Panel(text, title="AI Travel Agent", expand=False)
 
 
+def _render_reasoning_panel(lines: list[str]) -> Panel:
+    body = "\n".join(f"- {line}" for line in lines if isinstance(line, str) and line.strip())
+    return Panel(body or "- No reasoning summary captured.", title="Reasoning", expand=False)
+
+
 def _metrics_table(record: dict[str, Any]) -> Table:
     t = Table(title="Run summary", show_header=False)
     t.add_row("run_status", str(record.get("status")))
@@ -234,6 +240,7 @@ def _stream_or_invoke(app_graph, state: dict[str, Any], *, recursion_limit: int,
         "context_controller": {"step_type": StepType.RETRIEVE_CONTEXT, "title": "Retrieve memory context"},
         "intent_parser": {"step_type": StepType.INTENT_PARSE, "title": "Parse intent and constraints"},
         "validator": {"step_type": StepType.VALIDATE_INPUTS, "title": "Validate inputs and resolve conflicts"},
+        "reasoning_engine": {"step_type": StepType.REASONING, "title": "Reason about constraints and planning strategy"},
         "brain_planner": {"step_type": StepType.PLAN_DRAFT, "title": "Brain planner: decompose and select tools"},
         "planner": {"step_type": StepType.PLAN_DRAFT, "title": "Draft plan steps"},
         "evaluate_step": {"step_type": StepType.EVALUATE_STEP, "title": "Evaluate step"},
@@ -438,6 +445,10 @@ def chat(
                 console.print(f"- {w}")
         if final_answer:
             console.print("\n" + final_answer)
+        reasoning_lines = state.get("reasoning_log_lines") or []
+        if reasoning_lines:
+            console.print()
+            console.print(_render_reasoning_panel(reasoning_lines))
 
         messages.append({"role": "user", "content": user_query})
         if final_answer:
@@ -460,6 +471,15 @@ def chat(
         metrics.set("eval_overall_status", evaluation.get("overall_status"))
         metrics.set("eval_hard_gates", evaluation.get("hard_gates"))
         metrics.set("eval_rubric_scores", evaluation.get("rubric_scores"))
+        metrics.set("goal_completed", evaluation.get("overall_status") == "good")
+
+        hallucination = derive_hallucination_metrics(
+            constraints=constraints,
+            final_answer=final_answer,
+            hard_gates=evaluation.get("hard_gates") or {},
+        ) if evaluation else {"hallucination_detected": False, "hallucination_ratio": 0.0}
+        metrics.set("hallucination_detected", hallucination.get("hallucination_detected", False))
+        metrics.set("hallucination_ratio", hallucination.get("hallucination_ratio"))
 
         term = state.get("termination_reason")
         if term == "asked_user":
@@ -489,6 +509,28 @@ def chat(
             message="Run ended",
             event="run_end",
             context=LogContext(run_id=run_id, user_id=settings.user_id),
+            data={
+                "task_completed": record.get("task_completed"),
+                "goal_completed": record.get("goal_completed"),
+                "task_completion_rate": record.get("task_completion_rate"),
+                "goal_completion_rate": record.get("goal_completion_rate"),
+                "tokens_in": record.get("tokens_in"),
+                "tokens_out": record.get("tokens_out"),
+                "tokens_total": record.get("tokens_total"),
+                "avg_tokens_per_request": record.get("avg_tokens_per_request"),
+                "ttft_ms": record.get("ttft_ms"),
+                "api_requests_total": record.get("api_requests_total"),
+                "api_errors_total": record.get("api_errors_total"),
+                "api_error_rate": record.get("api_error_rate"),
+                "process_uptime_ms": record.get("process_uptime_ms"),
+                "system_uptime_seconds": record.get("system_uptime_seconds"),
+                "hallucination_detected": record.get("hallucination_detected"),
+                "hallucination_ratio": record.get("hallucination_ratio"),
+                "hallucination_rate": record.get("hallucination_rate"),
+                "pii_detected": record.get("pii_detected"),
+                "pii_leak_count": record.get("pii_leak_count"),
+                "pii_types": record.get("pii_types"),
+            },
         )
 
 

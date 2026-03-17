@@ -28,15 +28,23 @@ import json
 import logging
 import os
 import re
+from dataclasses import replace
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from logging import Handler, LogRecord
 from pathlib import Path
 from typing import Any, Mapping
+from uuid import uuid4
 
 from ai_travel_agent.observability.canonical_schema import build_canonical_record
+from ai_travel_agent.observability.detectors import detect_pii
 
-SENSITIVE_KEY_PATTERN = re.compile(r"(api[_-]?key|authorization|token|secret|password)", re.IGNORECASE)
+# Redact secret-looking keys, but do not redact common telemetry like `tokens_in`/`prompt_tokens`.
+# The previous pattern matched the substring "token" inside "tokens_*" and hid useful metrics.
+SENSITIVE_KEY_PATTERN = re.compile(
+    r"(?:^|[_-])(?:api[_-]?key|authorization|access[_-]?token|refresh[_-]?token|id[_-]?token|token|secret|password)(?:$|[_-])",
+    re.IGNORECASE,
+)
 
 
 def _utc_now_iso() -> str:
@@ -65,6 +73,8 @@ class LogContext:
     step_type: str | None = None
     step_id: str | None = None
     step_title: str | None = None
+    step_index: int | None = None
+    iteration_count: int | None = None
 
 
 class JsonlHandler(Handler):
@@ -72,25 +82,33 @@ class JsonlHandler(Handler):
         super().__init__()
         self._path = path
         self._path.parent.mkdir(parents=True, exist_ok=True)
+        self._run_event_counters: dict[str, int] = {}
 
     def emit(self, record: LogRecord) -> None:
         try:
             event = getattr(record, "event", "log")
-            data = getattr(record, "data", None)
+            data = dict(getattr(record, "data", None) or {})
+            run_id = getattr(record, "run_id", None)
+            counter_key = run_id or "unknown"
+            next_index = self._run_event_counters.get(counter_key, 0) + 1
+            self._run_event_counters[counter_key] = next_index
+            data.setdefault("telemetry_event_index", next_index)
+            if event == "run_end":
+                data["telemetry_events_total"] = next_index
             payload = build_canonical_record(
                 ts=_utc_now_iso(),
                 level=record.levelname,
                 module=record.name,
                 message=record.getMessage(),
                 event=event,
-                run_id=getattr(record, "run_id", None),
+                run_id=run_id,
                 user_id=getattr(record, "user_id", None),
                 node=getattr(record, "graph_node", None),
                 step_type=getattr(record, "step_type", None),
                 step_id=getattr(record, "step_id", None),
                 step_title=getattr(record, "step_title", None),
                 kind=getattr(record, "kind", "normal"),
-                data=_sanitize(data) if data is not None else None,
+                data=_sanitize(data) if data else None,
             )
 
             with self._path.open("a", encoding="utf-8") as f:
@@ -101,39 +119,30 @@ class JsonlHandler(Handler):
 
 class TextFormatter(logging.Formatter):
     def format(self, record: LogRecord) -> str:
-        base = super().format(record)
-        extras: list[str] = []
-        for key in ("run_id", "graph_node", "step_type", "step_id"):
-            if hasattr(record, key) and getattr(record, key):
-                extras.append(f"{key}={getattr(record, key)}")
-        if hasattr(record, "event") and getattr(record, "event"):
-            extras.append(f"event={getattr(record, 'event')}")
-        if extras:
-            return f"{base} [{' '.join(extras)}]"
-        return base
+        first_line = super().format(record)
+        run_id = getattr(record, "run_id", None)
+        trace_id = getattr(record, "trace_id", None)
+        span_id = getattr(record, "span_id", None)
+        node = getattr(record, "graph_node", None) or getattr(record, "node", None)
+        event = getattr(record, "event", None)
+        step_id = getattr(record, "step_id", None)
+        meta_line = (
+            f"[run_id={run_id or 'null'} trace_id={trace_id or 'null'} "
+            f"span_id={span_id or 'null'} node={node or 'null'} "
+            f"event={event or 'null'} step_id={step_id or 'null'}]"
+        )
+        data_payload = getattr(record, "data", None)
+        try:
+            data_json = json.dumps(_sanitize(data_payload), ensure_ascii=False)
+        except Exception:
+            data_json = "null"
+        return f"{first_line}\n{meta_line}\ndata={data_json}"
 
 
 def setup_logging(*, runtime_dir: Path, level: str = "INFO") -> None:
-
     runtime_dir = runtime_dir.resolve()
     logs_dir = runtime_dir / "logs"
     logs_dir.mkdir(parents=True, exist_ok=True)
-
-    jsonl_path = logs_dir / "app.jsonl"
-    text_path = logs_dir / "app.log"
-
-    root = logging.getLogger()
-    root.handlers.clear()
-
-    log_level = getattr(logging, level.upper(), logging.INFO)
-    root.setLevel(log_level)
-
-    # Add a handler for all normal logs (INFO and above) to a separate file
-    normal_log_path = logs_dir / "normal.log"
-    normal_handler = logging.FileHandler(normal_log_path, encoding="utf-8")
-    normal_handler.setLevel(logging.INFO)
-    normal_handler.setFormatter(TextFormatter("%(asctime)s %(levelname)s %(name)s - %(message)s"))
-    root.addHandler(normal_handler)
 
     jsonl_path = logs_dir / "app.jsonl"
     text_path = logs_dir / "app.log"
@@ -186,6 +195,7 @@ def log_event(
     data: Mapping[str, Any] | None = None,
 ) -> None:
     extra: dict[str, Any] = {"event": event}
+    payload = dict(data) if data is not None else {}
     if context:
         extra.update(
             {
@@ -195,10 +205,26 @@ def log_event(
                 "step_type": context.step_type,
                 "step_id": context.step_id,
                 "step_title": context.step_title,
+                "step_index": context.step_index,
+                "iteration_count": context.iteration_count,
             }
         )
-    if data is not None:
-        extra["data"] = dict(data)
+        if context.step_index is not None and payload.get("step_index") is None:
+            payload["step_index"] = context.step_index
+        if context.iteration_count is not None and payload.get("iteration_count") is None:
+            payload["iteration_count"] = context.iteration_count
+    run_id = extra.get("run_id") or payload.get("run_id")
+    trace_id = payload.get("trace_id") or run_id
+    if trace_id is not None and payload.get("trace_id") is None:
+        payload["trace_id"] = trace_id
+    span_id = payload.get("span_id")
+    if not span_id:
+        span_id = f"{event}-{uuid4().hex[:12]}"
+        payload["span_id"] = span_id
+    extra["trace_id"] = trace_id
+    extra["span_id"] = span_id
+    if payload:
+        extra["data"] = payload
     logger.log(level, message, extra=extra)
     _write_combined_log_event(
         level=level,
@@ -206,7 +232,7 @@ def log_event(
         message=message,
         event=event,
         context=context,
-        data=data,
+        data=payload if payload else None,
     )
 
 
@@ -252,4 +278,64 @@ def _write_combined_log_event(
             f.write(json.dumps(payload, ensure_ascii=False) + "\n")
     except Exception:
         # Telemetry logging must never break application flow.
+        return
+
+
+def log_llm_event(
+    node_name,
+    llm_input,
+    llm_output,
+    metadata,
+    *,
+    logger: logging.Logger | None = None,
+    context: LogContext | None = None,
+) -> None:
+    pii_summary = detect_pii(llm_input, llm_output)
+    payload = {
+        "node_name": node_name,
+        "llm_input": llm_input,
+        "llm_output": llm_output,
+        "model_name": metadata.get("model_name"),
+        "model": metadata.get("model_name") or metadata.get("model"),
+        "latency_ms": metadata.get("latency_ms"),
+        "tokens_in": metadata.get("tokens_in"),
+        "tokens_out": metadata.get("tokens_out"),
+        "tokens_total": metadata.get("tokens_total"),
+        "tokens_per_request": metadata.get("tokens_per_request"),
+        "ttft_ms": metadata.get("ttft_ms"),
+        "intent_decision": metadata.get("intent_decision"),
+        "validation_decision": metadata.get("validation_decision"),
+        "planner_decision": metadata.get("planner_decision"),
+        "tool_selected": metadata.get("tool_selected"),
+        "synthesis_decision": metadata.get("synthesis_decision"),
+        **pii_summary.as_payload(),
+    }
+    for key, value in metadata.items():
+        payload.setdefault(key, value)
+
+    try:
+        from ai_travel_agent.observability.metrics import get_current_metrics_collector
+
+        collector = get_current_metrics_collector()
+        if collector is not None:
+            collector.record_pii_detection(pii_summary)
+    except Exception:
+        pass
+
+    resolved_context = context
+    if resolved_context is None:
+        resolved_context = LogContext(graph_node=node_name)
+    elif resolved_context.graph_node != node_name:
+        resolved_context = replace(resolved_context, graph_node=node_name)
+
+    try:
+        log_event(
+            logger or get_logger(__name__),
+            level=logging.INFO,
+            message=f"LLM trace captured for {node_name}",
+            event="llm_trace",
+            context=resolved_context,
+            data=payload,
+        )
+    except Exception:
         return
